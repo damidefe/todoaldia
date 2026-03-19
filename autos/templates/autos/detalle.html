@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ auto.marca }} {{ auto.modelo }} — Todo @l Día</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Montserrat', sans-serif; background: #f4f4f4; color: #111; }
+
+        header {
+            background: #111;
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo { color: #fff; font-size: 22px; font-weight: 900; font-style: italic; }
+        .logo span { color: #E31E24; }
+        .btn-volver { color: #888; text-decoration: none; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+        .btn-volver:hover { color: #fff; }
+
+        .container { max-width: 1100px; margin: 32px auto; padding: 0 24px; display: grid; grid-template-columns: 1fr 380px; gap: 24px; }
+
+        .card { background: #fff; border-radius: 16px; padding: 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 20px; }
+
+        .auto-header { margin-bottom: 20px; }
+        .auto-marca { font-size: 11px; font-weight: 900; color: #E31E24; text-transform: uppercase; letter-spacing: 2px; }
+        .auto-nombre { font-size: 28px; font-weight: 900; line-height: 1.1; }
+        .auto-datos { font-size: 13px; color: #888; margin-top: 6px; }
+        .auto-precio { font-size: 32px; font-weight: 900; color: #111; margin-top: 8px; }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .badge-disponible { background: #e8f5e9; color: #2e7d32; }
+        .badge-reservado { background: #fff3e0; color: #e65100; }
+        .badge-vendido { background: #f5f5f5; color: #666; }
+
+        .section-label {
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #888;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .fotos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .foto-item {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #eee;
+            transition: border 0.2s;
+        }
+        .foto-item.aprobada { border-color: #4caf50; }
+        .foto-item.principal { border-color: #E31E24; }
+
+        .foto-item img { width: 100%; height: 120px; object-fit: cover; display: block; }
+
+        .foto-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            padding: 6px;
+            display: flex;
+            gap: 4px;
+        }
+
+        .foto-btn {
+            flex: 1;
+            border: none;
+            border-radius: 4px;
+            padding: 4px;
+            font-size: 9px;
+            font-weight: 900;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .foto-btn-aprobar { background: #4caf50; color: #fff; }
+        .foto-btn-principal { background: #E31E24; color: #fff; }
+        .foto-btn-rechazar { background: #ff5252; color: #fff; }
+
+        .foto-score {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: rgba(0,0,0,0.8);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 900;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .foto-comentario {
+            font-size: 10px;
+            color: #888;
+            margin-top: 4px;
+            padding: 0 4px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-red { background: #E31E24; color: #fff; }
+        .btn-red:hover { background: #c0191f; }
+        .btn-dark { background: #111; color: #fff; }
+        .btn-dark:hover { background: #333; }
+        .btn-outline { background: #fff; color: #111; border: 2px solid #eee; }
+        .btn-outline:hover { border-color: #111; }
+
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+
+  .copy-box {
+    background: #f8f8f8;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 16px 50px 16px 16px;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #333;
+    margin-bottom: 16px;
+    position: relative;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+        .copy-label {
+            font-size: 9px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #E31E24;
+            margin-bottom: 8px;
+        }
+
+        .btn-copy {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #111;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 9px;
+            font-weight: 900;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #E31E24;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #eee;
+            border-top-color: #E31E24;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .sidebar .card { margin-bottom: 16px; }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f5f5f5;
+            font-size: 13px;
+        }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { color: #888; font-weight: 600; }
+        .info-value { font-weight: 700; }
+
+        .consejo-box {
+            background: #fff5f5;
+            border: 1px solid #fdd;
+            border-radius: 10px;
+            padding: 14px;
+            font-size: 12px;
+            color: #c0191f;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">TODO <span>@L</span> DÍA</div>
+    <a href="/" class="btn-volver">← Volver al stock</a>
+</header>
+
+<div class="container">
+
+    <!-- COLUMNA PRINCIPAL -->
+    <div class="main">
+
+        <!-- INFO DEL AUTO -->
+        <div class="card">
+            <div class="auto-header">
+                <div class="auto-marca">{{ auto.marca }}</div>
+                <div class="auto-nombre">{{ auto.modelo }} <span class="badge badge-{{ auto.estado }}">{{ auto.get_estado_display }}</span></div>
+                <div class="auto-datos">{{ auto.anio }} · {{ auto.km|floatformat:0 }} km · {{ auto.version }} · {{ auto.color }}</div>
+                <div class="auto-precio">${{ auto.precio|floatformat:0 }}</div>
+            </div>
+            {% if auto.detalles %}
+            <p style="font-size:13px; color:#555; line-height:1.6;">{{ auto.detalles }}</p>
+            {% endif %}
+        </div>
+
+        <!-- FOTOS -->
+        <div class="card">
+            <div class="section-label">📷 Fotos del auto</div>
+
+          <div class="btn-group" style="margin-bottom: 16px;">
+    <button class="btn btn-red" onclick="analizarFotos()">
+        🤖 Analizar fotos con IA
+    </button>
+    <a href="/auto/{{ auto.id }}/pack/ver/" class="btn btn-dark">
+        🎨 Generar Pack de Placas
+    </a>
+</div>
+
+            <div id="loading-fotos" class="loading">
+                <span class="spinner"></span> Analizando fotos con IA...
+            </div>
+
+            <div class="fotos-grid" id="fotos-grid">
+                {% for foto in fotos %}
+                <div class="foto-item {% if foto.es_principal %}principal{% elif foto.aprobada %}aprobada{% endif %}" id="foto-{{ foto.id }}">
+                    <img src="{{ foto.imagen.url }}" alt="Foto del auto">
+                    <div class="foto-score" id="score-{{ foto.id }}">—</div>
+                    <div class="foto-overlay">
+                        <button class="foto-btn foto-btn-principal" onclick="aprobarFoto({{ foto.id }}, true, true)">⭐</button>
+                        <button class="foto-btn foto-btn-aprobar" onclick="aprobarFoto({{ foto.id }}, true, false)">✓</button>
+                        <button class="foto-btn foto-btn-rechazar" onclick="aprobarFoto({{ foto.id }}, false, false)">✕</button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- CONTENIDO GENERADO -->
+        <div class="card">
+            <div class="section-label">✍️ Contenido generado por IA</div>
+
+            <div class="btn-group" style="margin-bottom: 20px;">
+                <button class="btn btn-dark" onclick="generarContenido()">
+                    🤖 Generar textos con IA
+                </button>
+            </div>
+
+            <div id="loading-contenido" class="loading">
+                <span class="spinner"></span> Generando contenido con IA...
+            </div>
+
+            <div id="contenido-resultado">
+                {% if contenido %}
+                    <div class="copy-label">Instagram — Opción 1</div>
+                    <div class="copy-box">
+                        {{ contenido.copy_instagram }}
+                        <button class="btn-copy" onclick="copiar(this)">Copiar</button>
+                    </div>
+                    <div class="copy-label">Instagram — Opción 2</div>
+                    <div class="copy-box">
+                        {{ contenido.copy_facebook }}
+                        <button class="btn-copy" onclick="copiar(this)">Copiar</button>
+                    </div>
+                    <div class="copy-label">Mercado Libre</div>
+                    <div class="copy-box">
+                        {{ contenido.texto_mercadolibre }}
+                        <button class="btn-copy" onclick="copiar(this)">Copiar</button>
+                    </div>
+                    {% if contenido.consejos %}
+                    <div class="copy-label">Consejo de la IA</div>
+                    <div class="consejo-box">{{ contenido.consejos }}</div>
+                    {% endif %}
+                {% else %}
+                    <p style="font-size:13px; color:#aaa;">Hacé click en "Generar textos con IA" para crear el contenido</p>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+        <div class="card">
+            <div class="section-label">Datos del vehículo</div>
+            <div class="info-row"><span class="info-label">Marca</span><span class="info-value">{{ auto.marca }}</span></div>
+            <div class="info-row"><span class="info-label">Modelo</span><span class="info-value">{{ auto.modelo }}</span></div>
+            <div class="info-row"><span class="info-label">Año</span><span class="info-value">{{ auto.anio }}</span></div>
+            <div class="info-row"><span class="info-label">Kilómetros</span><span class="info-value">{{ auto.km|floatformat:0 }} km</span></div>
+            <div class="info-row"><span class="info-label">Versión</span><span class="info-value">{{ auto.version }}</span></div>
+            <div class="info-row"><span class="info-label">Color</span><span class="info-value">{{ auto.color }}</span></div>
+            <div class="info-row"><span class="info-label">Precio</span><span class="info-value">${{ auto.precio|floatformat:0 }}</span></div>
+            <div class="info-row"><span class="info-label">Estado</span><span class="info-value">{{ auto.get_estado_display }}</span></div>
+        </div>
+
+        <div class="card">
+            <div class="section-label">Acciones</div>
+            <div class="btn-group" style="flex-direction: column;">
+                <button class="btn btn-outline" style="width:100%; justify-content:center;" onclick="cambiarEstado('reservado')">Marcar como Reservado</button>
+                <button class="btn btn-dark" style="width:100%; justify-content:center;" onclick="cambiarEstado('vendido')">Marcar como Vendido</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+const AUTO_ID = {{ auto.id }};
+
+async function analizarFotos() {
+    document.getElementById('loading-fotos').style.display = 'block';
+    const res = await fetch(`/auto/${AUTO_ID}/analizar/`, { method: 'POST' });
+    const data = await res.json();
+    document.getElementById('loading-fotos').style.display = 'none';
+
+   data.resultados.forEach(r => {
+    const scoreEl = document.getElementById(`score-${r.foto_id}`);
+    const a = r.analisis;
+    
+    if (scoreEl) {
+        scoreEl.textContent = `${a.puntuacion}/10`;
+        scoreEl.style.background = a.apta_publicacion ? 'rgba(0,150,0,0.8)' : 'rgba(200,0,0,0.8)';
+    }
+
+    // Mostrar comentario debajo de la foto
+    const fotoEl = document.getElementById(`foto-${r.foto_id}`);
+    if (fotoEl) {
+        // Quitar comentario anterior si existe
+        const prevComentario = document.getElementById(`comentario-${r.foto_id}`);
+        if (prevComentario) prevComentario.remove();
+
+        const div = document.createElement('div');
+        div.id = `comentario-${r.foto_id}`;
+        div.style.cssText = 'font-size:11px; padding:8px; border-radius:0 0 8px 8px; background:#f8f8f8;';
+        
+        let html = '';
+        
+        if (!a.apta_publicacion) {
+            html += `<div style="color:#E31E24; font-weight:900; font-size:10px; margin-bottom:4px;">⚠️ NO APTA PARA PUBLICAR</div>`;
+        }
+        
+        if (a.vehiculo_completo === false) {
+            html += `<div style="color:#E31E24; font-size:10px; margin-bottom:4px;">✂️ Vehículo cortado: ${a.cortado_donde}</div>`;
+        }
+
+        if (a.comentario_positivo) {
+            html += `<div style="color:#2e7d32; font-size:10px; margin-bottom:2px;">✅ ${a.comentario_positivo}</div>`;
+        }
+        if (a.comentario_negativo) {
+            html += `<div style="color:#c62828; font-size:10px; margin-bottom:2px;">❌ ${a.comentario_negativo}</div>`;
+        }
+        if (a.mensaje_papa) {
+            html += `<div style="color:#555; font-size:10px; margin-top:4px; font-style:italic;">💡 ${a.mensaje_papa}</div>`;
+        }
+        
+        div.innerHTML = html;
+        fotoEl.insertAdjacentElement('afterend', div);
+    }
+});
+}
+
+async function aprobarFoto(fotoId, aprobada, esPrincipal) {
+    await fetch(`/foto/${fotoId}/aprobar/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ aprobada, es_principal: esPrincipal })
+    });
+    const el = document.getElementById(`foto-${fotoId}`);
+    el.className = 'foto-item' + (esPrincipal ? ' principal' : aprobada ? ' aprobada' : '');
+}
+
+async function generarContenido() {
+    document.getElementById('loading-contenido').style.display = 'block';
+    document.getElementById('contenido-resultado').innerHTML = '';
+    const res = await fetch(`/auto/${AUTO_ID}/contenido/`, { method: 'POST' });
+    const data = await res.json();
+    document.getElementById('loading-contenido').style.display = 'none';
+
+    if (data.error) {
+        document.getElementById('contenido-resultado').innerHTML = `<p style="color:red">Error: ${data.error}</p>`;
+        return;
+    }
+
+    const copies = [
+        { label: 'Instagram — Opción 1', text: data.copy_instagram_1 },
+        { label: 'Instagram — Opción 2', text: data.copy_instagram_2 },
+        { label: 'Instagram — Opción 3', text: data.copy_instagram_3 },
+        { label: 'Mercado Libre', text: data.texto_mercadolibre },
+    ];
+
+    let html = '';
+    copies.forEach(c => {
+        html += `<div class="copy-label">${c.label}</div>
+        <div class="copy-box">${c.text}<button class="btn-copy" onclick="copiar(this)">Copiar</button></div>`;
+    });
+
+    if (data.consejos) {
+        html += `<div class="copy-label">Consejo de la IA</div><div class="consejo-box">${data.consejos}</div>`;
+    }
+
+    document.getElementById('contenido-resultado').innerHTML = html;
+}
+
+function copiar(btn) {
+    const texto = btn.parentElement.textContent.replace('Copiar', '').trim();
+    navigator.clipboard.writeText(texto);
+    btn.textContent = '✓ Copiado';
+    setTimeout(() => btn.textContent = 'Copiar', 2000);
+}
+
+async function cambiarEstado(estado) {
+    await fetch(`/auto/${AUTO_ID}/estado/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estado })
+    });
+    location.reload();
+}
+</script>
+
+</body>
+</html>

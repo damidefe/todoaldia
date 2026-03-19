@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pack de Placas — Todo @l Día</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Montserrat', sans-serif; background: #111; color: #fff; min-height: 100vh; }
+
+        header {
+            background: #000;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #222;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo { font-size: 20px; font-weight: 900; font-style: italic; }
+        .logo span { color: #E31E24; }
+        .auto-info { font-size: 12px; color: #666; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+
+        .btn-volver { color: #666; text-decoration: none; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-volver:hover { color: #fff; }
+
+        .loading-screen {
+            position: fixed;
+            inset: 0;
+            background: #111;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        .loading-screen h2 { font-size: 18px; font-weight: 900; margin-bottom: 8px; }
+        .loading-screen p { font-size: 12px; color: #666; margin-bottom: 24px; }
+
+        .spinner-big {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #222;
+            border-top-color: #E31E24;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 24px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .main { padding: 32px; max-width: 1400px; margin: 0 auto; }
+
+        .section-title {
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #E31E24;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #222;
+        }
+
+        .pack-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .placa-wrapper {
+            background: #1a1a1a;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid #222;
+        }
+
+        .placa-header {
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #222;
+        }
+
+        .placa-tipo {
+            font-size: 9px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #E31E24;
+        }
+
+        .placa-size { font-size: 9px; color: #555; font-weight: 700; }
+
+        .canvas-container {
+            padding: 12px;
+            display: flex;
+            justify-content: center;
+            background: #0d0d0d;
+        }
+
+        canvas {
+            border-radius: 6px;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .btn-download {
+            width: 100%;
+            background: #E31E24;
+            color: #fff;
+            border: none;
+            padding: 14px;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-download:hover { background: #c0191f; }
+
+        .btn-download-all {
+            background: #E31E24;
+            color: #fff;
+            border: none;
+            padding: 16px 40px;
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+        .btn-download-all:hover { background: #c0191f; transform: translateY(-1px); }
+    </style>
+</head>
+<body>
+
+<div class="loading-screen" id="loading">
+    <div class="spinner-big"></div>
+    <h2>Generando pack con IA</h2>
+    <p id="loading-msg">Analizando el auto y eligiendo textos...</p>
+</div>
+
+<header>
+    <div class="logo">TODO <span>@L</span> DÍA</div>
+    <div class="auto-info" id="auto-info">Cargando...</div>
+    <a href="javascript:history.back()" class="btn-volver">← Volver</a>
+</header>
+
+<div class="main" id="main" style="display:none">
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:32px;">
+        <div>
+            <h1 style="font-size:24px; font-weight:900;" id="titulo-auto">—</h1>
+            <p style="font-size:12px; color:#666; margin-top:4px;" id="datos-auto">—</p>
+        </div>
+        <button class="btn-download-all" onclick="descargarTodo()">⬇ Descargar todo el pack</button>
+    </div>
+
+    <div class="section-title">📱 Stories (1080 × 1920)</div>
+    <div class="pack-grid" id="grid-stories"></div>
+
+    <div class="section-title">🟦 Posts Instagram (1080 × 1350)</div>
+    <div class="pack-grid" id="grid-posts"></div>
+
+    <div class="section-title">📋 Ficha principal (1080 × 1350)</div>
+    <div class="pack-grid" id="grid-ficha"></div>
+
+</div>
+
+<script>
+const AUTO_ID = {{ auto.id }};
+const LOGO_URL = "/static/autos/logo.png";
+let canvases = [];
+let dataPack = null;
+let logoImg = null;
+
+async function init() {
+    // Cargar logo
+    logoImg = await cargarImagen(LOGO_URL);
+
+    // Obtener datos del pack
+    document.getElementById('loading-msg').textContent = 'Generando textos con IA...';
+    const res = await fetch(`/auto/${AUTO_ID}/pack/`, { method: 'POST' });
+    dataPack = await res.json();
+
+    if (dataPack.error) {
+        alert(dataPack.error);
+        history.back();
+        return;
+    }
+
+    const auto = dataPack.auto;
+    document.getElementById('auto-info').textContent = `${auto.marca} ${auto.modelo} ${auto.anio}`;
+    document.getElementById('titulo-auto').textContent = `${auto.marca} ${auto.modelo} ${auto.anio}`;
+    document.getElementById('datos-auto').textContent = `${parseInt(auto.km).toLocaleString()} km · $${parseFloat(auto.precio).toLocaleString()}`;
+
+    document.getElementById('loading-msg').textContent = 'Generando placas...';
+
+    // Generar placas para cada foto aprobada
+    for (const foto of dataPack.fotos) {
+        const img = await cargarImagen(foto.url);
+
+        // Story
+        await generarPlaca(img, 'story', foto, dataPack.textos, foto.es_principal);
+        // Post cuadrado
+        await generarPlaca(img, 'post', foto, dataPack.textos, foto.es_principal);
+        // Ficha (solo foto principal)
+        if (foto.es_principal) {
+            await generarPlaca(img, 'ficha', foto, dataPack.textos, true);
+        }
+    }
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('main').style.display = 'block';
+}
+
+function cargarImagen(url) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => resolve(img);
+        img.onerror = () => resolve(null);
+        img.src = url;
+    });
+}
+
+async function generarPlaca(img, tipo, fotoData, textos, esPrincipal) {
+    const configs = {
+        story: { w: 1080, h: 1920, label: 'STORY', size: '1080×1920', grid: 'grid-stories' },
+        post:  { w: 1080, h: 1350, label: 'POST',  size: '1080×1350', grid: 'grid-posts' },
+        ficha: { w: 1080, h: 1350, label: 'FICHA', size: '1080×1350', grid: 'grid-ficha' }
+    };
+
+    const cfg = configs[tipo];
+    const canvas = document.createElement('canvas');
+    canvas.width = cfg.w;
+    canvas.height = cfg.h;
+    const ctx = canvas.getContext('2d');
+    const pad = 70;
+    const nombre = `${dataPack.auto.marca} ${dataPack.auto.modelo} ${dataPack.auto.anio}`.toUpperCase();
+
+    // FONDO — extender color de bordes en vez de negro
+    if (img) {
+        // Dibujar imagen pequeña para samplear color de borde
+        const tmp = document.createElement('canvas');
+        tmp.width = 10; tmp.height = 10;
+        const tCtx = tmp.getContext('2d');
+        tCtx.drawImage(img, 0, img.height - 20, img.width, 20, 0, 0, 10, 10);
+        const px = tCtx.getImageData(5, 5, 1, 1).data;
+        const borderColor = `rgb(${px[0]},${px[1]},${px[2]})`;
+        ctx.fillStyle = borderColor;
+        ctx.fillRect(0, 0, cfg.w, cfg.h);
+    } else {
+        ctx.fillStyle = '#111';
+        ctx.fillRect(0, 0, cfg.w, cfg.h);
+    }
+
+    // FOTO
+    if (img) {
+        if (tipo === 'post') {
+            // Post: fit completo, vehículo entero sin recortar
+            const scale = Math.min(cfg.w / img.width, cfg.h / img.height);
+            const scaledW = img.width * scale;
+            const scaledH = img.height * scale;
+            const ix = (cfg.w - scaledW) / 2;
+            const iy = (cfg.h - scaledH) / 2;
+            ctx.drawImage(img, ix, iy, scaledW, scaledH);
+        } else {
+            // Story y ficha: fill, desplazado levemente arriba para centrar vehículo
+            const scale = Math.max(cfg.w / img.width, cfg.h / img.height);
+            const scaledW = img.width * scale;
+            const scaledH = img.height * scale;
+            const ix = (cfg.w - scaledW) / 2;
+            const iy = (cfg.h - scaledH) / 2 - scaledH * 0.04;
+            ctx.drawImage(img, ix, iy, scaledW, scaledH);
+        }
+    }
+
+    // OVERLAY — solo en story y ficha, gradiente suave
+    if (tipo === 'story' || tipo === 'ficha') {
+        const grad = ctx.createLinearGradient(0, cfg.h * 0.38, 0, cfg.h);
+        grad.addColorStop(0, 'rgba(0,0,0,0)');
+        grad.addColorStop(0.55, 'rgba(0,0,0,0.78)');
+        grad.addColorStop(1,   'rgba(0,0,0,0.96)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, cfg.w, cfg.h);
+    } else {
+        // Post: overlay muy sutil solo arriba para el nombre
+        const grad = ctx.createLinearGradient(0, 0, 0, 100);
+        grad.addColorStop(0, 'rgba(0,0,0,0.6)');
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, cfg.w, cfg.h);
+    }
+
+    // LÍNEA ROJA ARRIBA
+    ctx.fillStyle = '#E31E24';
+    ctx.fillRect(0, 0, cfg.w, 8);
+
+    // ---- CONTENIDO POR TIPO ----
+
+    if (tipo === 'story') {
+        // Solo nombre y logo — limpio
+        ctx.fillStyle = '#fff';
+        ctx.font = `900 62px Montserrat, sans-serif`;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.shadowColor = 'rgba(0,0,0,0.8)';
+        ctx.shadowBlur = 20;
+        ctx.fillText(nombre, pad, 28, cfg.w - pad * 2);
+        ctx.shadowBlur = 0;
+
+} else if (tipo === 'post') {
+        // Si la foto no llena el cuadrado avisamos
+        const escalaFit = Math.min(cfg.w / img.width, cfg.h / img.height);
+        const escalaFill = Math.max(cfg.w / img.width, cfg.h / img.height);
+        const diferencia = escalaFill / escalaFit;
+        
+        if (diferencia > 1.25) {
+            // Foto muy recortada — agregar aviso visual
+            ctx.fillStyle = 'rgba(227,30,36,0.85)';
+            ctx.fillRect(0, cfg.h - 90, cfg.w, 90);
+            ctx.fillStyle = '#fff';
+            ctx.font = `700 22px Montserrat, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('⚠️ Sacá la foto más de lejos para que entre completo', cfg.w / 2, cfg.h - 45);
+        }
+
+        // Nombre arriba con fondo sutil
+        ctx.fillStyle = 'rgba(0,0,0,0.55)';
+        ctx.fillRect(0, 0, cfg.w, 88);
+        ctx.fillStyle = '#fff';
+        ctx.font = `700 36px Montserrat, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0,0,0,0.9)';
+        ctx.shadowBlur = 10;
+        ctx.fillText(nombre, cfg.w / 2, 44, cfg.w - 80);
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#E31E24';
+        ctx.fillRect(cfg.w / 2 - 50, 76, 100, 4);
+
+    } else if (tipo === 'ficha') {
+        // BADGE
+        const badgeY = cfg.h * 0.50;
+        ctx.fillStyle = '#E31E24';
+        ctx.fillRect(pad, badgeY, 340, 56);
+        ctx.fillStyle = '#fff';
+        ctx.font = `900 22px Montserrat, sans-serif`;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(textos.badge || 'NUEVO INGRESO', pad + 20, badgeY + 28);
+
+        // TÍTULO
+        ctx.fillStyle = '#fff';
+        ctx.font = `900 72px Montserrat, sans-serif`;
+        ctx.textBaseline = 'top';
+        ctx.shadowColor = 'rgba(0,0,0,0.6)';
+        ctx.shadowBlur = 10;
+        wrapText(ctx, nombre, pad, badgeY + 68, cfg.w - pad * 2, 80);
+        ctx.shadowBlur = 0;
+
+        // SUBTÍTULO
+        ctx.fillStyle = 'rgba(255,255,255,0.65)';
+        ctx.font = `400 30px Montserrat, sans-serif`;
+        ctx.fillText(textos.subtitulo_story || '', pad, badgeY + 190);
+
+        // PRECIO
+        ctx.fillStyle = '#E31E24';
+        ctx.font = `900 64px Montserrat, sans-serif`;
+        ctx.fillText(textos.precio_formateado || '', pad, cfg.h * 0.70);
+
+        // PUNTOS
+        const puntos = [textos.punto1, textos.punto2, textos.punto3].filter(Boolean);
+       puntos.forEach((punto, i) => {
+            const py = cfg.h * 0.775 + i * 54;
+            ctx.fillStyle = '#E31E24';
+            ctx.beginPath();
+            ctx.arc(pad + 10, py + 14, 9, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.font = `700 28px Montserrat, sans-serif`;
+            ctx.fillText(punto, pad + 30, py);
+        });
+    }
+
+   // LOGO — texto dibujado directo, siempre visible
+    const logoSizes = { story: 52, post: 40, ficha: 46 };
+    const logoSize = logoSizes[tipo];
+    const logoY = cfg.h - logoSize * 2.4;
+
+    // Línea roja
+    ctx.fillStyle = '#E31E24';
+    ctx.fillRect(cfg.w / 2 - 80, logoY - logoSize * 0.8, 160, 5);
+
+    // Texto principal
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = `900 ${logoSize}px Montserrat, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.shadowColor = 'rgba(0,0,0,0.9)';
+    ctx.shadowBlur = 20;
+    ctx.fillText('TODO @L DÍA', cfg.w / 2, logoY);
+
+    // Subtítulo
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    ctx.font = `400 ${Math.round(logoSize * 0.42)}px Montserrat, sans-serif`;
+    ctx.fillText('AUTOS SELECCIONADOS', cfg.w / 2, logoY + logoSize * 1.15);
+    ctx.shadowBlur = 0;
+
+    // Mostrar en grilla
+    const previewCanvas = document.createElement('canvas');
+    const previewScale = 300 / cfg.w;
+    previewCanvas.width = 300;
+    previewCanvas.height = cfg.h * previewScale;
+    const pCtx = previewCanvas.getContext('2d');
+    pCtx.drawImage(canvas, 0, 0, previewCanvas.width, previewCanvas.height);
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'placa-wrapper';
+    wrapper.innerHTML = `
+        <div class="placa-header">
+            <span class="placa-tipo">${cfg.label}${esPrincipal ? ' ⭐' : ''}</span>
+            <span class="placa-size">${cfg.size}</span>
+        </div>
+        <div class="canvas-container"></div>
+        <button class="btn-download" onclick="descargarPlaca(this, '${tipo}_${fotoData.foto_id}')">⬇ Descargar HD</button>
+    `;
+    wrapper.querySelector('.canvas-container').appendChild(previewCanvas);
+    document.getElementById(cfg.grid).appendChild(wrapper);
+
+    canvases.push({ canvas, nombre: `todoaldia_${tipo}_${fotoData.foto_id}` });
+}
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+    const words = text.split(' ');
+    let line = '';
+    let currentY = y;
+    for (const word of words) {
+        const test = line + word + ' ';
+        if (ctx.measureText(test).width > maxWidth && line) {
+            ctx.fillText(line.trim(), x, currentY);
+            line = word + ' ';
+            currentY += lineHeight;
+        } else {
+            line = test;
+        }
+    }
+    ctx.fillText(line.trim(), x, currentY);
+}
+
+function descargarPlaca(btn, nombre) {
+    const canvas = canvases.find(c => c.nombre === `todoaldia_${nombre}`);
+    if (!canvas) return;
+    const a = document.createElement('a');
+    a.download = `${canvas.nombre}_HD.png`;
+    a.href = canvas.canvas.toDataURL('image/png', 1.0);
+    a.click();
+}
+
+function descargarTodo() {
+    canvases.forEach((c, i) => {
+        setTimeout(() => {
+            const a = document.createElement('a');
+            a.download = `${c.nombre}_HD.png`;
+            a.href = c.canvas.toDataURL('image/png', 1.0);
+            a.click();
+        }, i * 500);
+    });
+}
+
+init();
+</script>
+
+</body>
+</html>
