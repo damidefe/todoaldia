@@ -25,5 +25,4 @@ sqlparse==0.4.2
 typing-inspection==0.4.2
 typing_extensions==4.15.0
 tzdata==2022.2
-vboxapi==1.0
 whitenoise==6.12.0
