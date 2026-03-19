@@ -1,0 +1,21 @@
+
+# Variables de entorno (¡NUNCA subir esto!)
+.env
+
+# Base de datos local
+db.sqlite3
+
+# Archivos compilados de Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Carpeta de medios (fotos subidas por usuarios)
+media/
+
+# Carpeta de archivos estáticos recolectados
+staticfiles/
+
+# Entornos virtuales
+venv/
+env/
