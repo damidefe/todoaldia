@@ -384,15 +384,11 @@ async function generarPlaca(img, tipo, fotoData, textos, esPrincipal) {
         ctx.font = `400 30px Montserrat, sans-serif`;
         ctx.fillText(textos.subtitulo_story || '', pad, badgeY + 190);
 
-        // PRECIO
-        ctx.fillStyle = '#E31E24';
-        ctx.font = `900 64px Montserrat, sans-serif`;
-        ctx.fillText(textos.precio_formateado || '', pad, cfg.h * 0.70);
 
         // PUNTOS
         const puntos = [textos.punto1, textos.punto2, textos.punto3].filter(Boolean);
        puntos.forEach((punto, i) => {
-            const py = cfg.h * 0.775 + i * 54;
+            const py = cfg.h * 0.70 + i * 54;
             ctx.fillStyle = '#E31E24';
             ctx.beginPath();
             ctx.arc(pad + 10, py + 14, 9, 0, Math.PI * 2);
@@ -473,7 +469,13 @@ function descargarPlaca(btn, nombre) {
     if (!canvas) return;
     const a = document.createElement('a');
     a.download = `${canvas.nombre}_HD.png`;
-    a.href = canvas.canvas.toDataURL('image/png', 1.0);
+    canvas.canvas.toBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    a.href = url;
+    a.click();
+    URL.revokeObjectURL(url);
+}, 'image/png');
+return;
     a.click();
 }
 

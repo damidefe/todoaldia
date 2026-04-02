@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recepción — {{ auto.marca }} {{ auto.modelo }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Montserrat', sans-serif; background: #f4f4f4; color: #111; }
+        header { background: #111; padding: 20px 40px; display: flex; align-items: center; justify-content: space-between; }
+        .logo { color: #fff; font-size: 22px; font-weight: 900; font-style: italic; }
+        .logo span { color: #E31E24; }
+        .btn-volver { color: #888; text-decoration: none; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+        .btn-volver:hover { color: #fff; }
+        .container { max-width: 800px; margin: 40px auto; padding: 0 24px; }
+        .card { background: #fff; border-radius: 16px; padding: 40px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 20px; }
+        .card-title { font-size: 24px; font-weight: 900; margin-bottom: 4px; }
+        .card-subtitle { font-size: 12px; color: #888; margin-bottom: 32px; text-transform: uppercase; letter-spacing: 1px; }
+        .section-label { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: #E31E24; margin-bottom: 16px; }
+        .divider { border: none; border-top: 1px solid #f0f0f0; margin: 28px 0; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .field { display: flex; flex-direction: column; gap: 6px; }
+        .field label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: #888; }
+        .field input, .field textarea, .field select {
+            padding: 12px 16px; border: 2px solid #eee; border-radius: 10px;
+            font-size: 14px; font-family: 'Montserrat', sans-serif; outline: none; transition: border 0.2s; color: #111;
+        }
+        .field input:focus, .field textarea:focus, .field select:focus { border-color: #E31E24; }
+        .field textarea { resize: vertical; min-height: 80px; }
+        .check-item {
+            display: flex; align-items: center; gap: 12px;
+            background: #f8f8f8; border-radius: 8px; padding: 12px 16px;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .check-item:hover { background: #fff5f5; }
+        .check-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: #E31E24; cursor: pointer; }
+        .check-item span { font-size: 13px; font-weight: 700; }
+        .check-item.checked { background: #e8f5e9; }
+        .checks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+        .combustible-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; }
+        .combustible-btn {
+            border: 2px solid #eee; border-radius: 8px; padding: 10px;
+            text-align: center; cursor: pointer; font-size: 11px; font-weight: 900;
+            font-family: 'Montserrat', sans-serif; background: #fff; transition: all 0.2s;
+        }
+        .combustible-btn.activo { border-color: #E31E24; background: #fff5f5; color: #E31E24; }
+        .upload-area {
+            border: 2px dashed #ddd; border-radius: 12px; padding: 30px;
+            text-align: center; cursor: pointer; transition: all 0.2s;
+        }
+        .upload-area:hover { border-color: #E31E24; background: #fff5f5; }
+        .upload-area p { font-size: 13px; font-weight: 700; color: #888; margin-top: 8px; }
+        .upload-area small { font-size: 11px; color: #bbb; }
+        .docs-guardados { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap: 10px; margin-bottom: 16px; }
+        .doc-item { background: #f8f8f8; border-radius: 8px; padding: 10px; font-size: 11px; font-weight: 700; text-align: center; }
+        .doc-item a { color: #E31E24; text-decoration: none; display: block; margin-top: 4px; font-size: 10px; }
+        .btn-guardar {
+            width: 100%; background: #E31E24; color: #fff; border: none; border-radius: 12px;
+            padding: 18px; font-size: 14px; font-weight: 900; letter-spacing: 1px;
+            text-transform: uppercase; font-family: 'Montserrat', sans-serif; cursor: pointer; margin-top: 8px;
+        }
+        .btn-guardar:hover { background: #c0191f; }
+        .estado-badge {
+            display: inline-block; padding: 4px 14px; border-radius: 20px;
+            font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;
+            background: #e8f5e9; color: #2e7d32; margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">TODO <span>@L</span> DÍA</div>
+    <a href="/auto/{{ auto.id }}/" class="btn-volver">← Volver al auto</a>
+</header>
+
+<div class="container">
+    <div class="card">
+        <div class="card-title">📋 Recepción del vehículo</div>
+        <div class="card-subtitle">{{ auto.marca }} {{ auto.modelo }} {{ auto.anio }} · Checklist de ingreso</div>
+
+        {% if recepcion %}
+        <div class="estado-badge">✅ Recepción registrada — podés actualizar los datos</div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data" action="/auto/{{ auto.id }}/recepcion/guardar/">
+            {% csrf_token %}
+
+            <!-- DATOS DEL CLIENTE -->
+            <div class="section-label">👤 Datos del cliente / dueño</div>
+            <div class="grid-2">
+                <div class="field">
+                    <label>Nombre completo</label>
+                    <input type="text" name="nombre_cliente" value="{{ recepcion.nombre_cliente|default:'' }}" placeholder="Juan García">
+                </div>
+                <div class="field">
+                    <label>Teléfono</label>
+                    <input type="text" name="telefono_cliente" value="{{ recepcion.telefono_cliente|default:'' }}" placeholder="11 1234-5678">
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <!-- DOCUMENTACIÓN -->
+            <div class="section-label">📄 Documentación entregada</div>
+            <div class="checks-grid">
+                <label class="check-item {% if recepcion.tiene_titulo %}checked{% endif %}">
+                    <input type="checkbox" name="tiene_titulo" {% if recepcion.tiene_titulo %}checked{% endif %}>
+                    <span>📋 Título del vehículo</span>
+                </label>
+                <label class="check-item {% if recepcion.tiene_dni_titular %}checked{% endif %}">
+                    <input type="checkbox" name="tiene_dni_titular" {% if recepcion.tiene_dni_titular %}checked{% endif %}>
+                    <span>🪪 DNI del titular</span>
+                </label>
+                <label class="check-item {% if recepcion.tiene_vtv %}checked{% endif %}">
+                    <input type="checkbox" name="tiene_vtv" {% if recepcion.tiene_vtv %}checked{% endif %}>
+                    <span>🔍 VTV vigente</span>
+                </label>
+                <label class="check-item {% if recepcion.tiene_seguro %}checked{% endif %}">
+                    <input type="checkbox" name="tiene_seguro" {% if recepcion.tiene_seguro %}checked{% endif %}>
+                    <span>🛡️ Seguro</span>
+                </label>
+                <label class="check-item {% if recepcion.tiene_libre_deuda %}checked{% endif %}">
+                    <input type="checkbox" name="tiene_libre_deuda" {% if recepcion.tiene_libre_deuda %}checked{% endif %}>
+                    <span>✅ Libre de deuda</span>
+                </label>
+                <label class="check-item {% if recepcion.tiene_service_history %}checked{% endif %}">
+                    <input type="checkbox" name="tiene_service_history" {% if recepcion.tiene_service_history %}checked{% endif %}>
+                    <span>🔧 Historial de services</span>
+                </label>
+                <label class="check-item {% if recepcion.tiene_llave_duplicado %}checked{% endif %}">
+                    <input type="checkbox" name="tiene_llave_duplicado" {% if recepcion.tiene_llave_duplicado %}checked{% endif %}>
+                    <span>🔑 Llave duplicado</span>
+                </label>
+                <label class="check-item {% if recepcion.tiene_manual %}checked{% endif %}">
+                    <input type="checkbox" name="tiene_manual" {% if recepcion.tiene_manual %}checked{% endif %}>
+                    <span>📖 Manual del vehículo</span>
+                </label>
+            </div>
+
+            <hr class="divider">
+
+            <!-- ESTADO DEL VEHÍCULO -->
+            <div class="section-label">🚗 Estado del vehículo al ingresar</div>
+            <div class="grid-2" style="margin-bottom:16px;">
+                <div class="field">
+                    <label>Kilómetros al ingreso</label>
+                    <input type="number" name="kilometraje_ingreso" value="{{ recepcion.kilometraje_ingreso|default:'' }}" placeholder="{{ auto.km }}">
+                </div>
+                <div class="field">
+                    <label>Estado de carrocería</label>
+                    <select name="estado_carroceria">
+                        <option value="impecable" {% if recepcion.estado_carroceria == 'impecable' %}selected{% endif %}>Impecable</option>
+                        <option value="bueno" {% if recepcion.estado_carroceria == 'bueno' or not recepcion %}selected{% endif %}>Bueno</option>
+                        <option value="regular" {% if recepcion.estado_carroceria == 'regular' %}selected{% endif %}>Regular</option>
+                        <option value="con_detalles" {% if recepcion.estado_carroceria == 'con_detalles' %}selected{% endif %}>Con detalles</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="field" style="margin-bottom:16px;">
+                <label>Detalles de carrocería (rayones, golpes, etc.)</label>
+                <textarea name="detalles_carroceria" placeholder="Ej: Rayón en puerta trasera derecha, pequeño golpe en paragolpes...">{{ recepcion.detalles_carroceria|default:'' }}</textarea>
+            </div>
+
+            <!-- NIVEL DE COMBUSTIBLE -->
+            <div style="margin-bottom:20px;">
+                <div style="font-size:10px; font-weight:900; color:#888; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">⛽ Nivel de combustible</div>
+                <div class="combustible-grid" id="combustible-grid">
+                    {% for valor, label in combustible_choices %}
+                    <button type="button" class="combustible-btn {% if recepcion.combustible_ingreso == valor or not recepcion and valor == 'medio' %}activo{% endif %}"
+                            onclick="seleccionarCombustible('{{ valor }}', this)">
+                        {{ label }}
+                    </button>
+                    {% endfor %}
+                </div>
+                <input type="hidden" name="combustible_ingreso" id="combustible-input" value="{{ recepcion.combustible_ingreso|default:'medio' }}">
+            </div>
+
+            <hr class="divider">
+
+            <!-- EXTRAS -->
+            <div class="section-label">🧰 Extras entregados</div>
+            <div class="checks-grid" style="margin-bottom:20px;">
+                <label class="check-item {% if recepcion.tiene_gato %}checked{% endif %}">
+                    <input type="checkbox" name="tiene_gato" {% if recepcion.tiene_gato %}checked{% endif %}>
+                    <span>🔧 Gato hidráulico</span>
+                </label>
+                <label class="check-item {% if recepcion.tiene_rueda_auxilio %}checked{% endif %}">
+                    <input type="checkbox" name="tiene_rueda_auxilio" {% if recepcion.tiene_rueda_auxilio %}checked{% endif %}>
+                    <span>🛞 Rueda de auxilio</span>
+                </label>
+                <label class="check-item {% if recepcion.tiene_balizas %}checked{% endif %}">
+                    <input type="checkbox" name="tiene_balizas" {% if recepcion.tiene_balizas %}checked{% endif %}>
+                    <span>🔺 Balizas / triángulos</span>
+                </label>
+            </div>
+
+            <hr class="divider">
+
+            <!-- OBSERVACIONES -->
+            <div class="section-label">📝 Observaciones generales</div>
+            <div class="field" style="margin-bottom:20px;">
+                <textarea name="observaciones" placeholder="Cualquier detalle importante sobre el estado del auto, acuerdos con el cliente, etc.">{{ recepcion.observaciones|default:'' }}</textarea>
+            </div>
+
+            <hr class="divider">
+
+            <!-- DOCUMENTOS ADJUNTOS -->
+            <div class="section-label">📎 Documentos y fotos adjuntas</div>
+
+            {% if recepcion %}
+            <div class="docs-guardados">
+                {% for doc in recepcion.documentos.all %}
+                <div class="doc-item">
+                    📄 {{ doc.descripcion }}
+                    <a href="{{ doc.archivo.url }}" target="_blank">Ver / Descargar</a>
+                </div>
+                {% empty %}
+                <p style="font-size:13px; color:#aaa;">Sin documentos adjuntos aún.</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="upload-area" onclick="document.getElementById('docs-input').click()">
+                <p>📎 Hacé click para adjuntar documentos o fotos</p>
+                <small>Podés subir varias imágenes, PDFs, etc.</small>
+            </div>
+            <input type="file" id="docs-input" name="documentos" multiple
+                   style="display:none; width:0; height:0; opacity:0; position:absolute;"
+                   onchange="mostrarArchivos(this)">
+            <div id="preview-docs" style="margin-top:10px; font-size:12px; color:#555;"></div>
+
+            <hr class="divider">
+
+            <!-- FIRMA -->
+            <label class="check-item" style="margin-bottom:24px;">
+                <input type="checkbox" name="firma_cliente" {% if recepcion.firma_cliente %}checked{% endif %} style="width:18px; height:18px; accent-color:#E31E24;">
+                <span>✍️ El cliente confirmó y acordó las condiciones de entrega</span>
+            </label>
+
+            <button type="submit" name="accion" value="guardar" class="btn-guardar" style="margin-bottom:10px;">💾 Guardar recepción</button>
+            <button type="submit" name="accion" value="comprobante" class="btn-guardar" style="background:#111; border:2px solid #E31E24;">🧾 Guardar y generar comprobante</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function seleccionarCombustible(valor, btn) {
+    document.querySelectorAll('.combustible-btn').forEach(b => b.classList.remove('activo'));
+    btn.classList.add('activo');
+    document.getElementById('combustible-input').value = valor;
+}
+
+function mostrarArchivos(input) {
+    const preview = document.getElementById('preview-docs');
+    preview.innerHTML = '';
+    Array.from(input.files).forEach(file => {
+        const div = document.createElement('div');
+        div.style.cssText = 'padding:6px 0; border-bottom:1px solid #f0f0f0;';
+        div.textContent = '📎 ' + file.name;
+        preview.appendChild(div);
+    });
+}
+
+// Marcar checks con color al hacer click
+document.querySelectorAll('.check-item input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', function() {
+        this.closest('.check-item').classList.toggle('checked', this.checked);
+    });
+});
+</script>
+</body>
+</html>

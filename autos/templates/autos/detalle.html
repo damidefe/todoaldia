@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Montserrat', sans-serif; background: #f4f4f4; color: #111; }
+        body { font-family: 'Montserrat', sans-serif; background: #111; color: #fff; }
 
         header {
             background: #111;
@@ -23,13 +23,13 @@
 
         .container { max-width: 1100px; margin: 32px auto; padding: 0 24px; display: grid; grid-template-columns: 1fr 380px; gap: 24px; }
 
-        .card { background: #fff; border-radius: 16px; padding: 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 20px; }
+        .card { background: #1a1a1a; border-radius: 16px; padding: 28px; box-shadow: 0 2px 24px rgba(0,0,0,0.3); margin-bottom: 20px; border: 1px solid #2a2a2a; }
 
         .auto-header { margin-bottom: 20px; }
         .auto-marca { font-size: 11px; font-weight: 900; color: #E31E24; text-transform: uppercase; letter-spacing: 2px; }
         .auto-nombre { font-size: 28px; font-weight: 900; line-height: 1.1; }
         .auto-datos { font-size: 13px; color: #888; margin-top: 6px; }
-        .auto-precio { font-size: 32px; font-weight: 900; color: #111; margin-top: 8px; }
+        .auto-precio { font-size: 32px; font-weight: 900; color: #fff; margin-top: 8px; }
 
         .badge {
             display: inline-block;
@@ -49,10 +49,10 @@
             font-weight: 900;
             text-transform: uppercase;
             letter-spacing: 2px;
-            color: #888;
+            color: #666;
             margin-bottom: 16px;
             padding-bottom: 8px;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid #2a2a2a;
         }
 
         .fotos-grid {
@@ -138,19 +138,19 @@
         .btn-red:hover { background: #c0191f; }
         .btn-dark { background: #111; color: #fff; }
         .btn-dark:hover { background: #333; }
-        .btn-outline { background: #fff; color: #111; border: 2px solid #eee; }
-        .btn-outline:hover { border-color: #111; }
+        .btn-outline { background: #1a1a1a; color: #fff; border: 2px solid #333; }
+        .btn-outline:hover { border-color: #fff; }
 
         .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
 
   .copy-box {
-    background: #f8f8f8;
-    border: 1px solid #eee;
+    background: #1a1a1a;
+    border: 1px solid #333;
     border-radius: 10px;
     padding: 16px 50px 16px 16px;
     font-size: 13px;
     line-height: 1.8;
-    color: #333;
+    color: #ddd;
     margin-bottom: 16px;
     position: relative;
     white-space: pre-wrap;
@@ -211,7 +211,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 8px 0;
-            border-bottom: 1px solid #f5f5f5;
+            border-bottom: 1px solid #2a2a2a;
             font-size: 13px;
         }
         .info-row:last-child { border-bottom: none; }
@@ -219,12 +219,12 @@
         .info-value { font-weight: 700; }
 
         .consejo-box {
-            background: #fff5f5;
-            border: 1px solid #fdd;
+            background: #1a0000;
+            border: 1px solid #3a0000;
             border-radius: 10px;
             padding: 14px;
             font-size: 12px;
-            color: #c0191f;
+            color: #ff6b6b;
             line-height: 1.5;
         }
     </style>
@@ -279,7 +279,7 @@
                     <div class="foto-overlay">
                         <button class="foto-btn foto-btn-principal" onclick="aprobarFoto({{ foto.id }}, true, true)">⭐</button>
                         <button class="foto-btn foto-btn-aprobar" onclick="aprobarFoto({{ foto.id }}, true, false)">✓</button>
-                        <button class="foto-btn foto-btn-rechazar" onclick="aprobarFoto({{ foto.id }}, false, false)">✕</button>
+                        <button class="foto-btn foto-btn-rechazar" onclick="borrarFoto({{ foto.id }})">🗑</button>
                     </div>
                 </div>
                 {% endfor %}
@@ -345,16 +345,27 @@
         </div>
 
         <div class="card">
-            <div class="section-label">Acciones</div>
-            <div class="btn-group" style="flex-direction: column;">
-                <button class="btn btn-outline" style="width:100%; justify-content:center;" onclick="cambiarEstado('reservado')">Marcar como Reservado</button>
-                <button class="btn btn-dark" style="width:100%; justify-content:center;" onclick="cambiarEstado('vendido')">Marcar como Vendido</button>
-            </div>
-        </div>
-
+    <div class="section-label">Acciones</div>
+    <div class="btn-group" style="flex-direction: column;">
+        {% if auto.estado == 'disponible' %}
+            <button class="btn btn-outline" style="width:100%; justify-content:center;" onclick="cambiarEstado('reservado')">🔒 Marcar como Reservado</button>
+            <button class="btn btn-dark" style="width:100%; justify-content:center;" onclick="cambiarEstado('vendido')">✅ Marcar como Vendido</button>
+            {% elif auto.estado == 'reservado' %}
+            <button class="btn btn-outline" style="width:100%; justify-content:center;" onclick="cambiarEstado('disponible')">🔓 Volver a Disponible</button>
+            <button class="btn btn-dark" style="width:100%; justify-content:center;" onclick="cambiarEstado('vendido')">✅ Marcar como Vendido</button>
+            {% elif auto.estado == 'vendido' %}
+            <button class="btn btn-outline" style="width:100%; justify-content:center;" onclick="cambiarEstado('disponible')">🔓 Volver a Disponible</button>
+            {% endif %}
+        <a href="/auto/{{ auto.id }}/vendido/ver/" class="btn btn-outline" style="width:100%; justify-content:center; text-decoration:none;">🏆 Generar placa Vendido</a>
+        <a href="/auto/{{ auto.id }}/gastos/" class="btn btn-outline" style="width:100%; justify-content:center; text-decoration:none;">💰 Gastos e Informes para enviar a dueño </a>
+        <a href="/auto/{{ auto.id }}/recepcion/" class="btn btn-outline" style="width:100%; justify-content:center; text-decoration:none;">📋 Recepción del vehículo</a>
+        <a href="/auto/{{ auto.id }}/editar/" class="btn btn-outline" style="width:100%; justify-content:center; text-decoration:none;">✏️ Editar datos</a>
+        <button class="btn" style="width:100%; justify-content:center; background:#fff; color:#E31E24; border:2px solid #E31E24;" onclick="confirmarBorrar()">🗑️ Borrar auto</button>
     </div>
 </div>
 
+    </div>
+</div>
 <script>
 const AUTO_ID = {{ auto.id }};
 
@@ -364,50 +375,83 @@ async function analizarFotos() {
     const data = await res.json();
     document.getElementById('loading-fotos').style.display = 'none';
 
-   data.resultados.forEach(r => {
-    const scoreEl = document.getElementById(`score-${r.foto_id}`);
-    const a = r.analisis;
-    
-    if (scoreEl) {
-        scoreEl.textContent = `${a.puntuacion}/10`;
-        scoreEl.style.background = a.apta_publicacion ? 'rgba(0,150,0,0.8)' : 'rgba(200,0,0,0.8)';
-    }
+    const angulosIdeal = ['lateral', 'tres cuartos', '3/4', 'diagonal', 'frontal'];
 
-    // Mostrar comentario debajo de la foto
-    const fotoEl = document.getElementById(`foto-${r.foto_id}`);
-    if (fotoEl) {
-        // Quitar comentario anterior si existe
-        const prevComentario = document.getElementById(`comentario-${r.foto_id}`);
-        if (prevComentario) prevComentario.remove();
+    data.resultados.forEach(r => {
+        const scoreEl = document.getElementById(`score-${r.foto_id}`);
+        const a = r.analisis;
+        if (scoreEl) {
+            scoreEl.textContent = `${a.puntuacion}/10`;
+            scoreEl.style.background = a.apta_publicacion ? 'rgba(0,150,0,0.8)' : 'rgba(200,0,0,0.8)';
+        }
+        const fotoEl = document.getElementById(`foto-${r.foto_id}`);
+        if (fotoEl) {
+            const prevComentario = document.getElementById(`comentario-${r.foto_id}`);
+            if (prevComentario) prevComentario.remove();
+            const div = document.createElement('div');
+            div.id = `comentario-${r.foto_id}`;
+            div.style.cssText = 'font-size:11px; padding:8px; border-radius:0 0 8px 8px; background:#f8f8f8;';
+            let html = '';
+            if (!a.apta_publicacion) html += `<div style="color:#E31E24; font-weight:900; font-size:10px; margin-bottom:4px;">⚠️ NO APTA PARA PUBLICAR</div>`;
+            if (a.vehiculo_completo === false) html += `<div style="color:#E31E24; font-size:10px; margin-bottom:4px;">✂️ Vehículo cortado: ${a.cortado_donde}</div>`;
+            if (a.comentario_positivo) html += `<div style="color:#2e7d32; font-size:10px; margin-bottom:2px;">✅ ${a.comentario_positivo}</div>`;
+            if (a.comentario_negativo) html += `<div style="color:#c62828; font-size:10px; margin-bottom:2px;">❌ ${a.comentario_negativo}</div>`;
+            if (a.mensaje_papa) html += `<div style="color:#555; font-size:10px; margin-top:4px; font-style:italic;">💡 ${a.mensaje_papa}</div>`;
+            div.innerHTML = html;
+            fotoEl.insertAdjacentElement('afterend', div);
+        }
+    });
 
-        const div = document.createElement('div');
-        div.id = `comentario-${r.foto_id}`;
-        div.style.cssText = 'font-size:11px; padding:8px; border-radius:0 0 8px 8px; background:#f8f8f8;';
-        
-        let html = '';
-        
-        if (!a.apta_publicacion) {
-            html += `<div style="color:#E31E24; font-weight:900; font-size:10px; margin-bottom:4px;">⚠️ NO APTA PARA PUBLICAR</div>`;
+    const grid = document.getElementById('fotos-grid');
+    const items = [];
+    data.resultados.forEach(r => {
+        const fotoEl = document.getElementById(`foto-${r.foto_id}`);
+        const comentarioEl = document.getElementById(`comentario-${r.foto_id}`);
+        if (fotoEl) {
+            items.push({
+                puntuacion: r.analisis.puntuacion,
+                apta: r.analisis.apta_publicacion,
+                angulo: r.analisis.angulo || '',
+                fotoEl,
+                comentarioEl
+            });
         }
-        
-        if (a.vehiculo_completo === false) {
-            html += `<div style="color:#E31E24; font-size:10px; margin-bottom:4px;">✂️ Vehículo cortado: ${a.cortado_donde}</div>`;
-        }
+    });
 
-        if (a.comentario_positivo) {
-            html += `<div style="color:#2e7d32; font-size:10px; margin-bottom:2px;">✅ ${a.comentario_positivo}</div>`;
+    items.sort((a, b) => b.puntuacion - a.puntuacion);
+
+    const aptasOrdenadas = items
+        .filter(i => i.apta)
+        .sort((a, b) => {
+            const angA = angulosIdeal.findIndex(ang => a.angulo.toLowerCase().includes(ang));
+            const angB = angulosIdeal.findIndex(ang => b.angulo.toLowerCase().includes(ang));
+            const pA = angA === -1 ? 99 : angA;
+            const pB = angB === -1 ? 99 : angB;
+            if (pA !== pB) return pA - pB;
+            return b.puntuacion - a.puntuacion;
+        });
+
+    const badgeInfo = [
+        { texto: '🏆 FOTO PRINCIPAL', color: '#E31E24', desc: 'Mejor ángulo para portada' },
+        { texto: '🥈 OPCIÓN 2', color: '#555', desc: 'Buen complemento para la galería' },
+        { texto: '🥉 OPCIÓN 3', color: '#777', desc: 'Ideal para mostrar detalles' }
+    ];
+
+    grid.innerHTML = '';
+    items.forEach(item => {
+        const rankingEnAptas = aptasOrdenadas.indexOf(item);
+        if (rankingEnAptas >= 0 && rankingEnAptas < 3) {
+            const b = badgeInfo[rankingEnAptas];
+            const badge = document.createElement('div');
+            badge.className = 'badge-candidata';
+            badge.style.cssText = `position:absolute; top:0; left:0; right:0; background:${b.color}; color:#fff; font-size:9px; font-weight:900; padding:5px 8px; text-align:center; letter-spacing:1px; z-index:10;`;
+            badge.innerHTML = `${b.texto} · <span style="font-weight:400; opacity:0.9;">${b.desc}</span>`;
+            item.fotoEl.style.position = 'relative';
+            item.fotoEl.prepend(badge);
         }
-        if (a.comentario_negativo) {
-            html += `<div style="color:#c62828; font-size:10px; margin-bottom:2px;">❌ ${a.comentario_negativo}</div>`;
-        }
-        if (a.mensaje_papa) {
-            html += `<div style="color:#555; font-size:10px; margin-top:4px; font-style:italic;">💡 ${a.mensaje_papa}</div>`;
-        }
-        
-        div.innerHTML = html;
-        fotoEl.insertAdjacentElement('afterend', div);
-    }
-});
+        grid.appendChild(item.fotoEl);
+        if (item.comentarioEl) grid.appendChild(item.comentarioEl);
+    });
 }
 
 async function aprobarFoto(fotoId, aprobada, esPrincipal) {
@@ -426,29 +470,25 @@ async function generarContenido() {
     const res = await fetch(`/auto/${AUTO_ID}/contenido/`, { method: 'POST' });
     const data = await res.json();
     document.getElementById('loading-contenido').style.display = 'none';
-
     if (data.error) {
         document.getElementById('contenido-resultado').innerHTML = `<p style="color:red">Error: ${data.error}</p>`;
         return;
     }
-
     const copies = [
         { label: 'Instagram — Opción 1', text: data.copy_instagram_1 },
         { label: 'Instagram — Opción 2', text: data.copy_instagram_2 },
         { label: 'Instagram — Opción 3', text: data.copy_instagram_3 },
         { label: 'Mercado Libre', text: data.texto_mercadolibre },
     ];
-
     let html = '';
     copies.forEach(c => {
-        html += `<div class="copy-label">${c.label}</div>
-        <div class="copy-box">${c.text}<button class="btn-copy" onclick="copiar(this)">Copiar</button></div>`;
-    });
-
-    if (data.consejos) {
-        html += `<div class="copy-label">Consejo de la IA</div><div class="consejo-box">${data.consejos}</div>`;
-    }
-
+    if (!c.text) return;
+    html += `
+        <div class="copy-label">${c.label}</div>
+        <div class="copy-box" contenteditable="true" style="outline:none; cursor:text;" spellcheck="false">${c.text}<button class="btn-copy" onclick="copiar(this)">Copiar</button></div>
+    `;
+});
+    if (data.consejos) html += `<div class="copy-label">Consejo de la IA</div><div class="consejo-box">${data.consejos}</div>`;
     document.getElementById('contenido-resultado').innerHTML = html;
 }
 
@@ -458,6 +498,31 @@ function copiar(btn) {
     btn.textContent = '✓ Copiado';
     setTimeout(() => btn.textContent = 'Copiar', 2000);
 }
+
+function confirmarBorrar() {
+    if (confirm('¿Seguro que querés borrar este auto? Esta acción no se puede deshacer.')) {
+        fetch(`/auto/${AUTO_ID}/borrar/`, { method: 'POST' })
+            .then(() => window.location.href = '/');
+    }
+}
+
+async function borrarFoto(fotoId) {
+    if (!confirm('¿Borrar esta foto?')) return;
+    await fetch(`/foto/${fotoId}/borrar/`, { method: 'POST' });
+    document.getElementById(`foto-${fotoId}`).remove();
+    const comentario = document.getElementById(`comentario-${fotoId}`);
+    if (comentario) comentario.remove();
+}
+
+// Auto-analizar si viene de cargar nuevo auto
+async function autoIniciar() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('analizar') === '1') {
+        await analizarFotos();
+        await generarContenido();
+    }
+}
+autoIniciar();
 
 async function cambiarEstado(estado) {
     await fetch(`/auto/${AUTO_ID}/estado/`, {

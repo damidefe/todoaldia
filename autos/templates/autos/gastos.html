@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gastos — {{ auto.marca }} {{ auto.modelo }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Montserrat', sans-serif; background: #f4f4f4; color: #111; }
+        header { background: #111; padding: 20px 40px; display: flex; align-items: center; justify-content: space-between; }
+        .logo { color: #fff; font-size: 22px; font-weight: 900; font-style: italic; }
+        .logo span { color: #E31E24; }
+        .btn-volver { color: #888; text-decoration: none; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+        .btn-volver:hover { color: #fff; }
+        .container { max-width: 800px; margin: 40px auto; padding: 0 24px; }
+        .card { background: #fff; border-radius: 16px; padding: 40px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 20px; }
+        .card-title { font-size: 24px; font-weight: 900; margin-bottom: 4px; }
+        .card-subtitle { font-size: 12px; color: #888; margin-bottom: 32px; text-transform: uppercase; letter-spacing: 1px; }
+        .section-label { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: #E31E24; margin-bottom: 16px; }
+        .divider { border: none; border-top: 1px solid #f0f0f0; margin: 28px 0; }
+
+        /* RESUMEN */
+        .resumen { background: #f8f8f8; border-radius: 12px; padding: 20px; margin-bottom: 24px; display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; text-align: center; }
+        .resumen-label { font-size: 10px; font-weight: 900; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .resumen-valor { font-size: 20px; font-weight: 900; }
+
+        /* TOGGLE MONEDA */
+        .moneda-row { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; background: #f8f8f8; border-radius: 10px; padding: 14px 18px; }
+        .moneda-label { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: #666; }
+        .toggle-moneda { display: flex; background: #e8e8e8; border-radius: 8px; overflow: hidden; }
+        .toggle-moneda button {
+            padding: 7px 18px; border: none; background: transparent;
+            font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 900;
+            cursor: pointer; color: #888; transition: all 0.15s;
+        }
+        .toggle-moneda button.activo { background: #111; color: #fff; border-radius: 6px; }
+        .tc-row { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+        .tc-label { font-size: 11px; font-weight: 700; color: #888; }
+        .tc-input {
+            width: 110px; padding: 7px 10px; border: 2px solid #e0e0e0; border-radius: 8px;
+            font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700;
+            text-align: right; background: #fff;
+        }
+        .tc-input:focus { outline: none; border-color: #E31E24; }
+        .tc-row { display: none; } /* se muestra solo si moneda = USD */
+
+        /* PRECIOS EDITABLES EN EL RESUMEN */
+        .resumen-input {
+            width: 100%; border: none; background: transparent;
+            font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 900;
+            text-align: center; color: inherit; cursor: default;
+        }
+        .resumen-input:focus { outline: none; border-bottom: 2px solid #E31E24; cursor: text; }
+
+        /* SERVICIOS FIJOS */
+        .fijo-item {
+            display: flex; align-items: center; justify-content: space-between;
+            background: #f0faf0; border: 1px solid #c8e6c9;
+            border-radius: 10px; padding: 12px 14px; margin-bottom: 8px;
+        }
+        .fijo-left { display: flex; align-items: center; gap: 10px; }
+        .fijo-check {
+            width: 22px; height: 22px; background: #2e7d32; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .fijo-check svg { width: 12px; height: 12px; }
+        .fijo-desc { font-size: 13px; font-weight: 700; color: #1a1a1a; }
+        .fijo-right { display: flex; align-items: center; gap: 10px; }
+        .fijo-badge {
+            font-size: 10px; font-weight: 700; color: #2e7d32;
+            background: #e8f5e9; border-radius: 20px; padding: 4px 10px; letter-spacing: 0.5px;
+        }
+
+        /* GASTOS VARIABLES */
+        .gasto-row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+        .gasto-row input {
+            padding: 10px 12px; border: 2px solid #eee; border-radius: 8px;
+            font-family: 'Montserrat', sans-serif; font-size: 13px; background: #fff;
+            transition: border-color 0.15s;
+        }
+        .gasto-row input:focus { outline: none; border-color: #E31E24; }
+        .gasto-row input.editando { border-color: #E31E24; background: #fff; }
+        .gasto-desc { flex: 1; }
+        .gasto-monto { width: 140px; }
+
+        /* BOTONES */
+        .btn-borrar {
+            width: 36px; height: 36px; flex-shrink: 0;
+            background: #fff; border: 2px solid #e0e0e0; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: border-color 0.15s, background 0.15s;
+        }
+        .btn-borrar:hover { border-color: #E31E24; background: #fff0f0; }
+        .btn-borrar svg { width: 15px; height: 15px; stroke: #999; transition: stroke 0.15s; }
+        .btn-borrar:hover svg { stroke: #E31E24; }
+
+        .btn-editar {
+            width: 36px; height: 36px; flex-shrink: 0;
+            background: #fff; border: 2px solid #e0e0e0; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: border-color 0.15s, background 0.15s;
+        }
+        .btn-editar:hover { border-color: #1565c0; background: #e3f2fd; }
+        .btn-editar svg { width: 14px; height: 14px; stroke: #999; transition: stroke 0.15s; }
+        .btn-editar.activo { border-color: #1565c0; background: #e3f2fd; }
+        .btn-editar.activo svg { stroke: #1565c0; }
+
+        .btn-guardar-edicion {
+            height: 36px; padding: 0 14px; flex-shrink: 0;
+            background: #E31E24; color: #fff; border: none; border-radius: 8px;
+            font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 900;
+            cursor: pointer; letter-spacing: 0.5px; display: none; align-items: center;
+        }
+        .btn-guardar-edicion:hover { background: #c0191f; }
+
+        .btn-agregar {
+            background: #fff; border: 2px dashed #ddd; border-radius: 8px;
+            padding: 10px 16px; font-size: 12px; font-weight: 700; color: #888;
+            cursor: pointer; font-family: 'Montserrat', sans-serif; margin-top: 8px;
+        }
+        .btn-agregar:hover { border-color: #E31E24; color: #E31E24; }
+        .btn-guardar {
+            width: 100%; background: #E31E24; color: #fff; border: none;
+            border-radius: 12px; padding: 18px; font-size: 14px; font-weight: 900;
+            letter-spacing: 1px; text-transform: uppercase;
+            font-family: 'Montserrat', sans-serif; cursor: pointer; margin-top: 8px;
+        }
+        .btn-guardar:hover { background: #c0191f; }
+
+        /* BADGE USD */
+        .badge-usd {
+            display: inline-block; background: #1565c0; color: #fff;
+            font-size: 9px; font-weight: 900; border-radius: 4px;
+            padding: 2px 6px; letter-spacing: 1px; margin-left: 6px; vertical-align: middle;
+        }
+    /* INPUTS EDITABLES EN RESUMEN */
+        .resumen-input {
+            width: 100%; border: none; background: transparent;
+            font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 900;
+            text-align: center; color: #111; cursor: pointer;
+            border-bottom: 2px solid transparent; transition: border-color 0.15s;
+            padding: 2px 4px; border-radius: 4px;
+        }
+        .resumen-input:hover { border-bottom-color: #ddd; }
+        .resumen-input:focus { outline: none; border-bottom-color: #E31E24; cursor: text; background: #fff5f5; border-radius: 4px; }
+        .resumen-input::placeholder { color: #bbb; font-weight: 400; }    
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">TODO <span>@L</span> DÍA</div>
+    <a href="/auto/{{ auto.id }}/" class="btn-volver">← Volver al auto</a>
+</header>
+
+<div class="container">
+    <div class="card">
+        <div class="card-title">💰 Gastos del vehículo</div>
+        <div class="card-subtitle">{{ auto.marca }} {{ auto.modelo }} {{ auto.anio }}</div>
+
+        <!-- TOGGLE MONEDA -->
+        <div class="moneda-row">
+            <span class="moneda-label">Moneda del vehículo</span>
+            <div class="toggle-moneda">
+                <button id="btn-ars" class="activo" onclick="cambiarMoneda('ARS')">🇦🇷 ARS</button>
+                <button id="btn-usd" onclick="cambiarMoneda('USD')">🇺🇸 USD</button>
+            </div>
+            <div class="tc-row" id="tc-row">
+                <span class="tc-label">Tipo de cambio $</span>
+                <input type="number" id="tipo-cambio" class="tc-input" placeholder="ej: 1200" oninput="actualizarResumen()">
+            </div>
+        </div>
+
+        <!-- RESUMEN -->
+        <div class="resumen">
+            <div>
+                <div class="resumen-label">Precio compra</div>
+                <input type="text" id="input-compra" class="resumen-input"
+                       value="{{ auto.precio_compra|default:'' }}"
+                       placeholder="—"
+                       oninput="actualizarResumen()"
+                       onblur="guardarPrecio('compra', this.value)"
+                       title="Hacé click para editar">
+            </div>
+            <div>
+                <div class="resumen-label">Total gastos</div>
+                <div class="resumen-valor" style="color:#E31E24;" id="res-gastos">$0</div>
+            </div>
+            <div>
+                <div class="resumen-label">Precio venta</div>
+                <input type="text" id="input-venta" class="resumen-input"
+                       value="{{ auto.precio }}"
+                       placeholder="—"
+                       oninput="actualizarResumen()"
+                       onblur="guardarPrecio('venta', this.value)"
+                       title="Hacé click para editar">
+            </div>
+            <div>
+                <div class="resumen-label">Ganancia en Pesos</div>
+                <div class="resumen-valor" id="res-ganancia">—</div>
+            </div>
+        </div>
+
+        <!-- GASTOS FIJOS -->
+        <div class="section-label">Servicios a cargo de Todo @l Día</div>
+        {% for gasto in gastos_fijos %}
+        <div class="fijo-item">
+            <div class="fijo-left">
+                <div class="fijo-check">
+                    <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <polyline points="2,6 5,9 10,3" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <span class="fijo-desc">{{ gasto.descripcion }}</span>
+            </div>
+            <div class="fijo-right">
+                <span class="fijo-badge">✓ Incluido</span>
+                <button type="button" class="btn-borrar" onclick="borrarGasto({{ gasto.id }}, this)" title="Borrar">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <polyline points="3,6 5,6 21,6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M19,6l-1,14H6L5,6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M10,11v6M14,11v6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9,6V4h6v2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        {% empty %}
+        <p style="font-size:13px; color:#aaa; margin-bottom:16px;">No hay servicios fijos cargados aún.</p>
+        {% endfor %}
+
+        <hr class="divider">
+
+        <!-- GASTOS VARIABLES -->
+        <div class="section-label">Gastos adicionales</div>
+        <form method="POST" action="/auto/{{ auto.id }}/gastos/">
+            {% csrf_token %}
+            <input type="hidden" name="accion" value="agregar_variables">
+
+            <div id="lista-gastos-variables">
+                {% for gasto in gastos_variables %}
+                <div class="gasto-row" data-gasto-id="{{ gasto.id }}">
+                    <input type="text" class="gasto-desc" value="{{ gasto.descripcion }}" readonly style="background:#f8f8f8;">
+                    <input type="number" class="gasto-monto monto-guardado" value="{{ gasto.monto }}" readonly style="background:#f8f8f8;" oninput="actualizarResumen()">
+                    <button type="button" class="btn-editar" onclick="activarEdicion(this)" title="Editar">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M11,4H4a2,2,0,0,0-2,2V18a2,2,0,0,0,2,2H16a2,2,0,0,0,2-2V11" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M18.5,2.5a2.121,2.121,0,0,1,3,3L12,15l-4,1,1-4Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <button type="button" class="btn-guardar-edicion" onclick="guardarEdicion(this)">✓ Guardar</button>
+                    <button type="button" class="btn-borrar" onclick="borrarGasto({{ gasto.id }}, this)" title="Borrar">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <polyline points="3,6 5,6 21,6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M19,6l-1,14H6L5,6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M10,11v6M14,11v6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9,6V4h6v2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div id="nuevos-gastos"></div>
+            <button type="button" class="btn-agregar" onclick="agregarGasto()">+ Agregar gasto</button>
+            <button type="submit" name="accion_submit" value="guardar" class="btn-guardar" style="margin-top:20px;">💾 Guardar Gastos</button>
+            <button type="submit" name="accion_submit" value="informe" class="btn-guardar" style="margin-top:8px; background:#111;">📊 Guardar y ver Informe del dueño</button>
+        </form>
+    </div>
+</div>
+
+<script>
+
+// ── DATOS BASE DEL AUTO (desde Django) ───────────────────────────────────────
+const PRECIO_COMPRA_RAW = parseFloat('{{ auto.precio_compra|default:"0" }}') || 0;
+const PRECIO_VENTA_RAW  = parseFloat('{{ auto.precio }}') || 0;
+const MONEDA_GUARDADA   = '{{ auto.moneda|default:"ARS" }}';
+const TC_GUARDADO       = parseFloat('{{ auto.tipo_cambio|default:"0" }}') || 0;
+
+let monedaActual = MONEDA_GUARDADA;
+
+function limpiarMonto(valor) {
+    if (typeof valor !== 'string') valor = String(valor);
+    valor = valor.trim();
+    if (!valor) return 0;
+    if (valor.includes(',')) {
+        valor = valor.replace(/\./g, '').replace(',', '.');
+    } else {
+        const partes = valor.split('.');
+        if (partes.length > 1 && partes[partes.length - 1].length === 3) {
+            valor = valor.replace(/\./g, '');
+        }
+    }
+    return parseFloat(valor) || 0;
+}
+
+function guardarPrecio(campo, valor) {
+    const monto = limpiarMonto(valor);
+    const body = campo === 'compra'
+        ? { precio_compra: monto }
+        : { precio: monto };
+
+    fetch(`/auto/{{ auto.id }}/guardar-precio/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+        body: JSON.stringify(body)
+    });
+}
+
+function formatARS(n) {
+    return '$' + Math.round(n).toLocaleString('es-AR', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    });
+}
+
+function formatUSD(n) {
+    return 'U$S ' + Math.round(n).toLocaleString('es-AR', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    });
+}
+
+
+// ── CAMBIO DE MONEDA ──────────────────────────────────────────────────────────
+function cambiarMoneda(moneda) {
+    monedaActual = moneda;
+    document.getElementById('btn-ars').classList.toggle('activo', moneda === 'ARS');
+    document.getElementById('btn-usd').classList.toggle('activo', moneda === 'USD');
+    document.getElementById('tc-row').style.display = moneda === 'USD' ? 'flex' : 'none';
+
+    // Guardar la moneda en el servidor
+    fetch(`/auto/{{ auto.id }}/guardar-moneda/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+        body: JSON.stringify({ moneda: moneda, tipo_cambio: parseFloat(document.getElementById('tipo-cambio').value) || null })
+    });
+
+    actualizarResumen();
+}
+
+// ── RESUMEN ───────────────────────────────────────────────────────────────────
+function actualizarResumen() {
+    const tc = parseFloat(document.getElementById('tipo-cambio').value) || 0;
+
+    const compraRaw = limpiarMonto(document.getElementById('input-compra').value);
+    const ventaRaw  = limpiarMonto(document.getElementById('input-venta').value);
+
+    const compraARS = (monedaActual === 'USD' && tc > 0) ? compraRaw * tc : compraRaw;
+    const ventaARS  = (monedaActual === 'USD' && tc > 0) ? ventaRaw  * tc : ventaRaw;
+
+    let totalGastos = 0;
+    document.querySelectorAll('.monto-guardado').forEach(inp => {
+        totalGastos += limpiarMonto(inp.value);
+    });
+    document.querySelectorAll('input[name="nuevo_gasto_monto[]"]').forEach(inp => {
+        totalGastos += limpiarMonto(inp.value);
+    });
+
+    const ganancia = ventaARS - compraARS - totalGastos;
+
+    // Mostrar precio compra
+    if (monedaActual === 'USD' && tc > 0) {
+        document.getElementById('input-compra').title = formatARS(compraARS);
+    }
+
+    // Mostrar precio venta
+    if (monedaActual === 'USD' && tc > 0) {
+        document.getElementById('input-venta').title = formatARS(ventaARS);
+    }
+
+    document.getElementById('res-gastos').textContent = formatARS(totalGastos);
+    document.getElementById('res-ganancia').textContent = (monedaActual === 'ARS' || tc > 0) ? formatARS(ganancia) : '—';
+    document.getElementById('res-ganancia').style.color = ganancia >= 0 ? '#2e7d32' : '#E31E24';
+}
+
+// ── EDICIÓN DE GASTOS GUARDADOS ───────────────────────────────────────────────
+function activarEdicion(btnEditar) {
+    const row = btnEditar.closest('.gasto-row');
+    const inputs = row.querySelectorAll('input');
+    const btnGuardar = row.querySelector('.btn-guardar-edicion');
+    const estaEditando = btnEditar.classList.contains('activo');
+
+    if (estaEditando) {
+        inputs.forEach(inp => { inp.readOnly = true; inp.style.background = '#f8f8f8'; inp.classList.remove('editando'); });
+        btnEditar.classList.remove('activo');
+        btnGuardar.style.display = 'none';
+    } else {
+        inputs.forEach(inp => { inp.readOnly = false; inp.style.background = '#fff'; inp.classList.add('editando'); });
+        btnEditar.classList.add('activo');
+        btnGuardar.style.display = 'flex';
+        inputs[0].focus();
+    }
+}
+
+function guardarEdicion(btnGuardar) {
+    const row = btnGuardar.closest('.gasto-row');
+    const gastoId = row.dataset.gastoId;
+    const desc  = row.querySelector('input.gasto-desc').value.trim();
+    const monto = row.querySelector('input.gasto-monto').value;
+
+    if (!desc) { alert('La descripción no puede estar vacía.'); return; }
+
+    fetch(`/auto/{{ auto.id }}/gastos/editar/${gastoId}/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+        body: JSON.stringify({ descripcion: desc, monto: parseFloat(monto) || 0 })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.ok) {
+            const inputs = row.querySelectorAll('input');
+            inputs.forEach(inp => { inp.readOnly = true; inp.style.background = '#f8f8f8'; inp.classList.remove('editando'); });
+            row.querySelector('.btn-editar').classList.remove('activo');
+            btnGuardar.style.display = 'none';
+            actualizarResumen();
+        } else {
+            alert('Error al guardar. Intentá de nuevo.');
+        }
+    })
+    .catch(() => alert('Error de conexión.'));
+}
+
+// ── BORRAR GASTO ──────────────────────────────────────────────────────────────
+function borrarGasto(gastoId, btn) {
+    if (!confirm('¿Borrar este gasto?')) return;
+    fetch(`/auto/{{ auto.id }}/gastos/borrar/${gastoId}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.ok) {
+            btn.closest('.gasto-row, .fijo-item').remove();
+            actualizarResumen();
+        }
+    });
+}
+
+// ── AGREGAR GASTO NUEVO ───────────────────────────────────────────────────────
+function agregarGasto() {
+    const div = document.createElement('div');
+    div.className = 'gasto-row';
+    div.innerHTML = `
+        <input type="text" name="nuevo_gasto_desc[]" placeholder="Ej: Arreglo frenos" class="gasto-desc">
+        <input type="number" name="nuevo_gasto_monto[]" placeholder="0" class="gasto-monto" oninput="actualizarResumen()">
+        <button type="button" class="btn-borrar" onclick="this.parentElement.remove(); actualizarResumen()" title="Borrar">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <polyline points="3,6 5,6 21,6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M19,6l-1,14H6L5,6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M10,11v6M14,11v6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9,6V4h6v2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+    `;
+    document.getElementById('nuevos-gastos').appendChild(div);
+}
+
+// ── INICIALIZACIÓN ────────────────────────────────────────────────────────────
+// Formatear los inputs de precio al cargar (evita mostrar "2300001230.00")
+function inicializarInputPrecio(inputId, valorRaw) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const n = parseFloat(String(valorRaw).replace(',', '.')) || 0;
+    // Mostrar sin decimales, con puntos como separador de miles
+    input.value = n > 0 ? Math.round(n).toLocaleString('es-AR') : '';
+}
+
+inicializarInputPrecio('input-compra', '{{ auto.precio_compra|default:"0" }}');
+inicializarInputPrecio('input-venta',  '{{ auto.precio }}');
+
+if (MONEDA_GUARDADA === 'USD') {
+    cambiarMoneda('USD');
+    if (TC_GUARDADO > 0) {
+        document.getElementById('tipo-cambio').value = TC_GUARDADO;
+    }
+} else {
+    cambiarMoneda('ARS');
+}
+actualizarResumen();
+</script>
+</body>
+</html>

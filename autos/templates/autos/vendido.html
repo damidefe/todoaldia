@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placa Vendido — {{ auto.marca }} {{ auto.modelo }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Montserrat', sans-serif; background: #111; color: #fff; min-height: 100vh; }
+        header { background: #000; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #222; }
+        .logo { font-size: 20px; font-weight: 900; font-style: italic; }
+        .logo span { color: #E31E24; }
+        .btn-volver { color: #666; text-decoration: none; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-volver:hover { color: #fff; }
+        .loading-screen { position: fixed; inset: 0; background: #111; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; }
+        .loading-screen h2 { font-size: 18px; font-weight: 900; margin-bottom: 8px; }
+        .loading-screen p { font-size: 12px; color: #666; margin-bottom: 24px; }
+        .spinner-big { width: 48px; height: 48px; border: 4px solid #222; border-top-color: #E31E24; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 24px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .main { padding: 32px; max-width: 1200px; margin: 0 auto; }
+        .section-title { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; color: #E31E24; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #222; }
+        .pack-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; margin-bottom: 48px; }
+        .placa-wrapper { background: #1a1a1a; border-radius: 14px; overflow: hidden; border: 1px solid #222; }
+        .placa-header { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
+        .placa-tipo { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: #E31E24; }
+        .placa-size { font-size: 9px; color: #555; font-weight: 700; }
+        .canvas-container { padding: 12px; display: flex; justify-content: center; background: #0d0d0d; }
+        canvas { border-radius: 6px; max-width: 100%; height: auto; }
+        .btn-download { width: 100%; background: #E31E24; color: #fff; border: none; padding: 14px; font-size: 11px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; font-family: 'Montserrat', sans-serif; transition: background 0.2s; }
+        .btn-download:hover { background: #c0191f; }
+        .btn-download-all { background: #E31E24; color: #fff; border: none; padding: 16px 40px; font-size: 13px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; font-family: 'Montserrat', sans-serif; border-radius: 10px; transition: all 0.2s; }
+        .btn-download-all:hover { background: #c0191f; transform: translateY(-1px); }
+    </style>
+</head>
+<body>
+
+<div class="loading-screen" id="loading">
+    <div class="spinner-big"></div>
+    <h2>Generando placas de vendido</h2>
+    <p id="loading-msg">Cargando fotos del vehículo...</p>
+</div>
+
+<header>
+    <div class="logo">TODO <span>@L</span> DÍA</div>
+    <a href="/auto/{{ auto.id }}/" class="btn-volver">← Volver al auto</a>
+</header>
+
+<div class="main" id="main" style="display:none">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:32px;">
+        <div>
+            <h1 style="font-size:24px; font-weight:900;">🏆 VENDIDO — {{ auto.marca }} {{ auto.modelo }} {{ auto.anio }}</h1>
+            <p style="font-size:12px; color:#666; margin-top:4px;">{{ auto.km|floatformat:0 }} km · ${{ auto.precio|floatformat:0 }}</p>
+        </div>
+        <button class="btn-download-all" onclick="descargarTodo()">⬇ Descargar todo</button>
+    </div>
+
+    <div class="section-title">📱 Stories (1080 × 1920)</div>
+    <div class="pack-grid" id="grid-stories"></div>
+
+    <div class="section-title">🟦 Posts Instagram (1080 × 1350)</div>
+    <div class="pack-grid" id="grid-posts"></div>
+
+    <div class="section-title">✍️ Copy para el post</div>
+    <div style="background:#1a1a1a; border-radius:14px; border:1px solid #222; padding:24px; margin-bottom:48px; position:relative;">
+        <div style="font-size:10px; font-weight:900; color:#E31E24; text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">Instagram — Anuncio de venta</div>
+        <div style="font-size:14px; color:#ccc; line-height:1.8; white-space:pre-wrap;" id="copy-vendido">{{ copy_vendido }}</div>
+        <button onclick="copiarCopy()" style="position:absolute; top:16px; right:16px; background:#E31E24; color:#fff; border:none; border-radius:6px; padding:6px 14px; font-size:10px; font-weight:900; cursor:pointer; font-family:'Montserrat',sans-serif; text-transform:uppercase; letter-spacing:1px;">Copiar</button>
+    </div>
+</div>
+
+<script>
+const AUTO_ID = {{ auto.id }};
+const NOMBRE = '{{ auto.marca }} {{ auto.modelo }} {{ auto.anio }}'.toUpperCase();
+const KM = '{{ auto.km|floatformat:0 }} km';
+const PRECIO = '${{ auto.precio|floatformat:0 }}';
+let canvases = [];
+
+async function init() {
+    document.getElementById('loading-msg').textContent = 'Cargando fotos...';
+
+    // Obtener fotos aprobadas del pack
+    const res = await fetch(`/auto/${AUTO_ID}/pack/`, { method: 'POST' });
+    const data = await res.json();
+
+    if (data.error) {
+        alert('No hay fotos aprobadas. Aprobá al menos una foto primero.');
+        history.back();
+        return;
+    }
+
+    document.getElementById('loading-msg').textContent = 'Generando placas de vendido...';
+
+    for (const foto of data.fotos) {
+        const img = await cargarImagen(foto.url);
+        await generarPlacaVendido(img, 'story', foto);
+        await generarPlacaVendido(img, 'post', foto);
+    }
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('main').style.display = 'block';
+}
+
+function cargarImagen(url) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => resolve(img);
+        img.onerror = () => resolve(null);
+        img.src = url;
+    });
+}
+
+async function generarPlacaVendido(img, tipo, fotoData) {
+    const configs = {
+        story: { w: 1080, h: 1920, label: 'STORY', size: '1080×1920', grid: 'grid-stories' },
+        post:  { w: 1080, h: 1350, label: 'POST',  size: '1080×1350', grid: 'grid-posts' },
+    };
+
+    const cfg = configs[tipo];
+    const canvas = document.createElement('canvas');
+    canvas.width = cfg.w;
+    canvas.height = cfg.h;
+    const ctx = canvas.getContext('2d');
+    const pad = 70;
+
+    // FONDO
+    ctx.fillStyle = '#111';
+    ctx.fillRect(0, 0, cfg.w, cfg.h);
+
+    // FOTO con desaturación
+    if (img) {
+        const scale = Math.max(cfg.w / img.width, cfg.h / img.height);
+        const scaledW = img.width * scale;
+        const scaledH = img.height * scale;
+        const ix = (cfg.w - scaledW) / 2;
+        const iy = (cfg.h - scaledH) / 2;
+        ctx.filter = 'saturate(40%) brightness(60%)';
+        ctx.drawImage(img, ix, iy, scaledW, scaledH);
+        ctx.filter = 'none';
+    }
+
+    // OVERLAY oscuro
+    const grad = ctx.createLinearGradient(0, 0, 0, cfg.h);
+    grad.addColorStop(0, 'rgba(0,0,0,0.3)');
+    grad.addColorStop(0.5, 'rgba(0,0,0,0.55)');
+    grad.addColorStop(1, 'rgba(0,0,0,0.92)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, cfg.w, cfg.h);
+
+    // LÍNEA ROJA ARRIBA
+    ctx.fillStyle = '#E31E24';
+    ctx.fillRect(0, 0, cfg.w, 8);
+
+    // SELLO VENDIDO — diagonal grande en el centro
+    ctx.save();
+    ctx.translate(cfg.w / 2, cfg.h / 2);
+    ctx.rotate(-15 * Math.PI / 180);
+
+    // Borde del sello
+    const selW = cfg.w * 0.82;
+    const selH = cfg.w * 0.22;
+    ctx.strokeStyle = '#E31E24';
+    ctx.lineWidth = 12;
+    ctx.strokeRect(-selW / 2, -selH / 2, selW, selH);
+
+    // Texto VENDIDO
+    ctx.fillStyle = '#E31E24';
+    ctx.font = `900 ${Math.round(cfg.w * 0.16)}px Montserrat, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = 'rgba(0,0,0,0.8)';
+    ctx.shadowBlur = 20;
+    ctx.fillText('VENDIDO', 0, 0);
+    ctx.shadowBlur = 0;
+    ctx.restore();
+
+    // NOMBRE DEL AUTO abajo
+    const nombreY = cfg.h * (tipo === 'story' ? 0.72 : 0.68);
+    ctx.fillStyle = '#fff';
+    ctx.font = `900 ${Math.round(cfg.w * 0.065)}px Montserrat, sans-serif`;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.shadowColor = 'rgba(0,0,0,0.8)';
+    ctx.shadowBlur = 15;
+    wrapText(ctx, NOMBRE, pad, nombreY, cfg.w - pad * 2, Math.round(cfg.w * 0.075));
+
+    // KM
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.font = `400 ${Math.round(cfg.w * 0.032)}px Montserrat, sans-serif`;
+    ctx.fillText(KM, pad, nombreY + Math.round(cfg.w * 0.16));
+    ctx.shadowBlur = 0;
+
+    // GRACIAS texto
+    const graciasY = cfg.h * (tipo === 'story' ? 0.84 : 0.82);
+    ctx.fillStyle = 'rgba(255,255,255,0.45)';
+    ctx.font = `400 ${Math.round(cfg.w * 0.028)}px Montserrat, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText('¡Gracias por elegirnos!', cfg.w / 2, graciasY);
+
+    // LOGO
+    const logoSize = tipo === 'story' ? 52 : 46;
+    const logoY = cfg.h - logoSize * 2.6;
+    ctx.fillStyle = '#E31E24';
+    ctx.fillRect(cfg.w / 2 - 80, logoY - logoSize * 0.8, 160, 5);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = `900 ${logoSize}px Montserrat, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.shadowColor = 'rgba(0,0,0,0.9)';
+    ctx.shadowBlur = 20;
+    ctx.fillText('TODO @L DÍA', cfg.w / 2, logoY);
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    ctx.font = `400 ${Math.round(logoSize * 0.42)}px Montserrat, sans-serif`;
+    ctx.fillText('AUTOS SELECCIONADOS', cfg.w / 2, logoY + logoSize * 1.15);
+    ctx.shadowBlur = 0;
+
+    // Preview
+    const previewCanvas = document.createElement('canvas');
+    const previewScale = 300 / cfg.w;
+    previewCanvas.width = 300;
+    previewCanvas.height = cfg.h * previewScale;
+    const pCtx = previewCanvas.getContext('2d');
+    pCtx.drawImage(canvas, 0, 0, previewCanvas.width, previewCanvas.height);
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'placa-wrapper';
+    wrapper.innerHTML = `
+        <div class="placa-header">
+            <span class="placa-tipo">${cfg.label}</span>
+            <span class="placa-size">${cfg.size}</span>
+        </div>
+        <div class="canvas-container"></div>
+        <button class="btn-download" onclick="descargarPlaca('${tipo}_${fotoData.foto_id}')">⬇ Descargar HD</button>
+    `;
+    wrapper.querySelector('.canvas-container').appendChild(previewCanvas);
+    document.getElementById(cfg.grid).appendChild(wrapper);
+
+    canvases.push({ canvas, nombre: `todoaldia_vendido_${tipo}_${fotoData.foto_id}` });
+}
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+    const words = text.split(' ');
+    let line = '';
+    let currentY = y;
+    for (const word of words) {
+        const test = line + word + ' ';
+        if (ctx.measureText(test).width > maxWidth && line) {
+            ctx.fillText(line.trim(), x, currentY);
+            line = word + ' ';
+            currentY += lineHeight;
+        } else {
+            line = test;
+        }
+    }
+    ctx.fillText(line.trim(), x, currentY);
+}
+
+function descargarPlaca(nombre) {
+    const canvas = canvases.find(c => c.nombre === `todoaldia_vendido_${nombre}`);
+    if (!canvas) return;
+    const a = document.createElement('a');
+    a.download = `${canvas.nombre}_HD.png`;
+    canvas.canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        a.href = url;
+        a.click();
+        URL.revokeObjectURL(url);
+    }, 'image/png');
+}
+
+function descargarTodo() {
+    canvases.forEach((c, i) => {
+        setTimeout(() => {
+            const a = document.createElement('a');
+            a.download = `${c.nombre}_HD.png`;
+            a.href = c.canvas.toDataURL('image/png', 1.0);
+            a.click();
+        }, i * 500);
+    });
+}
+
+init();
+function copiarCopy() {
+    const texto = document.getElementById('copy-vendido').textContent.trim();
+    navigator.clipboard.writeText(texto);
+    event.target.textContent = '✓ Copiado';
+    setTimeout(() => event.target.textContent = 'Copiar', 2000);
+}
+</script>
+</body>
+</html>

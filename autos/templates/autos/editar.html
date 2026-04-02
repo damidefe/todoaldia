@@ -1,0 +1,250 @@
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Editar Auto — Todo @l Día</title>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { font-family: 'Montserrat', sans-serif; background: #f4f4f4; color: #111; }
+
+            header {
+                background: #111;
+                padding: 20px 40px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+            .logo { color: #fff; font-size: 22px; font-weight: 900; font-style: italic; }
+            .logo span { color: #E31E24; }
+            .btn-volver {
+                color: #888;
+                text-decoration: none;
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+            }
+            .btn-volver:hover { color: #fff; }
+
+            .container { max-width: 800px; margin: 40px auto; padding: 0 24px; }
+
+            .card {
+                background: #fff;
+                border-radius: 16px;
+                padding: 40px;
+                box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            }
+
+            .card-title {
+                font-size: 24px;
+                font-weight: 900;
+                margin-bottom: 8px;
+            }
+            .card-subtitle {
+                font-size: 12px;
+                color: #888;
+                margin-bottom: 32px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+            .grid-1 { display: grid; grid-template-columns: 1fr; gap: 20px; }
+
+            .field { display: flex; flex-direction: column; gap: 6px; }
+            .field label {
+                font-size: 10px;
+                font-weight: 900;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                color: #888;
+            }
+            .field input, .field textarea, .field select {
+                padding: 12px 16px;
+                border: 2px solid #eee;
+                border-radius: 10px;
+                font-size: 14px;
+                font-family: 'Montserrat', sans-serif;
+                outline: none;
+                transition: border 0.2s;
+                color: #111;
+            }
+            .field input:focus, .field textarea:focus { border-color: #E31E24; }
+            .field textarea { resize: vertical; min-height: 100px; }
+
+            .divider {
+                border: none;
+                border-top: 1px solid #f0f0f0;
+                margin: 28px 0;
+            }
+
+            .section-label {
+                font-size: 11px;
+                font-weight: 900;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                color: #E31E24;
+                margin-bottom: 16px;
+            }
+
+            .upload-area {
+                border: 2px dashed #ddd;
+                border-radius: 12px;
+                padding: 40px;
+                text-align: center;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            .upload-area:hover { border-color: #E31E24; background: #fff5f5; }
+            .upload-area p { font-size: 13px; font-weight: 700; color: #888; margin-top: 8px; }
+            .upload-area small { font-size: 11px; color: #bbb; }
+
+            #preview-fotos {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 10px;
+                margin-top: 16px;
+            }
+            #preview-fotos img {
+                width: 100%;
+                height: 100px;
+                object-fit: cover;
+                border-radius: 8px;
+                border: 2px solid #eee;
+            }
+
+            .btn-submit {
+                width: 100%;
+                background: #E31E24;
+                color: #fff;
+                border: none;
+                border-radius: 12px;
+                padding: 18px;
+                font-size: 14px;
+                font-weight: 900;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                font-family: 'Montserrat', sans-serif;
+                cursor: pointer;
+                margin-top: 28px;
+                transition: background 0.2s;
+            }
+            .btn-submit:hover { background: #c0191f; }
+
+            .ia-badge {
+                background: #fff5f5;
+                border: 1px solid #fdd;
+                border-radius: 8px;
+                padding: 12px 16px;
+                font-size: 12px;
+                color: #E31E24;
+                font-weight: 700;
+                margin-bottom: 20px;
+            }
+        </style>
+    </head>
+    <body>
+
+    <header>
+        <div class="logo">TODO <span>@L</span> DÍA</div>
+        <a href="/" class="btn-volver">← Volver al stock</a>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-title">Editar auto</div>
+            <div class="card-subtitle">La IA va a revisar la info y analizar las fotos</div>
+
+            <div class="ia-badge">
+                🤖 La IA revisará si falta información y analizará cada foto automáticamente
+            </div>
+
+            <form method="POST" enctype="multipart/form-data" action="/auto/{{ auto.id }}/editar/">
+                {% csrf_token %}
+
+                <div class="section-label">Datos del vehículo</div>
+                <div class="grid-2">
+                    <div class="field">
+                        <label>Marca *</label>
+                        <input type="text" name="marca" value="{{ auto.marca }}" required>
+                    </div>
+                    <div class="field">
+                        <label>Modelo *</label>
+                        <input type="text" name="modelo" value="{{ auto.modelo }}" required>
+                    </div>
+                    <div class="field">
+                        <label>Año *</label>
+                        <input type="number" name="anio" value="{{ auto.anio }}" required>
+                    </div>
+                    <div class="field">
+                        <label>Kilómetros *</label>
+                        <input type="number" name="km" value="{{ auto.km }}" required>
+                    </div>
+                    <div class="field">
+                        <label>Versión</label>
+                        <input type="text" name="version" value="{{ auto.version }}">
+                    </div>
+                    <div class="field">
+                        <label>Color</label>
+                        <input type="text" name="color" value="{{ auto.color }}">
+                    </div>
+                </div>
+
+                <hr class="divider">
+
+                <div class="section-label">Precio y detalles</div>
+                <div class="grid-2">
+                    <div class="field">
+                        <label>Precio de compra (interno)</label>
+                        <input type="number" name="precio_compra" placeholder="10000" value="{{ auto.precio_compra|default:'' }}">
+                    </div>
+                    <div class="field">
+                        <label>Precio de venta *</label>
+                        <input type="number" name="precio" value="{{ auto.precio }}" required>
+                    </div>
+                </div>
+                <div class="grid-1" style="margin-top: 16px;">
+                    <div class="field">
+                        <label>Detalles adicionales</label>
+                        <textarea name="detalles" placeholder="Full equipo, cuero, techo panorámico, único dueño..."></textarea>
+                    </div>
+                </div>
+
+                <hr class="divider">
+
+            <div class="section-label">Fotos del auto</div>
+    <div class="upload-area" onclick="document.getElementById('fotos-input').click()">
+        <p>📷 Hacé click para subir las fotos</p>
+        <small>Podés seleccionar varias fotos a la vez</small>
+    </div>
+    <input type="file" id="fotos-input" name="fotos" multiple accept="image/*" 
+        style="display:none; width:0; height:0; opacity:0; position:absolute;" 
+        onchange="previewFotos(this)">
+    <div id="preview-fotos"></div>
+
+<button type="submit" class="btn-submit">💾 Guardar/Modificar Datos →</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function previewFotos(input) {
+    const preview = document.getElementById('preview-fotos');
+    preview.innerHTML = '';
+    Array.from(input.files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            preview.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+</script>
+</body>
+</html>
+    </body>
+    </html>

@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe — {{ auto.marca }} {{ auto.modelo }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Montserrat', sans-serif; background: #111; color: #fff; min-height: 100vh; }
+        header { background: #000; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #222; }
+        .logo { font-size: 20px; font-weight: 900; font-style: italic; }
+        .logo span { color: #E31E24; }
+        .btn-volver { color: #666; text-decoration: none; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-volver:hover { color: #fff; }
+        .main { padding: 32px; max-width: 900px; margin: 0 auto; }
+        .section-title { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; color: #E31E24; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #222; }
+
+        /* WHATSAPP BOX */
+        .whatsapp-box {
+            background: #1a1a1a; border-radius: 14px; border: 1px solid #222;
+            padding: 24px; margin-bottom: 32px; position: relative;
+        }
+        .whatsapp-label { font-size: 9px; font-weight: 900; color: #E31E24; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+        .whatsapp-texto { font-size: 14px; color: #ccc; line-height: 1.8; }
+        .btn-copiar {
+            position: absolute; top: 16px; right: 16px;
+            background: #E31E24; color: #fff; border: none; border-radius: 6px;
+            padding: 6px 14px; font-size: 10px; font-weight: 900; cursor: pointer;
+            font-family: 'Montserrat', sans-serif; text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        /* PREVIEW DE LA PLACA */
+        .placa-wrapper { background: #1a1a1a; border-radius: 14px; overflow: hidden; border: 1px solid #222; margin-bottom: 32px; }
+        .placa-header { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
+        .placa-tipo { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: #E31E24; }
+        .canvas-container { padding: 12px; display: flex; justify-content: center; background: #0d0d0d; }
+        canvas { border-radius: 6px; max-width: 100%; height: auto; }
+        .btn-download { width: 100%; background: #E31E24; color: #fff; border: none; padding: 14px; font-size: 11px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; font-family: 'Montserrat', sans-serif; }
+        .btn-download:hover { background: #c0191f; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">TODO <span>@L</span> DÍA</div>
+    <a href="/auto/{{ auto.id }}/" class="btn-volver">← Volver al auto</a>
+</header>
+
+<div class="main">
+
+    <div style="margin-bottom:32px;">
+        <h1 style="font-size:24px; font-weight:900;">📊 Informe para el dueño</h1>
+        <p style="font-size:12px; color:#666; margin-top:4px;">{{ auto.marca }} {{ auto.modelo }} {{ auto.anio }}</p>
+    </div>
+
+    <!-- MENSAJE WHATSAPP -->
+    <div class="section-title">💬 Texto para enviar por WhatsApp</div>
+    <div class="whatsapp-box">
+        <div class="whatsapp-label">Mensaje sugerido</div>
+        <div class="whatsapp-texto" id="texto-whatsapp">{{ mensaje_whatsapp }}</div>
+        <button class="btn-copiar" onclick="copiarWhatsapp()">Copiar</button>
+    </div>
+
+    <!-- PLACA -->
+    <div class="section-title">🖼️ Imagen del informe</div>
+    <div class="placa-wrapper">
+        <div class="placa-header">
+            <span class="placa-tipo">Informe corporativo — 1080×1350</span>
+        </div>
+        <div class="canvas-container">
+            <canvas id="canvas-informe"></canvas>
+        </div>
+        <button class="btn-download" onclick="descargarInforme()">⬇ Descargar imagen HD</button>
+    </div>
+
+</div>
+
+<script>
+const MARCA = '{{ auto.marca }}';
+const MODELO = '{{ auto.modelo }}';
+const ANIO = '{{ auto.anio }}';
+const MENSAJE_PLACA = '{{ mensaje_placa|escapejs }}';
+const GASTOS_FIJOS = [
+    {% for gasto in gastos_fijos %}{ 
+        desc: '{{ gasto.descripcion|escapejs }}', 
+        monto: {{ gasto.monto }},
+        bonificado: {{ gasto.bonificado|yesno:"true,false" }}
+    },{% endfor %}
+];
+const GASTOS_VARIABLES = [
+    {% for gasto in gastos_variables %}{ 
+        desc: '{{ gasto.descripcion|escapejs }}', 
+        monto: {{ gasto.monto }},
+        comprobante_url: {% if gasto.comprobante %}'{{ gasto.comprobante.url }}'{% else %}null{% endif %}
+    },{% endfor %}
+];
+const TOTAL_GASTOS = {{ total_gastos }};
+const TOTAL_BONIFICADO = {{ total_bonificado }};
+
+let canvasHD = null;
+
+function formatPeso(n) {
+    return '$' + parseFloat(n).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+async function generarInforme() {
+    const W = 1080;
+    const pad = 60;
+
+    // ── PASO 1: calcular altura dinámica ──────────────────────────
+    let estimH = 0;
+    estimH += 8;    // línea roja
+    estimH += 100;  // franja logo
+    estimH += 50;   // label "INFORME DE GESTIÓN"
+    estimH += 36;   // marca/modelo
+    estimH += 36;   // año
+    estimH += 30;   // divisor
+
+    // servicios fijos: título + items
+    estimH += 30 + 24;
+    estimH += GASTOS_FIJOS.length * 30;
+
+    // divisor entre secciones
+    estimH += 10 + 2;
+
+    // gastos variables (solo si hay)
+    if (GASTOS_VARIABLES.length > 0) {
+        estimH += 28 + 24;                    // título
+        estimH += GASTOS_VARIABLES.length * 30; // items
+        estimH += 10 + 2 + 20 + 40;          // divisor + total
+    }
+
+    // divisor + mensaje corporativo
+    estimH += 10 + 2 + 36 + 60;
+
+    // footer
+    estimH += 16 + 2 + 20 + 30;
+
+    // padding de seguridad
+    estimH += 40;
+
+    const H = estimH;
+    // ─────────────────────────────────────────────────────────────
+
+    const canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    // FONDO
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(0, 0, W, H);
+
+    // LÍNEA ROJA ARRIBA
+    ctx.fillStyle = '#E31E24';
+    ctx.fillRect(0, 0, W, 8);
+
+    // FRANJA ROJA LOGO
+    ctx.fillStyle = '#E31E24';
+    ctx.fillRect(0, 8, W, 100);
+
+    // LOGO
+    ctx.fillStyle = '#fff';
+    ctx.font = '900 48px Montserrat, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('TODO @L DÍA', pad, 58);
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.font = '400 16px Montserrat, sans-serif';
+    ctx.fillText('26 AÑOS DE CONFIANZA · CABALLITO, BUENOS AIRES', pad, 88);
+
+    // DATOS DEL AUTO
+    let y = 150;
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.font = '700 13px Montserrat, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('INFORME DE GESTIÓN DEL VEHÍCULO', pad, y);
+
+    y += 36;
+    ctx.fillStyle = '#fff';
+    ctx.font = '900 42px Montserrat, sans-serif';
+    ctx.fillText(`${MARCA} ${MODELO}`, pad, y);
+
+    y += 36;
+    ctx.fillStyle = '#E31E24';
+    ctx.font = '700 20px Montserrat, sans-serif';
+    ctx.fillText(`Año ${ANIO}`, pad, y);
+
+    // DIVISOR
+    y += 30;
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(pad, y, W - pad * 2, 2);
+
+    // SERVICIOS FIJOS
+    y += 30;
+    ctx.fillStyle = '#E31E24';
+    ctx.font = '900 13px Montserrat, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('SERVICIOS INCLUIDOS', pad, y);
+
+    y += 24;
+    GASTOS_FIJOS.forEach(gasto => {
+        // Bullet
+        ctx.fillStyle = gasto.bonificado ? '#4caf50' : '#E31E24';
+        ctx.beginPath();
+        ctx.arc(pad + 8, y + 2, 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Descripción
+        ctx.fillStyle = gasto.bonificado ? '#ccc' : '#888';
+        ctx.font = '600 15px Montserrat, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(gasto.desc, pad + 24, y + 6);
+
+        // Badge bonificado o monto
+        ctx.textAlign = 'right';
+        if (gasto.bonificado) {
+            ctx.fillStyle = '#4caf50';
+            ctx.font = '700 13px Montserrat, sans-serif';
+            ctx.fillText('🎁 BONIFICADO', W - pad, y + 6);
+            if (gasto.monto > 0) {
+                ctx.fillStyle = 'rgba(76,175,80,0.5)';
+                ctx.font = '400 12px Montserrat, sans-serif';
+                ctx.fillText(formatPeso(gasto.monto), W - pad - 130, y + 6);
+            }
+        } else if (gasto.monto > 0) {
+            ctx.fillStyle = '#fff';
+            ctx.font = '700 15px Montserrat, sans-serif';
+            ctx.fillText(formatPeso(gasto.monto), W - pad, y + 6);
+        }
+        ctx.textAlign = 'left';
+        y += 30;
+    });
+
+    // TOTAL BONIFICADO
+    if (TOTAL_BONIFICADO > 0) {
+        y += 10;
+        ctx.fillStyle = '#1a2a1a';
+        ctx.fillRect(pad, y, W - pad * 2, 36);
+        ctx.fillStyle = '#4caf50';
+        ctx.font = '700 14px Montserrat, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('💰 TOTAL AHORRADO CON TODO @L DÍA', pad + 16, y + 22);
+        ctx.font = '900 18px Montserrat, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(formatPeso(TOTAL_BONIFICADO), W - pad - 10, y + 22);
+        ctx.textAlign = 'left';
+        y += 46;
+    }
+    // DIVISOR
+    y += 10;
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(pad, y, W - pad * 2, 2);
+
+    // GASTOS VARIABLES
+    if (GASTOS_VARIABLES.length > 0) {
+        y += 28;
+        ctx.fillStyle = '#E31E24';
+        ctx.font = '900 13px Montserrat, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('GASTOS ADICIONALES', pad, y);
+
+        y += 24;
+
+        // Cargar imágenes de comprobantes
+        const comprobantesPromises = GASTOS_VARIABLES.map(g => {
+            if (!g.comprobante_url) return Promise.resolve(null);
+            return new Promise(resolve => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = () => resolve(img);
+                img.onerror = () => resolve(null);
+                img.src = g.comprobante_url;
+            });
+        });
+
+        const comprobantes = await Promise.all(comprobantesPromises);
+
+        GASTOS_VARIABLES.forEach((gasto, i) => {
+            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+            ctx.font = '600 15px Montserrat, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(`· ${gasto.desc}`, pad + 10, y + 6);
+            ctx.fillStyle = '#fff';
+            ctx.font = '700 15px Montserrat, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText(formatPeso(gasto.monto), W - pad, y + 6);
+            ctx.textAlign = 'left';
+            y += 30;
+
+            // Comprobante foto
+            if (comprobantes[i]) {
+                const img = comprobantes[i];
+                const maxW = W - pad * 2;
+                const maxH = 300;
+                const scale = Math.min(maxW / img.width, maxH / img.height);
+                const iw = img.width * scale;
+                const ih = img.height * scale;
+                const ix = pad + (maxW - iw) / 2;
+
+                // Borde
+                ctx.strokeStyle = '#2a2a2a';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(ix - 2, y - 2, iw + 4, ih + 4);
+
+                ctx.drawImage(img, ix, y, iw, ih);
+
+                // Label
+                ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                ctx.font = '400 11px Montserrat, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('comprobante', W / 2, y + ih + 14);
+                ctx.textAlign = 'left';
+
+                y += ih + 24;
+            }
+        });
+
+        // TOTAL
+        y += 10;
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fillRect(pad, y, W - pad * 2, 2);
+        y += 20;
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        ctx.font = '700 14px Montserrat, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('TOTAL INVERTIDO EN EL VEHÍCULO', pad, y + 6);
+        ctx.fillStyle = '#fff';
+        ctx.font = '900 22px Montserrat, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(formatPeso(TOTAL_GASTOS), W - pad, y + 6);
+        ctx.textAlign = 'left';
+        y += 40;
+    }
+
+    // DIVISOR
+    y += 10;
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(pad, y, W - pad * 2, 2);
+
+    // MENSAJE CORPORATIVO
+    y += 36;
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.font = '400 italic 16px Montserrat, sans-serif';
+    ctx.textAlign = 'center';
+    wrapTextCenter(ctx, MENSAJE_PLACA, W / 2, y, W - pad * 3, 26);
+    y += 60;
+
+    // FOOTER — pegado al contenido real
+    y += 16;
+    ctx.fillStyle = '#E31E24';
+    ctx.fillRect(pad, y, W - pad * 2, 2);
+    y += 20;
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.font = '700 12px Montserrat, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('TODO @L DÍA · CABALLITO · 26 AÑOS VENDIENDO CON CONFIANZA', W / 2, y + 10);
+
+    canvasHD = canvas;
+
+    // Preview escalado
+    const preview = document.getElementById('canvas-informe');
+    const scale = 480 / W;
+    preview.width = 480;
+    preview.height = H * scale;
+    const pCtx = preview.getContext('2d');
+    pCtx.drawImage(canvas, 0, 0, preview.width, preview.height);
+}
+
+function wrapTextCenter(ctx, text, x, y, maxWidth, lineHeight) {
+    const words = text.split(' ');
+    let line = '';
+    let currentY = y;
+    for (const word of words) {
+        const test = line + word + ' ';
+        if (ctx.measureText(test).width > maxWidth && line) {
+            ctx.fillText(line.trim(), x, currentY);
+            line = word + ' ';
+            currentY += lineHeight;
+        } else {
+            line = test;
+        }
+    }
+    ctx.fillText(line.trim(), x, currentY);
+}
+
+function descargarInforme() {
+    if (!canvasHD) return;
+    const a = document.createElement('a');
+    a.download = `todoaldia_informe_{{ auto.id }}_HD.png`;
+    canvasHD.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        a.href = url;
+        a.click();
+        URL.revokeObjectURL(url);
+    }, 'image/png');
+}
+
+function copiarWhatsapp() {
+    const texto = document.getElementById('texto-whatsapp').textContent.trim();
+    navigator.clipboard.writeText(texto);
+    event.target.textContent = '✓ Copiado';
+    setTimeout(() => event.target.textContent = 'Copiar', 2000);
+}
+
+async function generarInforme();
+// ── INFORME INLINE ────────────────────────────────────────────
+let canvasInformeHD = null;
+
+function formatPesoInforme(n) {
+    return '$' + parseFloat(n).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+function wrapTextInforme(ctx, text, x, y, maxWidth, lineHeight) {
+    const words = text.split(' ');
+    let line = '';
+    let currentY = y;
+    for (const word of words) {
+        const test = line + word + ' ';
+        if (ctx.measureText(test).width > maxWidth && line) {
+            ctx.fillText(line.trim(), x, currentY);
+            line = word + ' ';
+            currentY += lineHeight;
+        } else {
+            line = test;
+        }
+    }
+    ctx.fillText(line.trim(), x, currentY);
+}
+
+async function generarInformeInline(d) {
+    const btnEl = document.getElementById('btn-generar-informe');
+    if (btnEl) { btnEl.textContent = '⏳ Generando...'; btnEl.disabled = true; }
+
+    // Cargar imágenes de comprobantes
+    const gastosVariables = (d.gastos || []).filter(g => g.tipo === 'variable');
+    const gastosFijos     = (d.gastos || []).filter(g => g.tipo === 'fijo');
+    const totalGastos     = gastosVariables.reduce((s, g) => s + g.monto, 0);
+    const totalBonificado = gastosFijos.filter(g => g.bonificado).reduce((s, g) => s + g.monto, 0);
+
+    const comprobantesPromises = gastosVariables.map(g => {
+        if (!g.comprobante_url) return Promise.resolve(null);
+        return cargarImagenCanvas(g.comprobante_url);
+    });
+    const comprobantes = await Promise.all(comprobantesPromises);
+
+    // Obtener copy del informe
+    const copyInforme = d.contenido ? (d.contenido.copy_informe || '') : '';
+
+    // Calcular altura dinámica
+    const W = 1080;
+    const pad = 60;
+    let estimH = 8 + 100 + 50 + 36 + 36 + 30; // header
+    estimH += 30 + 24 + gastosFijos.length * 30; // servicios
+    if (totalBonificado > 0) estimH += 46;
+    estimH += 10 + 2;
+    if (gastosVariables.length > 0) {
+        estimH += 28 + 24 + gastosVariables.length * 30;
+        comprobantes.forEach(img => { if (img) estimH += Math.min(300, img.height * (W - pad*2) / img.width) + 40; });
+        estimH += 10 + 2 + 20 + 40;
+    }
+    if (copyInforme) estimH += 10 + 2 + 36 + 80;
+    estimH += 16 + 2 + 20 + 30 + 40;
+
+    const H = estimH;
+    const canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
+    // FONDO
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(0, 0, W, H);
+
+    // LÍNEA ROJA
+    ctx.fillStyle = '#E31E24';
+    ctx.fillRect(0, 0, W, 8);
+
+    // FRANJA LOGO
+    ctx.fillStyle = '#E31E24';
+    ctx.fillRect(0, 8, W, 100);
+    ctx.fillStyle = '#fff';
+    ctx.font = '900 48px Montserrat, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('TODO @L DÍA', pad, 58);
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.font = '400 16px Montserrat, sans-serif';
+    ctx.fillText('26 AÑOS DE CONFIANZA · CABALLITO', pad, 88);
+
+    // DATOS AUTO
+    let y = 150;
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.font = '700 13px Montserrat, sans-serif';
+    ctx.fillText('INFORME DE GESTIÓN DEL VEHÍCULO', pad, y);
+    y += 36;
+    ctx.fillStyle = '#fff';
+    ctx.font = '900 42px Montserrat, sans-serif';
+    ctx.fillText(`${d.marca} ${d.modelo}`, pad, y);
+    y += 36;
+    ctx.fillStyle = '#E31E24';
+    ctx.font = '700 20px Montserrat, sans-serif';
+    ctx.fillText(`Año ${d.anio}`, pad, y);
+
+    // DIVISOR
+    y += 30;
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(pad, y, W - pad*2, 2);
+
+    // SERVICIOS FIJOS
+    y += 30;
+    ctx.fillStyle = '#E31E24';
+    ctx.font = '900 13px Montserrat, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('SERVICIOS INCLUIDOS', pad, y);
+    y += 24;
+
+    gastosFijos.forEach(g => {
+        ctx.fillStyle = g.bonificado ? '#4caf50' : '#E31E24';
+        ctx.beginPath();
+        ctx.arc(pad + 8, y + 2, 6, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = g.bonificado ? '#ccc' : '#888';
+        ctx.font = '600 15px Montserrat, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(g.descripcion, pad + 24, y + 6);
+        ctx.textAlign = 'right';
+        if (g.bonificado) {
+            ctx.fillStyle = '#4caf50';
+            ctx.font = '700 13px Montserrat, sans-serif';
+            ctx.fillText('🎁 BONIFICADO', W - pad, y + 6);
+            if (g.monto > 0) {
+                ctx.fillStyle = 'rgba(76,175,80,0.5)';
+                ctx.font = '400 12px Montserrat, sans-serif';
+                ctx.fillText(formatPesoInforme(g.monto), W - pad - 130, y + 6);
+            }
+        } else if (g.monto > 0) {
+            ctx.fillStyle = '#fff';
+            ctx.font = '700 15px Montserrat, sans-serif';
+            ctx.fillText(formatPesoInforme(g.monto), W - pad, y + 6);
+        }
+        ctx.textAlign = 'left';
+        y += 30;
+    });
+
+    // TOTAL BONIFICADO
+    if (totalBonificado > 0) {
+        y += 10;
+        ctx.fillStyle = '#1a2a1a';
+        ctx.fillRect(pad, y, W - pad*2, 36);
+        ctx.fillStyle = '#4caf50';
+        ctx.font = '700 14px Montserrat, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('💰 TOTAL AHORRADO CON TODO @L DÍA', pad + 16, y + 22);
+        ctx.font = '900 18px Montserrat, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(formatPesoInforme(totalBonificado), W - pad - 10, y + 22);
+        ctx.textAlign = 'left';
+        y += 46;
+    }
+
+    // DIVISOR
+    y += 10;
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(pad, y, W - pad*2, 2);
+
+    // GASTOS VARIABLES
+    if (gastosVariables.length > 0) {
+        y += 28;
+        ctx.fillStyle = '#E31E24';
+        ctx.font = '900 13px Montserrat, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('GASTOS ADICIONALES', pad, y);
+        y += 24;
+
+        gastosVariables.forEach((g, i) => {
+            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+            ctx.font = '600 15px Montserrat, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(`· ${g.descripcion}`, pad + 10, y + 6);
+            ctx.fillStyle = '#fff';
+            ctx.font = '700 15px Montserrat, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText(formatPesoInforme(g.monto), W - pad, y + 6);
+            ctx.textAlign = 'left';
+            y += 30;
+
+            if (comprobantes[i]) {
+                const img = comprobantes[i];
+                const maxW = W - pad*2;
+                const maxH = 300;
+                const scale = Math.min(maxW / img.width, maxH / img.height);
+                const iw = img.width * scale;
+                const ih = img.height * scale;
+                const ix = pad + (maxW - iw) / 2;
+                ctx.strokeStyle = '#2a2a2a';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(ix-2, y-2, iw+4, ih+4);
+                ctx.drawImage(img, ix, y, iw, ih);
+                ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                ctx.font = '400 11px Montserrat, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('comprobante', W/2, y + ih + 14);
+                ctx.textAlign = 'left';
+                y += ih + 28;
+            }
+        });
+
+        // TOTAL
+        y += 10;
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fillRect(pad, y, W - pad*2, 2);
+        y += 20;
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        ctx.font = '700 14px Montserrat, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('TOTAL GASTOS ADICIONALES', pad, y + 6);
+        ctx.fillStyle = '#fff';
+        ctx.font = '900 22px Montserrat, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(formatPesoInforme(totalGastos), W - pad, y + 6);
+        ctx.textAlign = 'left';
+        y += 40;
+    }
+
+    // COPY INFORME
+    if (copyInforme) {
+        y += 10;
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fillRect(pad, y, W - pad*2, 2);
+        y += 36;
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        ctx.font = '400 italic 16px Montserrat, sans-serif';
+        ctx.textAlign = 'center';
+        wrapTextInforme(ctx, copyInforme, W/2, y, W - pad*3, 26);
+        y += 80;
+    }
+
+    // FOOTER
+    y += 16;
+    ctx.fillStyle = '#E31E24';
+    ctx.fillRect(pad, y, W - pad*2, 2);
+    y += 20;
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.font = '700 12px Montserrat, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('TODO @L DÍA · CABALLITO · 26 AÑOS VENDIENDO CON CONFIANZA', W/2, y + 10);
+
+    canvasInformeHD = canvas;
+
+    // Preview
+    const previewEl = document.getElementById('informe-preview');
+    if (previewEl) {
+        const prev = document.createElement('canvas');
+        const scale = (previewEl.offsetWidth || 280) / W;
+        prev.width = previewEl.offsetWidth || 280;
+        prev.height = H * scale;
+        prev.style.width = '100%';
+        prev.style.borderRadius = '8px';
+        prev.getContext('2d').drawImage(canvas, 0, 0, prev.width, prev.height);
+        previewEl.innerHTML = '';
+        previewEl.appendChild(prev);
+    }
+
+    if (btnEl) { btnEl.textContent = '✓ Informe generado'; btnEl.disabled = false; }
+    const accionesEl = document.getElementById('informe-acciones');
+    if (accionesEl) accionesEl.style.display = 'flex';
+}
+
+function descargarInformeInline() {
+    if (!canvasInformeHD) { alert('Primero generá el informe'); return; }
+    canvasInformeHD.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.download = `todoaldia_informe_${AUTO_ID_ACTUAL}_HD.png`;
+        a.href = url;
+        a.click();
+        URL.revokeObjectURL(url);
+    }, 'image/png');
+}
+
+</script>
+</body>
+</html>

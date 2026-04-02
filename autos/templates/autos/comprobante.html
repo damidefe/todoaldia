@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprobante — {{ auto.marca }} {{ auto.modelo }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Montserrat', sans-serif; background: #111; color: #fff; min-height: 100vh; }
+        header { background: #000; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #222; }
+        .logo { font-size: 20px; font-weight: 900; font-style: italic; }
+        .logo span { color: #E31E24; }
+        .btn-volver { color: #666; text-decoration: none; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-volver:hover { color: #fff; }
+        .main { padding: 32px; max-width: 900px; margin: 0 auto; }
+        .section-title { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; color: #E31E24; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #222; }
+        .whatsapp-box { background: #1a1a1a; border-radius: 14px; border: 1px solid #222; padding: 24px; margin-bottom: 32px; position: relative; }
+        .whatsapp-label { font-size: 9px; font-weight: 900; color: #E31E24; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+        .whatsapp-texto { font-size: 14px; color: #ccc; line-height: 1.8; }
+        .btn-copiar { position: absolute; top: 16px; right: 16px; background: #E31E24; color: #fff; border: none; border-radius: 6px; padding: 6px 14px; font-size: 10px; font-weight: 900; cursor: pointer; font-family: 'Montserrat', sans-serif; text-transform: uppercase; letter-spacing: 1px; }
+        .placa-wrapper { background: #1a1a1a; border-radius: 14px; overflow: hidden; border: 1px solid #222; margin-bottom: 32px; }
+        .placa-header { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
+        .placa-tipo { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: #E31E24; }
+        .canvas-container { padding: 12px; display: flex; justify-content: center; background: #0d0d0d; }
+        canvas { border-radius: 6px; max-width: 100%; height: auto; }
+        .btn-download { width: 100%; background: #E31E24; color: #fff; border: none; padding: 14px; font-size: 11px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; font-family: 'Montserrat', sans-serif; }
+        .btn-download:hover { background: #c0191f; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">TODO <span>@L</span> DÍA</div>
+    <a href="/auto/{{ auto.id }}/" class="btn-volver">← Volver al auto</a>
+</header>
+
+<div class="main">
+
+    <div style="margin-bottom:32px;">
+        <h1 style="font-size:24px; font-weight:900;">🧾 Comprobante de recepción</h1>
+        <p style="font-size:12px; color:#666; margin-top:4px;">{{ auto.marca }} {{ auto.modelo }} {{ auto.anio }} · {{ recepcion.nombre_cliente }}</p>
+    </div>
+
+    <div class="section-title">💬 Texto para enviar por WhatsApp</div>
+    <div class="whatsapp-box">
+        <div class="whatsapp-label">Mensaje sugerido</div>
+        <div class="whatsapp-texto" id="texto-whatsapp">{{ mensaje_whatsapp }}</div>
+        <button class="btn-copiar" onclick="copiarWhatsapp()">Copiar</button>
+    </div>
+
+    <div class="section-title">🖼️ Comprobante visual</div>
+    <div class="placa-wrapper">
+        <div class="placa-header">
+            <span class="placa-tipo">Comprobante de recepción — 1080×1350</span>
+        </div>
+        <div class="canvas-container">
+            <canvas id="canvas-comprobante"></canvas>
+        </div>
+        <button class="btn-download" onclick="descargarComprobante()">⬇ Descargar HD</button>
+    </div>
+
+</div>
+
+<script>
+const DATA = {
+    marca: '{{ auto.marca|escapejs }}',
+    modelo: '{{ auto.modelo|escapejs }}',
+    anio: '{{ auto.anio }}',
+    km: '{{ recepcion.kilometraje_ingreso|default:auto.km }}',
+    cliente: '{{ recepcion.nombre_cliente|escapejs }}',
+    telefono: '{{ recepcion.telefono_cliente|escapejs }}',
+    fecha: '{{ recepcion.fecha|date:"d/m/Y" }}',
+    estado_carroceria: '{{ recepcion.get_estado_carroceria_display }}',
+    detalles_carroceria: '{{ recepcion.detalles_carroceria|escapejs }}',
+    observaciones: '{{ recepcion.observaciones|escapejs }}',
+    mensaje: '{{ mensaje_comprobante|escapejs }}',
+    docs: {
+        titulo: {{ recepcion.tiene_titulo|yesno:"true,false" }},
+        dni: {{ recepcion.tiene_dni_titular|yesno:"true,false" }},
+        vtv: {{ recepcion.tiene_vtv|yesno:"true,false" }},
+        seguro: {{ recepcion.tiene_seguro|yesno:"true,false" }},
+        libre_deuda: {{ recepcion.tiene_libre_deuda|yesno:"true,false" }},
+        service: {{ recepcion.tiene_service_history|yesno:"true,false" }},
+        llave: {{ recepcion.tiene_llave_duplicado|yesno:"true,false" }},
+        manual: {{ recepcion.tiene_manual|yesno:"true,false" }},
+    },
+    extras: {
+        gato: {{ recepcion.tiene_gato|yesno:"true,false" }},
+        rueda: {{ recepcion.tiene_rueda_auxilio|yesno:"true,false" }},
+        balizas: {{ recepcion.tiene_balizas|yesno:"true,false" }},
+    }
+};
+
+let canvasHD = null;
+
+function generarComprobante() {
+    const W = 1080;
+    const pad = 60;
+
+    // ── PASO 1: calcular altura dinámica ──────────────────────────
+    // Empezamos sumando los bloques fijos que SIEMPRE están presentes
+    let estimH = 0;
+    estimH += 8;          // línea roja superior
+    estimH += 90;         // franja logo
+    estimH += 50;         // datos auto: label "VEHÍCULO RECIBIDO"
+    estimH += 32;         // nombre marca/modelo
+    estimH += 30;         // año + km
+    estimH += 28;         // cliente
+    estimH += 24;         // divisor + margen
+    estimH += 28;         // título "DOCUMENTACIÓN"
+
+    // docs: 4 filas de 2 columnas, 28px cada una
+    const filasDocs = Math.ceil(8 / 2);
+    estimH += filasDocs * 28 + 10;
+
+    // extras: 1 fila
+    estimH += 2 + 24 + 28 + 36; // divisor + título + items + margen
+
+    // estado carrocería
+    estimH += 2 + 24 + 28 + 22; // divisor + título + carrocería + texto
+
+    if (DATA.detalles_carroceria) estimH += 40;
+    if (DATA.observaciones)      estimH += 2 + 24 + 28 + 40;
+
+    // mensaje corporativo
+    estimH += 2 + 28 + 60;  // divisor + margen + líneas del mensaje
+
+    // footer
+    estimH += 80;
+
+    // padding extra de seguridad abajo
+    estimH += 40;
+
+    const H = estimH;
+    // ─────────────────────────────────────────────────────────────
+
+    const canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    // FONDO
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(0, 0, W, H);
+
+    // LÍNEA ROJA ARRIBA
+    ctx.fillStyle = '#E31E24';
+    ctx.fillRect(0, 0, W, 8);
+
+    // FRANJA LOGO
+    ctx.fillStyle = '#E31E24';
+    ctx.fillRect(0, 8, W, 90);
+    ctx.fillStyle = '#fff';
+    ctx.font = '900 44px Montserrat, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('TODO @L DÍA', pad, 53);
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.font = '400 14px Montserrat, sans-serif';
+    ctx.fillText('COMPROBANTE DE RECEPCIÓN', pad, 83);
+
+    // FECHA arriba derecha
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ctx.font = '700 14px Montserrat, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(DATA.fecha, W - pad, 53);
+    ctx.textAlign = 'left';
+
+    // DATOS AUTO
+    let y = 140;
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.font = '700 11px Montserrat, sans-serif';
+    ctx.fillText('VEHÍCULO RECIBIDO', pad, y);
+
+    y += 32;
+    ctx.fillStyle = '#fff';
+    ctx.font = '900 38px Montserrat, sans-serif';
+    ctx.fillText(`${DATA.marca} ${DATA.modelo}`, pad, y);
+
+    y += 30;
+    ctx.fillStyle = '#E31E24';
+    ctx.font = '700 18px Montserrat, sans-serif';
+    ctx.fillText(`Año ${DATA.anio}  ·  ${parseInt(DATA.km).toLocaleString('es-AR')} km al ingreso`, pad, y);
+
+    y += 28;
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.font = '600 14px Montserrat, sans-serif';
+    ctx.fillText(`Cliente: ${DATA.cliente}${DATA.telefono ? '  ·  ' + DATA.telefono : ''}`, pad, y);
+
+    // DIVISOR
+    y += 24;
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(pad, y, W - pad * 2, 2);
+
+    // DOCUMENTACIÓN
+    y += 28;
+    ctx.fillStyle = '#E31E24';
+    ctx.font = '900 12px Montserrat, sans-serif';
+    ctx.fillText('DOCUMENTACIÓN ENTREGADA', pad, y);
+
+    y += 22;
+    const docsItems = [
+        { label: 'Título del vehículo',    val: DATA.docs.titulo },
+        { label: 'DNI del titular',        val: DATA.docs.dni },
+        { label: 'VTV vigente',            val: DATA.docs.vtv },
+        { label: 'Seguro',                 val: DATA.docs.seguro },
+        { label: 'Libre de deuda',         val: DATA.docs.libre_deuda },
+        { label: 'Historial de services',  val: DATA.docs.service },
+        { label: 'Llave duplicado',        val: DATA.docs.llave },
+        { label: 'Manual del vehículo',    val: DATA.docs.manual },
+    ];
+
+    const colW = (W - pad * 2) / 2;
+    docsItems.forEach((item, i) => {
+        const col = i % 2;
+        const row = Math.floor(i / 2);
+        const x  = pad + col * colW;
+        const iy = y + row * 28;
+
+        ctx.fillStyle = item.val ? '#2e7d32' : '#333';
+        ctx.beginPath();
+        ctx.arc(x + 8, iy + 2, 7, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = item.val ? '#fff' : '#555';
+        ctx.font = `${item.val ? '700' : '400'} 13px Montserrat, sans-serif`;
+        ctx.fillText(item.val ? '✓ ' + item.label : '✗ ' + item.label, x + 22, iy + 6);
+    });
+
+    y += Math.ceil(docsItems.length / 2) * 28 + 10;
+
+    // EXTRAS
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(pad, y, W - pad * 2, 2);
+    y += 24;
+
+    ctx.fillStyle = '#E31E24';
+    ctx.font = '900 12px Montserrat, sans-serif';
+    ctx.fillText('EXTRAS ENTREGADOS', pad, y);
+    y += 22;
+
+    const extrasItems = [
+        { label: 'Gato hidráulico',      val: DATA.extras.gato },
+        { label: 'Rueda de auxilio',     val: DATA.extras.rueda },
+        { label: 'Balizas / triángulos', val: DATA.extras.balizas },
+    ];
+
+    extrasItems.forEach((item, i) => {
+        const x = pad + i * (colW * 0.8);
+        ctx.fillStyle = item.val ? '#2e7d32' : '#333';
+        ctx.beginPath();
+        ctx.arc(x + 8, y + 2, 7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = item.val ? '#fff' : '#555';
+        ctx.font = `${item.val ? '700' : '400'} 13px Montserrat, sans-serif`;
+        ctx.fillText(item.val ? '✓ ' + item.label : '✗ ' + item.label, x + 22, y + 6);
+    });
+
+    y += 36;
+
+    // ESTADO CARROCERÍA
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(pad, y, W - pad * 2, 2);
+    y += 24;
+
+    ctx.fillStyle = '#E31E24';
+    ctx.font = '900 12px Montserrat, sans-serif';
+    ctx.fillText('ESTADO DEL VEHÍCULO AL INGRESO', pad, y);
+    y += 22;
+
+    ctx.fillStyle = '#fff';
+    ctx.font = '700 15px Montserrat, sans-serif';
+    ctx.fillText(`Carrocería: ${DATA.estado_carroceria}`, pad, y);
+    y += 22;
+
+    if (DATA.detalles_carroceria) {
+        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+        ctx.font = '400 13px Montserrat, sans-serif';
+        wrapText(ctx, DATA.detalles_carroceria, pad, y, W - pad * 2, 20);
+        y += 40;
+    }
+
+    if (DATA.observaciones) {
+        y += 10;
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fillRect(pad, y, W - pad * 2, 2);
+        y += 24;
+        ctx.fillStyle = '#E31E24';
+        ctx.font = '900 12px Montserrat, sans-serif';
+        ctx.fillText('OBSERVACIONES', pad, y);
+        y += 22;
+        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+        ctx.font = '400 13px Montserrat, sans-serif';
+        wrapText(ctx, DATA.observaciones, pad, y, W - pad * 2, 20);
+        y += 40;
+    }
+
+    // MENSAJE CORPORATIVO
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(pad, y, W - pad * 2, 2);
+    y += 28;
+
+    ctx.fillStyle = 'rgba(255,255,255,0.45)';
+    ctx.font = '400 italic 15px Montserrat, sans-serif';
+    ctx.textAlign = 'center';
+    wrapTextCenter(ctx, DATA.mensaje, W / 2, y, W - pad * 3, 24);
+    y += 60;
+
+    // FOOTER — pegado al final del contenido real, no a 1350
+    y += 16;
+    ctx.fillStyle = '#E31E24';
+    ctx.fillRect(pad, y, W - pad * 2, 2);
+    y += 20;
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.font = '700 11px Montserrat, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('TODO @L DÍA · CABALLITO · 26 AÑOS VENDIENDO CON CONFIANZA', W / 2, y + 8);
+
+    canvasHD = canvas;
+
+    // Preview escalado
+    const preview = document.getElementById('canvas-comprobante');
+    const scale = 480 / W;
+    preview.width = 480;
+    preview.height = H * scale;
+    const pCtx = preview.getContext('2d');
+    pCtx.drawImage(canvas, 0, 0, preview.width, preview.height);
+}
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+    const words = text.split(' ');
+    let line = '';
+    let currentY = y;
+    for (const word of words) {
+        const test = line + word + ' ';
+        if (ctx.measureText(test).width > maxWidth && line) {
+            ctx.fillText(line.trim(), x, currentY);
+            line = word + ' ';
+            currentY += lineHeight;
+        } else {
+            line = test;
+        }
+    }
+    ctx.fillText(line.trim(), x, currentY);
+}
+
+function wrapTextCenter(ctx, text, x, y, maxWidth, lineHeight) {
+    const words = text.split(' ');
+    let line = '';
+    let currentY = y;
+    for (const word of words) {
+        const test = line + word + ' ';
+        if (ctx.measureText(test).width > maxWidth && line) {
+            ctx.fillText(line.trim(), x, currentY);
+            line = word + ' ';
+            currentY += lineHeight;
+        } else {
+            line = test;
+        }
+    }
+    ctx.fillText(line.trim(), x, currentY);
+}
+
+function descargarComprobante() {
+    if (!canvasHD) return;
+    const a = document.createElement('a');
+    a.download = `todoaldia_comprobante_{{ auto.id }}_HD.png`;
+    canvasHD.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        a.href = url;
+        a.click();
+        URL.revokeObjectURL(url);
+    }, 'image/png');
+}
+
+function copiarWhatsapp() {
+    const texto = document.getElementById('texto-whatsapp').textContent.trim();
+    navigator.clipboard.writeText(texto);
+    event.target.textContent = '✓ Copiado';
+    setTimeout(() => event.target.textContent = 'Copiar', 2000);
+}
+
+generarComprobante();
+</script>
+</body>
+</html>
