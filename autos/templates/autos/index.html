@@ -17,8 +17,21 @@
             image-rendering: -webkit-optimize-contrast;
             image-rendering: crisp-edges;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Montserrat', sans-serif; background: #111; color: #fff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+        h1, h2, h3, .logo, .card-modelo, .auto-nombre-big, .tab-link, .btn, .col-header, .section-title, .field-label, .stat-num {
+            text-shadow: 0 0 1px rgba(255,255,255,0.1);
+            transform: translateZ(0);
+        }
+        body { 
+        font-family: 'Montserrat', sans-serif; 
+        background: #111; 
+        color: #fff; 
+        -webkit-font-smoothing: antialiased; 
+        -moz-osx-font-smoothing: grayscale; 
+        text-rendering: geometricPrecision;
+        transform: translateZ(0);
+        }
  
         /* ════ HEADER ════ */
         header {
