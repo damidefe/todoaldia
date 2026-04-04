@@ -1440,9 +1440,9 @@ async function renderColPublicacion(d) {
         </div>
 
         <div style="display:flex; gap:12px; align-items:flex-start; margin-bottom:12px;">
-            <div id="preview-post-${d.id}" style="flex-shrink:0; border-radius:6px; overflow:hidden;"></div>
-            <div style="font-size:10px; color:#333; font-style:italic; margin-bottom:8px;">
-                💡 Tocá la imagen para descargarla
+            <div style="flex-shrink:0; display:flex; flex-direction:column; gap:4px; align-items:center;">
+                <div id="preview-post-${d.id}" style="border-radius:6px; overflow:hidden;"></div>
+                <div style="font-size:9px; color:#333; font-style:italic; text-align:center;">💡 Tocá para descargar</div>
             </div>
             <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:8px;">
                 <a href="https://business.facebook.com" target="_blank"
@@ -1505,9 +1505,9 @@ async function renderColPublicacion(d) {
             📱 Story Principal
         </div>
         <div style="display:flex; gap:12px; align-items:flex-start;">
-            <div id="preview-story-${d.id}" style="flex-shrink:0; border-radius:6px; overflow:hidden;"></div>
-            <div style="font-size:10px; color:#333; font-style:italic; margin-bottom:8px;">
-                💡 Tocá la imagen para descargarla
+            <div style="flex-shrink:0; display:flex; flex-direction:column; gap:4px; align-items:center;">
+                <div id="preview-story-${d.id}" style="border-radius:6px; overflow:hidden;"></div>
+                <div style="font-size:9px; color:#333; font-style:italic; text-align:center;">💡 Tocá para descargar</div>
             </div>
             <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:8px;">
                 <a href="https://business.facebook.com" target="_blank"
