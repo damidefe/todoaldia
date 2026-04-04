@@ -3635,9 +3635,9 @@ function cancelarEditPedido(id) {
 
 const MKT_TIPOS = [
     { id: 'consignacion', label: '🔑 Consignación',
-      titulo: 'VENDÉ TU AUTO\nSIN MOVERTE DE CASA',
+      titulo: 'VENDE TU AUTO\nSIN MOVERTE DE CASA',
       subtexto: 'Nos encargamos de todo: fotos,\npublicación y trámites.\nVos cobrás cuando se vende.',
-      cta: '📲 Consultá sin compromiso → 11-XXXX-XXXX' },
+      cta: '📲 Consultá sin compromiso → 11-6095-8854' },
     { id: 'permuta', label: '🔄 Permuta',
       titulo: 'TOMAMOS TU AUTO\nEN PARTE DE PAGO',
       subtexto: 'Permutamos con autos y motos.\nConsultanos sin compromiso.',
@@ -3661,15 +3661,32 @@ let mktConfig = {
     editor: 'post',
     subtab: 'texto',
     imagen: null,
+    imagen2: null,
     titulo: MKT_TIPOS[0].titulo,
     subtexto: MKT_TIPOS[0].subtexto,
     cta: MKT_TIPOS[0].cta,
+    // Título
     titleSize: 88,
+    titleY: 62,
+    titlePad: 110,
+    // Subtexto
     bodySize: 38,
-    padding: 110,
+    bodyY: 0,
+    bodyPad: 110,
+    // CTA
+    ctaSize: 34,
+    ctaY: 0,
+    ctaPad: 110,
+    // Globales
     gradientOpacity: 0.62,
     blur: 0,
-    brandingY: 91,
+    brandingPad: 110,
+    layout: 1,
+    modo: 'completo',
+    frase: '',
+    padding: 110,
+    fotoOffsetY: 0,
+    foto2OffsetY: 0,
 };
 
 let mktDrawTimer = null;
@@ -3683,7 +3700,7 @@ function mktInit() {
 
     // Renderizar botones de layouts STORY
     const layoutsEl = document.getElementById('mkt-layouts');
-    const layoutDefs = [
+    const layoutDefsStory = [
         { id:1, icon:'⬆️📷', label:'Texto arriba\nFoto abajo' },
         { id:2, icon:'🖼️',   label:'Foto full\ntexto centro' },
         { id:3, icon:'◧',    label:'Dos zonas\nimg+texto' },
@@ -3692,9 +3709,9 @@ function mktInit() {
         { id:6, icon:'⬆️⬇️', label:'Doble foto' },
         { id:7, icon:'🔴',   label:'Urgencia\nbanda color' },
     ];
-    layoutDefs.forEach(l => {
+    layoutDefsStory.forEach(l => {
         const btn = document.createElement('button');
-        btn.id = `mkt-layout-${l.id}`;
+        btn.id = `mkt-layout-story-${l.id}`;
         btn.onclick = () => mktSetLayout(l.id);
         btn.style.cssText = `padding:8px 4px; border-radius:7px; border:1px solid;
             border-color:${l.id === 1 ? '#E31E24' : '#222'};
@@ -3705,6 +3722,30 @@ function mktInit() {
         btn.innerHTML = `<div style="font-size:14px; margin-bottom:3px;">${l.icon}</div>${l.label.replace('\n','<br>')}`;
         layoutsEl.appendChild(btn);
     });
+
+    // Renderizar botones de layouts POST
+    const layoutsPostEl = document.getElementById('mkt-layouts-post');
+    const layoutDefsPost = [
+        { id:1, icon:'⬇️',  label:'Texto\nabajo' },
+        { id:2, icon:'⬆️',  label:'Texto\narriba' },
+        { id:3, icon:'✕',   label:'Sin\ntexto' },
+        { id:4, icon:'⊙',   label:'Texto\ncentrado' },
+        { id:5, icon:'⬆️⬇️', label:'Doble\nfoto' },
+    ];
+    layoutDefsPost.forEach(l => {
+        const btn = document.createElement('button');
+        btn.id = `mkt-layout-post-${l.id}`;
+        btn.onclick = () => mktSetLayout(l.id);
+        btn.style.cssText = `padding:8px 4px; border-radius:7px; border:1px solid;
+            border-color:${l.id === 1 ? '#E31E24' : '#222'};
+            background:${l.id === 1 ? 'rgba(227,30,36,0.12)' : '#181818'};
+            color:${l.id === 1 ? '#E31E24' : '#555'};
+            font-size:9px; font-weight:700; cursor:pointer; text-align:center;
+            font-family:'Montserrat',sans-serif; line-height:1.4;`;
+        btn.innerHTML = `<div style="font-size:14px; margin-bottom:3px;">${l.icon}</div>${l.label.replace('\n','<br>')}`;
+        layoutsPostEl.appendChild(btn);
+    });
+
     mktConfig.layout = 1;
     mktConfig.modo = 'completo';
     mktConfig.frase = MKT_TIPOS[0].frase || 'TU AUTO VENDIDO SIN ESFUERZO';
@@ -3723,31 +3764,7 @@ function mktInit() {
         tiposEl.appendChild(btn);
     });
 
-    // Renderizar sliders visuales
-    const visualEl = document.getElementById('mkt-panel-visual');
-    const sliders = [
-        { label:'Posición del texto', key:'textY', min:10, max:70, val:28 },
-        { label:'Tamaño título',      key:'titleSize', min:40, max:130, val:88 },
-        { label:'Tamaño subtexto',    key:'bodySize',  min:20, max:60,  val:38 },
-        { label:'Oscuridad fondo',    key:'gradientOpacity', min:0, max:100, val:62, float:true },
-        { label:'Desenfoque foto',    key:'blur',      min:0,  max:20,  val:0  },
-        { label:'Margen lateral',     key:'padding',   min:60, max:200, val:110},
-        { label:'Posición branding',  key:'brandingY', min:80, max:97,  val:91 },
-    ];
-    sliders.forEach(s => {
-        const div = document.createElement('div');
-        div.innerHTML = `
-            <div style="font-size:9px; color:#555; font-weight:900; letter-spacing:2px;
-                        text-transform:uppercase; margin-bottom:5px;
-                        display:flex; justify-content:space-between;">
-                <span>${s.label}</span>
-                <span style="color:#E31E24;" id="mkt-val-${s.key}">${s.val}</span>
-            </div>
-            <input type="range" min="${s.min}" max="${s.max}" value="${s.val}"
-                   style="width:100%; accent-color:#E31E24;"
-                   oninput="mktUpdateSlider('${s.key}', this.value, ${s.float||false})">`;
-        visualEl.appendChild(div);
-    });
+    
     mktConfig.textY = 28;
 
     // Cargar textos iniciales
@@ -3797,42 +3814,77 @@ function mktSwitchEditor(tipo) {
     document.getElementById('mkt-tab-story').style.borderBottomColor = isPost ? 'transparent' : '#E31E24';
     document.getElementById('mkt-tab-story').style.color             = isPost ? '#444' : '#E31E24';
 
-    // Mostrar/ocultar controles específicos de STORY
-    document.getElementById('mkt-layouts-wrap').style.display = isPost ? 'none' : 'block';
-    document.getElementById('mkt-modo-wrap').style.display    = isPost ? 'none' : 'block';
+    // Mostrar el set de layouts correcto
+    document.getElementById('mkt-layouts-wrap').style.display      = isPost ? 'none' : 'block';
+    document.getElementById('mkt-layouts-post-wrap').style.display = isPost ? 'block' : 'none';
+    document.getElementById('mkt-modo-wrap').style.display         = isPost ? 'none' : 'block';
+
+    // Resetear layout al 1 cuando cambia de modo
+    mktConfig.layout = 1;
+    mktSetLayout(1);
 
     // Ajustar canvas
     const canvas = document.getElementById('mkt-canvas');
     if (isPost) {
-        canvas.style.width  = '340px';
-        canvas.style.height = '425px';
+        canvas.style.width  = '220px';
+        canvas.style.height = '275px';
         document.getElementById('mkt-preview-label').textContent = 'POST 4:5 · 1080×1350px';
     } else {
-        canvas.style.width  = '240px';
-        canvas.style.height = '427px';
+        canvas.style.width  = '152px';
+        canvas.style.height = '270px';
         document.getElementById('mkt-preview-label').textContent = 'STORY 9:16 · 1080×1920px';
     }
     mktDraw();
 }
 
-function mktSwitchTab(tab) {
-    mktConfig.subtab = tab;
-    document.getElementById('mkt-panel-texto').style.display  = tab === 'texto' ? 'flex' : 'none';
-    document.getElementById('mkt-panel-visual').style.display = tab === 'visual' ? 'flex' : 'none';
-    document.getElementById('mkt-subtab-texto').style.borderBottomColor  = tab === 'texto'  ? '#E31E24' : 'transparent';
-    document.getElementById('mkt-subtab-texto').style.color              = tab === 'texto'  ? '#E31E24' : '#444';
-    document.getElementById('mkt-subtab-visual').style.borderBottomColor = tab === 'visual' ? '#E31E24' : 'transparent';
-    document.getElementById('mkt-subtab-visual').style.color             = tab === 'visual' ? '#E31E24' : '#444';
-}
+
 function mktSetLayout(id) {
     mktConfig.layout = id;
-    for (let i = 1; i <= 7; i++) {
-        const btn = document.getElementById(`mkt-layout-${i}`);
+    const isPost = mktConfig.editor === 'post';
+
+    // Resetear posiciones predeterminadas por layout
+    if (isPost) {
+        const defaults = {
+            1: { titleY: 62, bodyY: 0, ctaY: 0, brandingY: 91 },
+            2: { titleY: 62, bodyY: 0, ctaY: 0, brandingY: 88 },
+            3: { titleY: 62, bodyY: 0, ctaY: 0, brandingY: 88 },
+            4: { titleY: 38, bodyY: 0, ctaY: 0, brandingY: 88 },
+            5: { titleY: 62, bodyY: 0, ctaY: 0, brandingY: 88 },
+        };
+        const d = defaults[id] || defaults[1];
+        mktConfig.titleY    = d.titleY;
+        mktConfig.bodyY     = d.bodyY;
+        mktConfig.ctaY      = d.ctaY;
+        mktConfig.brandingY = d.brandingY;
+        // Actualizar sliders visualmente
+        const sliders = { titleY: d.titleY, bodyY: d.bodyY, ctaY: d.ctaY, brandingY: d.brandingY };
+        Object.entries(sliders).forEach(([k, v]) => {
+            const el = document.querySelector(`input[oninput*="'${k}'"]`);
+            if (el) { el.value = v; }
+            const label = document.getElementById(`mkt-val-${k}`);
+            if (label) label.textContent = v;
+        });
+    }
+    const maxLayouts = isPost ? 5 : 7;
+    const prefix = isPost ? 'mkt-layout-post-' : 'mkt-layout-story-';
+    for (let i = 1; i <= maxLayouts; i++) {
+        const btn = document.getElementById(`${prefix}${i}`);
         if (!btn) continue;
         btn.style.borderColor = i === id ? '#E31E24' : '#222';
         btn.style.background  = i === id ? 'rgba(227,30,36,0.12)' : '#181818';
         btn.style.color       = i === id ? '#E31E24' : '#555';
     }
+    const esSinTexto = isPost && id === 3;
+    const esDoble = (isPost && id === 5) || (!isPost && id === 6);
+    const camposEl = document.getElementById('mkt-campos-texto');
+    const foto2El  = document.getElementById('mkt-foto2-wrap');
+    if (camposEl) camposEl.style.display = esSinTexto ? 'none' : 'block';
+    const foto2Preview = document.getElementById('mkt-foto2-label-preview');
+    if (foto2Preview) foto2Preview.style.display = esDoble ? 'block' : 'none';
+    const foto2OffsetWrap = document.getElementById('mkt-foto2-offset-wrap');
+    if (foto2OffsetWrap) foto2OffsetWrap.style.display = esDoble ? 'block' : 'none';
+    const urgenciaEl = document.getElementById('mkt-urgencia-wrap');
+    if (urgenciaEl) urgenciaEl.style.display = (!isPost && id === 7) ? 'block' : 'none';
     mktDraw();
 }
 
@@ -3845,13 +3897,7 @@ function mktSetModo(modo) {
     document.getElementById('mkt-modo-frase').style.borderBottomColor   = isCompleto ? 'transparent' : '#E31E24';
     document.getElementById('mkt-modo-frase').style.color               = isCompleto ? '#444' : '#E31E24';
 
-    // Mostrar/ocultar campos
-    document.getElementById('mkt-frase-wrap').style.display   = isCompleto ? 'none' : 'block';
-    const tituloWrap = document.getElementById('mkt-titulo').closest('div').parentElement;
-    const subWrap    = document.getElementById('mkt-subtexto').closest('div').parentElement;
-    if (tituloWrap) tituloWrap.style.display = isCompleto ? 'block' : 'none';
-    if (subWrap)    subWrap.style.display    = isCompleto ? 'block' : 'none';
-
+    document.getElementById('mkt-frase-wrap').style.display = isCompleto ? 'none' : 'block';
     mktDraw();
 }
 
@@ -3860,6 +3906,25 @@ function mktUpdateSlider(key, val, isFloat) {
     const label = document.getElementById(`mkt-val-${key}`);
     if (label) label.textContent = isFloat ? (parseInt(val)/100).toFixed(2) : val;
     mktDraw();
+}
+
+function mktCargarFoto2(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+            mktConfig.imagen2 = img;
+            const label = document.getElementById('mkt-foto2-label');
+            const inp = label.querySelector('input');
+            label.textContent = '✅ Foto 2 cargada — clic para cambiar';
+            label.appendChild(inp);
+            mktDraw();
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
 }
 
 function mktCargarFoto(input) {
@@ -3913,8 +3978,13 @@ function mktDraw() {
         if (!canvas) return;
         const isPost = mktConfig.editor === 'post';
         const W = 1080, H = isPost ? 1350 : 1920;
-        canvas.width = W; canvas.height = H;
+        const DPR = 2;
+        canvas.width  = W * DPR;
+        canvas.height = H * DPR;
+        canvas.style.width  = isPost ? '220px' : '152px';
+        canvas.style.height = isPost ? '275px' : '270px';
         const ctx = canvas.getContext('2d');
+        ctx.scale(DPR, DPR);
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
 
@@ -3922,6 +3992,8 @@ function mktDraw() {
             mktDrawStory(ctx, W, H, canvas);
             return;
         }
+        mktDrawPost(ctx, W, H);
+        return;
         const cfg = mktConfig;
         const font = document.getElementById('mkt-font').value;
         const titulo   = document.getElementById('mkt-titulo').value;
@@ -3934,7 +4006,7 @@ function mktDraw() {
             const img = cfg.imagen;
             const scale = Math.max(W / img.width, H / img.height);
             const ix = (W - img.width * scale) / 2;
-            const iy = (H - img.height * scale) / 2;
+            const iy = (H - img.height * scale) / 2 + (cfg.fotoOffsetY / 100) * H;
             if (cfg.blur > 0) ctx.filter = `blur(${cfg.blur}px)`;
             ctx.drawImage(img, ix, iy, img.width * scale, img.height * scale);
             ctx.filter = 'none';
@@ -4015,6 +4087,254 @@ function mktDraw() {
 
         }, 150);
 }
+
+function mktDrawPost(ctx, W, H) {
+    const cfg    = mktConfig;
+    const font   = document.getElementById('mkt-font').value;
+    const titulo   = document.getElementById('mkt-titulo') ? document.getElementById('mkt-titulo').value : '';
+    const subtexto = document.getElementById('mkt-subtexto') ? document.getElementById('mkt-subtexto').value : '';
+    const cta      = document.getElementById('mkt-cta') ? document.getElementById('mkt-cta').value : '';
+    const img      = cfg.imagen;
+    const layout   = cfg.layout || 1;
+
+    function drawFondo(opacity) {
+        if (img) {
+            const scale = Math.max(W / img.width, H / img.height);
+            const ix = (W - img.width * scale) / 2;
+            const iy = (H - img.height * scale) / 2 + (cfg.fotoOffsetY / 100) * H;
+            if (cfg.blur > 0) ctx.filter = `blur(${cfg.blur}px)`;
+            ctx.drawImage(img, ix, iy, img.width * scale, img.height * scale);
+            ctx.filter = 'none';
+            ctx.fillStyle = '#000';
+            ctx.globalAlpha = opacity !== undefined ? opacity : cfg.gradientOpacity;
+            ctx.fillRect(0, 0, W, H);
+            ctx.globalAlpha = 1;
+        } else {
+            const g = ctx.createLinearGradient(0, 0, 0, H);
+            g.addColorStop(0, '#1a0000');
+            g.addColorStop(0.5, '#2a0505');
+            g.addColorStop(1, '#000');
+            ctx.fillStyle = g;
+            ctx.fillRect(0, 0, W, H);
+        }
+    }
+
+    function drawTitulo(baseY) {
+        const x = cfg.titlePad;
+        const safeW = W - cfg.titlePad * 2;
+        const startY = H * (baseY / 100) + cfg.titleY * 0; // titleY controla baseY directamente
+        ctx.fillStyle = '#E31E24';
+        ctx.fillRect(x, startY - 20, 100, 5);
+        ctx.fillStyle = '#fff';
+        ctx.font = `900 ${cfg.titleSize}px ${font}`;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.shadowColor = 'rgba(0,0,0,0.8)';
+        ctx.shadowBlur = 16;
+        const endY = mktWrapText(ctx, titulo.toUpperCase(), x, startY, safeW, cfg.titleSize * 1.12);
+        ctx.shadowBlur = 0;
+        return endY;
+    }
+
+    function drawSubtexto(startY) {
+        const x = cfg.bodyPad;
+        const safeW = W - cfg.bodyPad * 2;
+        const y = startY + cfg.bodyY * 4;
+        ctx.globalAlpha = 0.85;
+        ctx.font = `300 ${cfg.bodySize}px ${font}`;
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        const endY = mktWrapText(ctx, subtexto, x, y, safeW, cfg.bodySize * 1.45);
+        ctx.globalAlpha = 1;
+        return endY;
+    }
+
+    function drawCTA(startY) {
+        const x = cfg.ctaPad;
+        const safeW = W - cfg.ctaPad * 2;
+        const y = startY + cfg.ctaY * 4;
+        ctx.font = `700 ${cfg.ctaSize}px ${font}`;
+        ctx.fillStyle = '#E31E24';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        mktWrapText(ctx, cta, x, y, safeW, cfg.ctaSize * 1.2);
+    }
+
+    function drawSeparador(y, x, w) {
+        ctx.fillStyle = '#E31E24';
+        ctx.fillRect(x || cfg.titlePad, y, w || 70, 4);
+    }
+
+    function drawBranding() {
+        const logoY = H * (cfg.brandingY / 100);
+        ctx.fillStyle = '#fff';
+        ctx.globalAlpha = 0.12;
+        ctx.fillRect(cfg.brandingPad, logoY - 44, W - cfg.brandingPad*2, 1);
+        ctx.globalAlpha = 1;
+        ctx.beginPath();
+        ctx.strokeStyle = '#E31E24';
+        ctx.lineWidth = 5; ctx.lineCap = 'round';
+        ctx.moveTo(cfg.brandingPad, logoY - 8);
+        ctx.bezierCurveTo(cfg.brandingPad+20, logoY-46, cfg.brandingPad+60, logoY-46, cfg.brandingPad+80, logoY-8);
+        ctx.stroke();
+        ctx.fillStyle = '#fff';
+        ctx.font = `900 34px Montserrat, sans-serif`;
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillText('TODO @L DÍA', cfg.brandingPad + 96, logoY - 18);
+        ctx.globalAlpha = 0.5;
+        ctx.font = `300 17px Montserrat, sans-serif`;
+        ctx.fillText('Autos Seleccionados · Caballito', cfg.brandingPad + 96, logoY + 16);
+        ctx.globalAlpha = 1;
+    }
+
+    function drawLinea() {
+        ctx.fillStyle = '#E31E24';
+        ctx.fillRect(0, 0, W, 8);
+    }
+
+    // ── LAYOUTS POST ──
+
+    if (layout === 1) {
+        // Texto abajo
+        drawFondo(cfg.gradientOpacity);
+        drawLinea();
+        const startY = H * (cfg.titleY / 100);
+        const titEnd = drawTitulo(0) + 0;
+        // Re-dibujamos con el Y correcto
+        ctx.clearRect(0, 8, W, H - 8);
+        drawFondo(cfg.gradientOpacity);
+        const tY = H * 0.52 + (cfg.titleY - 62) * 5;
+        ctx.fillStyle = '#E31E24';
+        ctx.fillRect(cfg.titlePad, tY - 20, 100, 5);
+        ctx.fillStyle = '#fff';
+        ctx.font = `900 ${cfg.titleSize}px ${font}`;
+        ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 16;
+        let y = mktWrapText(ctx, titulo.toUpperCase(), cfg.titlePad, tY, W - cfg.titlePad*2, cfg.titleSize * 1.12);
+        ctx.shadowBlur = 0;
+        y += 14;
+        drawSeparador(y);
+        y += 36;
+        y = drawSubtexto(y - cfg.bodyY * 4);
+        y += 14 + cfg.ctaY * 4;
+        drawCTA(y - cfg.ctaY*4);
+        drawBranding();
+        drawLinea();
+
+    } else if (layout === 2) {
+        // Texto arriba
+        drawFondo(cfg.gradientOpacity);
+        const gTop = ctx.createLinearGradient(0, 0, 0, H * 0.55);
+        gTop.addColorStop(0, 'rgba(0,0,0,0.75)');
+        gTop.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = gTop; ctx.fillRect(0, 0, W, H * 0.55);
+        drawLinea();
+        const tY2 = H * 0.07 + (cfg.titleY - 62) * 3;
+        ctx.fillStyle = '#E31E24';
+        ctx.fillRect(cfg.titlePad, tY2 - 20, 100, 5);
+        ctx.fillStyle = '#fff';
+        ctx.font = `900 ${cfg.titleSize}px ${font}`;
+        ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 16;
+        let y2 = mktWrapText(ctx, titulo.toUpperCase(), cfg.titlePad, tY2, W - cfg.titlePad*2, cfg.titleSize * 1.12);
+        ctx.shadowBlur = 0;
+        y2 += 14; drawSeparador(y2); y2 += 24;
+        const subY2 = y2 + cfg.bodyY * 4;
+        ctx.globalAlpha = 0.85;
+        ctx.font = `300 ${cfg.bodySize}px ${font}`;
+        ctx.fillStyle = '#fff'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        let y2b = mktWrapText(ctx, subtexto, cfg.bodyPad, subY2, W - cfg.bodyPad*2, cfg.bodySize * 1.45);
+        ctx.globalAlpha = 1;
+        y2b += 14 + cfg.ctaY * 4;
+        ctx.font = `700 ${cfg.ctaSize}px ${font}`;
+        ctx.fillStyle = '#E31E24'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        mktWrapText(ctx, cta, cfg.ctaPad, y2b, W - cfg.ctaPad*2, cfg.ctaSize * 1.2);
+        drawBranding();
+
+    } else if (layout === 3) {
+        // Sin texto — foto limpia con logo
+        drawFondo(0.15);
+        drawLinea();
+        const gBot = ctx.createLinearGradient(0, H * 0.75, 0, H);
+        gBot.addColorStop(0, 'rgba(0,0,0,0)');
+        gBot.addColorStop(1, 'rgba(0,0,0,0.85)');
+        ctx.fillStyle = gBot; ctx.fillRect(0, H * 0.75, W, H * 0.25);
+        drawBranding();
+
+    } else if (layout === 4) {
+        // Texto centrado
+        drawFondo(cfg.gradientOpacity);
+        const gCenter = ctx.createRadialGradient(W/2, H/2, 80, W/2, H/2, W * 0.85);
+        gCenter.addColorStop(0, 'rgba(0,0,0,0.55)');
+        gCenter.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = gCenter; ctx.fillRect(0, 0, W, H);
+        drawLinea();
+        const tY4 = H * (cfg.titleY / 100);
+        ctx.fillStyle = '#E31E24'; ctx.fillRect(W/2 - 50, tY4 - 20, 100, 5);
+        ctx.fillStyle = '#fff';
+        ctx.font = `900 ${cfg.titleSize}px ${font}`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 16;
+        let y4 = mktWrapText(ctx, titulo.toUpperCase(), W/2, tY4, W - cfg.titlePad*2, cfg.titleSize * 1.12, 'center');
+        ctx.shadowBlur = 0;
+        y4 += 14; ctx.fillStyle = '#E31E24'; ctx.fillRect(W/2 - 35, y4, 70, 4); y4 += 24;
+        const subY4 = y4 + cfg.bodyY * 4;
+        ctx.globalAlpha = 0.85;
+        ctx.font = `300 ${cfg.bodySize}px ${font}`;
+        ctx.fillStyle = '#fff';
+        let y4b = mktWrapText(ctx, subtexto, W/2, subY4, W - cfg.bodyPad*2, cfg.bodySize * 1.45, 'center');
+        ctx.globalAlpha = 1;
+        y4b += 14 + cfg.ctaY * 4;
+        ctx.font = `700 ${cfg.ctaSize}px ${font}`;
+        ctx.fillStyle = '#E31E24';
+        mktWrapText(ctx, cta, W/2, y4b, W - cfg.ctaPad*2, cfg.ctaSize * 1.2, 'center');
+        ctx.textAlign = 'left';
+        drawBranding();
+
+    } else if (layout === 5) {
+        // Doble foto
+        const topH = H * 0.47, botH = H * 0.47;
+        const midY = topH, midH = H - topH - botH;
+
+        // Foto 1 arriba
+        if (img) {
+            const scale = Math.max(W / img.width, topH / img.height);
+            ctx.save();
+            ctx.beginPath(); ctx.rect(0, 0, W, topH); ctx.clip();
+            ctx.drawImage(img, (W - img.width*scale)/2, (topH - img.height*scale)/2, img.width*scale, img.height*scale);
+            ctx.restore();
+        } else {
+            ctx.fillStyle = '#1a1a1a'; ctx.fillRect(0, 0, W, topH);
+        }
+
+        // Foto 2 abajo
+        if (cfg.imagen2) {
+            const scale2 = Math.max(W / cfg.imagen2.width, botH / cfg.imagen2.height);
+            ctx.save();
+            ctx.beginPath(); ctx.rect(0, H - botH, W, botH); ctx.clip();
+            ctx.drawImage(cfg.imagen2, (W - cfg.imagen2.width*scale2)/2, H - botH + (botH - cfg.imagen2.height*scale2)/2 + (cfg.foto2OffsetY / 100) * botH, cfg.imagen2.width*scale2, cfg.imagen2.height*scale2);
+            ctx.restore();
+        } else {
+            ctx.fillStyle = '#111';
+            ctx.fillRect(0, H - botH, W, botH);
+            ctx.fillStyle = '#2a2a2a';
+            ctx.font = '700 32px Montserrat, sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText('📷 Cargar foto 2', W/2, H - botH/2);
+            ctx.textAlign = 'left';
+        }
+
+        // Franja central
+        ctx.fillStyle = '#0d0d0d'; ctx.fillRect(0, midY, W, midH);
+        ctx.fillStyle = '#E31E24'; ctx.fillRect(0, midY, W, 5);
+        ctx.fillStyle = '#E31E24'; ctx.fillRect(0, midY + midH - 5, W, 5);
+        drawLinea();
+        drawBranding();
+    }
+}
+
+
 function mktDrawStory(ctx, W, H, canvas) {
     const cfg = mktConfig;
     const font = document.getElementById('mkt-font').value;
@@ -4033,11 +4353,9 @@ function mktDrawStory(ctx, W, H, canvas) {
         if (img) {
             const scale = Math.max(w / img.width, h / img.height);
             const ix = x + (w - img.width * scale) / 2;
-            const iy = y + (h - img.height * scale) / 2;
+            const iy = y + (h - img.height * scale) / 2 + (cfg.fotoOffsetY / 100) * h;
             ctx.save();
-            ctx.beginPath();
-            ctx.rect(x, y, w, h);
-            ctx.clip();
+            ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
             if (cfg.blur > 0) ctx.filter = `blur(${cfg.blur}px)`;
             ctx.drawImage(img, ix, iy, img.width * scale, img.height * scale);
             ctx.filter = 'none';
@@ -4048,55 +4366,51 @@ function mktDrawStory(ctx, W, H, canvas) {
             ctx.restore();
         } else {
             const g = ctx.createLinearGradient(x, y, x, y+h);
-            g.addColorStop(0, '#1a0000');
-            g.addColorStop(0.5, '#2a0505');
-            g.addColorStop(1, '#000');
-            ctx.fillStyle = g;
-            ctx.fillRect(x, y, w, h);
+            g.addColorStop(0, '#1a0000'); g.addColorStop(0.5, '#2a0505'); g.addColorStop(1, '#000');
+            ctx.fillStyle = g; ctx.fillRect(x, y, w, h);
         }
     }
 
     // Helper branding
     function drawBranding(y) {
         ctx.fillStyle = '#fff';
-        ctx.globalAlpha = 0.15;
-        ctx.fillRect(cfg.padding, y - 40, W - cfg.padding*2, 1);
+        ctx.globalAlpha = 0.12;
+        ctx.fillRect(60, y - 44, W - 120, 1);
         ctx.globalAlpha = 1;
-        ctx.beginPath();
-        ctx.strokeStyle = '#E31E24';
-        ctx.lineWidth = 5; ctx.lineCap = 'round';
-        ctx.moveTo(cfg.padding, y-8);
-        ctx.bezierCurveTo(cfg.padding+20, y-46, cfg.padding+60, y-46, cfg.padding+80, y-8);
-        ctx.stroke();
+        ctx.fillStyle = '#E31E24';
+        ctx.fillRect(W/2 - 50, y - 52, 100, 5);
         ctx.fillStyle = '#fff';
-        ctx.font = `900 34px Montserrat, sans-serif`;
-        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-        ctx.fillText('TODO @L DÍA', cfg.padding+96, y-18);
-        ctx.globalAlpha = 0.5;
-        ctx.font = `300 17px Montserrat, sans-serif`;
-        ctx.fillText('Autos Seleccionados · Caballito', cfg.padding+96, y+16);
+        ctx.font = `900 40px Montserrat, sans-serif`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 12;
+        ctx.fillText('TODO @L DÍA', W/2, y - 18);
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 0.6;
+        ctx.font = `300 22px Montserrat, sans-serif`;
+        ctx.fillText('Autos Seleccionados · Caballito', W/2, y + 20);
         ctx.globalAlpha = 1;
+        ctx.textAlign = 'left';
     }
 
     // Helper texto completo
     function drawTextoCompleto(startY) {
+        const adjY = startY + (cfg.titleY - 62) * 4;
         ctx.fillStyle = '#E31E24';
-        ctx.fillRect(cfg.padding, startY - 24, 100, 6);
+        ctx.fillRect(cfg.padding, adjY - 24, 100, 6);
         ctx.fillStyle = '#fff';
         ctx.font = `900 ${cfg.titleSize}px ${font}`;
         ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-        let y = mktWrapText(ctx, titulo.toUpperCase(), cfg.padding, startY, safeW, cfg.titleSize * 1.12);
+        let y = mktWrapText(ctx, titulo.toUpperCase(), cfg.padding, adjY, W - cfg.padding*2, cfg.titleSize * 1.12);
         y += 16;
-        ctx.fillStyle = '#E31E24';
-        ctx.fillRect(cfg.padding, y, 70, 4); y += 28;
+        ctx.fillStyle = '#E31E24'; ctx.fillRect(cfg.padding, y, 70, 4); y += 28;
         ctx.globalAlpha = 0.85;
         ctx.font = `300 ${cfg.bodySize}px ${font}`;
         ctx.fillStyle = '#fff';
-        y = mktWrapText(ctx, subtexto, cfg.padding, y, safeW, cfg.bodySize * 1.45);
+        y = mktWrapText(ctx, subtexto, cfg.padding, y, W - cfg.padding*2, cfg.bodySize * 1.45);
         ctx.globalAlpha = 1; y += 20;
-        ctx.font = `700 ${cfg.bodySize * 0.9}px ${font}`;
+        ctx.font = `700 ${cfg.ctaSize}px ${font}`;
         ctx.fillStyle = '#E31E24';
-        mktWrapText(ctx, cta, cfg.padding, y, safeW, cfg.bodySize * 1.1);
+        mktWrapText(ctx, cta, cfg.padding, y, W - cfg.padding*2, cfg.ctaSize * 1.2);
     }
 
     // Helper frase
@@ -4111,9 +4425,8 @@ function mktDrawStory(ctx, W, H, canvas) {
         ctx.textAlign = 'left';
     }
 
-    // ── LAYOUTS ──
+    // ── LÓGICA DE LAYOUTS ──
     if (layout === 1) {
-        // Texto arriba, foto abajo
         ctx.fillStyle = '#0d0d0d'; ctx.fillRect(0, 0, W, H);
         const fotoY = H * 0.48;
         drawFondo(0, fotoY, W, H - fotoY, 0.15);
@@ -4122,55 +4435,36 @@ function mktDrawStory(ctx, W, H, canvas) {
         ctx.fillStyle = grad; ctx.fillRect(0, fotoY-80, W, 180);
         if (modo === 'frase') drawFrase(H * 0.25);
         else drawTextoCompleto(H * 0.08);
-        drawBranding(H * 0.93);
-
+        drawBranding(H * (cfg.brandingY / 100));
     } else if (layout === 2) {
-        // Foto full, texto centrado
         drawFondo(0, 0, W, H, cfg.gradientOpacity);
         const g = ctx.createRadialGradient(W/2, H/2, 100, W/2, H/2, W*0.9);
         g.addColorStop(0, 'rgba(0,0,0,0.5)'); g.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
         if (modo === 'frase') drawFrase(H * 0.45);
         else drawTextoCompleto(H * 0.32);
-        drawBranding(H * 0.93);
-
+        drawBranding(H * (cfg.brandingY / 100));
     } else if (layout === 3) {
-        // Dos zonas
         const splitY = H * 0.52;
         drawFondo(0, 0, W, splitY, 0.15);
         ctx.fillStyle = '#0d0d0d'; ctx.fillRect(0, splitY, W, H - splitY);
         ctx.fillStyle = '#E31E24'; ctx.fillRect(0, splitY, W, 6);
         if (modo === 'frase') drawFrase(H * 0.72);
         else drawTextoCompleto(splitY + 60);
-        drawBranding(H * 0.93);
-
+        drawBranding(H * (cfg.brandingY / 100));
     } else if (layout === 4) {
-        // Logo arriba, CTA grande abajo
         drawFondo(0, 0, W, H, cfg.gradientOpacity);
-        // Branding arriba
         ctx.fillStyle = '#E31E24'; ctx.fillRect(cfg.padding, 80, 80, 6);
-        ctx.fillStyle = '#fff';
-        ctx.font = `900 44px Montserrat, sans-serif`;
+        ctx.fillStyle = '#fff'; ctx.font = `900 44px Montserrat, sans-serif`;
         ctx.textAlign = 'left'; ctx.textBaseline = 'top';
         ctx.fillText('TODO @L DÍA', cfg.padding, 110);
-        ctx.globalAlpha = 0.5;
-        ctx.font = `300 22px Montserrat, sans-serif`;
+        ctx.globalAlpha = 0.5; ctx.font = `300 22px Montserrat, sans-serif`;
         ctx.fillText('Autos Seleccionados · Caballito', cfg.padding, 168);
         ctx.globalAlpha = 1;
-        // Texto central
         if (modo === 'frase') drawFrase(H * 0.48);
         else drawTextoCompleto(H * 0.35);
-        // CTA botón abajo
-        const ctaY = H * 0.83;
-        ctx.fillStyle = '#E31E24';
-        ctx.beginPath(); ctx.roundRect(cfg.padding, ctaY, W - cfg.padding*2, 100, 14); ctx.fill();
-        ctx.fillStyle = '#fff';
-        ctx.font = `900 ${cfg.bodySize * 1.1}px ${font}`;
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(cta, W/2, ctaY + 50);
-
+        drawBranding(H * (cfg.brandingY / 100));
     } else if (layout === 5) {
-        // Solo texto sin foto
         const g = ctx.createLinearGradient(0, 0, W, H);
         g.addColorStop(0, '#0d0d0d'); g.addColorStop(0.5, '#1a0000'); g.addColorStop(1, '#0d0d0d');
         ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
@@ -4180,47 +4474,71 @@ function mktDrawStory(ctx, W, H, canvas) {
         ctx.globalAlpha = 1;
         if (modo === 'frase') drawFrase(H * 0.45);
         else drawTextoCompleto(H * 0.30);
-        drawBranding(H * 0.93);
-
-    } else if (layout === 6) {
-        // Doble foto
-        const topH = H * 0.38, botH = H * 0.38;
+        drawBranding(H * (cfg.brandingY / 100));
+} else if (layout === 6) {
+        const topH = H * 0.42, botH = H * 0.42;
         const midY = topH, midH = H - topH - botH;
-        drawFondo(0, 0, W, topH, 0.15);
-        if (cfg.imagen2) {
-            const img2 = cfg.imagen2;
-            const scale = Math.max(W / img2.width, botH / img2.height);
-            ctx.save();
-            ctx.beginPath(); ctx.rect(0, H-botH, W, botH); ctx.clip();
-            ctx.drawImage(img2, (W - img2.width*scale)/2, H-botH + (botH - img2.height*scale)/2, img2.width*scale, img2.height*scale);
-            ctx.restore();
-        } else drawFondo(0, H-botH, W, botH, 0.15);
-        ctx.fillStyle = '#0d0d0d'; ctx.fillRect(0, midY, W, midH);
-        ctx.fillStyle = '#E31E24';
-        ctx.fillRect(0, midY, W, 5);
-        ctx.fillRect(0, midY+midH-5, W, 5);
-        if (modo === 'frase') drawFrase(midY + midH/2);
-        else drawTextoCompleto(midY + 40);
 
+        // Foto 1 arriba
+        if (img) {
+            const scale = Math.max(W / img.width, topH / img.height);
+            ctx.save();
+            ctx.beginPath(); ctx.rect(0, 0, W, topH); ctx.clip();
+            ctx.drawImage(img, (W - img.width*scale)/2, (topH - img.height*scale)/2, img.width*scale, img.height*scale);
+            ctx.restore();
+        } else {
+            ctx.fillStyle = '#1a1a1a'; ctx.fillRect(0, 0, W, topH);
+            ctx.fillStyle = '#333'; ctx.font = '700 32px Montserrat, sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText('📷 Foto 1', W/2, topH/2); ctx.textAlign = 'left';
+        }
+
+        // Foto 2 abajo
+        if (cfg.imagen2) {
+            const scale2 = Math.max(W / cfg.imagen2.width, botH / cfg.imagen2.height);
+            ctx.save();
+            ctx.beginPath(); ctx.rect(0, H - botH, W, botH); ctx.clip();
+            ctx.drawImage(cfg.imagen2, (W - cfg.imagen2.width*scale2)/2, H - botH + (botH - cfg.imagen2.height*scale2)/2 + (cfg.foto2OffsetY / 100) * botH, cfg.imagen2.width*scale2, cfg.imagen2.height*scale2);
+            ctx.restore();
+        } else {
+            ctx.fillStyle = '#111'; ctx.fillRect(0, H - botH, W, botH);
+            ctx.fillStyle = '#333'; ctx.font = '700 32px Montserrat, sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText('📷 Foto 2 — cargala arriba', W/2, H - botH/2); ctx.textAlign = 'left';
+        }
+
+        // Franja central con texto
+        ctx.fillStyle = '#0d0d0d'; ctx.fillRect(0, midY, W, midH);
+        ctx.fillStyle = '#E31E24'; ctx.fillRect(0, midY, W, 5);
+        ctx.fillStyle = '#E31E24'; ctx.fillRect(0, midY + midH - 5, W, 5);
+
+        // Texto centrado en la franja
+        const midCenterY = midY + midH / 2 - 60;
+        ctx.fillStyle = '#fff'; ctx.font = `900 ${cfg.titleSize * 0.65}px ${font}`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 10;
+        let midY2 = mktWrapText(ctx, titulo.toUpperCase(), W/2, midCenterY, W - 120, cfg.titleSize * 0.65 * 1.1, 'center');
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 0.7; ctx.font = `300 ${cfg.bodySize * 0.6}px ${font}`;
+        mktWrapText(ctx, cta, W/2, midY2 + 10, W - 120, cfg.bodySize * 0.6 * 1.3, 'center');
+        ctx.globalAlpha = 1; ctx.textAlign = 'left';
     } else if (layout === 7) {
-        // Urgencia
         drawFondo(0, 0, W, H, cfg.gradientOpacity);
         ctx.fillStyle = '#E31E24'; ctx.fillRect(cfg.padding, 90, 100, 7);
         if (modo === 'frase') drawFrase(H * 0.30);
         else drawTextoCompleto(H * 0.15);
-        // Banda urgencia
         const bandaY = H * 0.63;
-        ctx.fillStyle = cfg.urgenciaColor || '#E31E24';
-        ctx.globalAlpha = 0.93;
-        ctx.fillRect(0, bandaY, W, H * 0.20);
-        ctx.globalAlpha = 1;
-        ctx.fillStyle = '#fff';
-        ctx.font = `900 ${cfg.fraseSize || 90}px ${font}`;
+        ctx.fillStyle = cfg.urgenciaColor || '#E31E24'; ctx.globalAlpha = 0.93;
+        ctx.fillRect(0, bandaY, W, H * 0.20); ctx.globalAlpha = 1;
+        ctx.fillStyle = '#fff'; ctx.font = `900 ${cfg.fraseSize || 90}px ${font}`;
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        mktWrapText(ctx, (cfg.urgenciaTexto || 'ÚLTIMAS UNIDADES').toUpperCase(), W/2, bandaY + H*0.07, safeW, (cfg.fraseSize||90)*1.0, 'center');
-        ctx.font = `700 ${cfg.bodySize}px ${font}`;
-        ctx.fillText(cta, W/2, bandaY + H*0.155);
-        drawBranding(H * 0.93);
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const textoUrg = (cfg.urgenciaTexto || 'OPORTUNIDAD ÚNICA').toUpperCase();
+        const bandaCentro = bandaY + H * 0.10;
+        mktWrapText(ctx, textoUrg, W/2, bandaCentro, W - 80, (cfg.fraseSize||90)*1.0, 'center');
+        ctx.fillStyle = '#E31E24'; ctx.globalAlpha = 0;
+        drawBranding(H * (cfg.brandingY / 100));
     }
 }
 function mktDescargar() {
@@ -4235,6 +4553,7 @@ function mktDescargar() {
         URL.revokeObjectURL(url);
     }, 'image/png');
 }
+
 // ══════════════════════════════════════════════
 // COMMUNITY MANAGER IA
 // ══════════════════════════════════════════════
@@ -4995,6 +5314,7 @@ async function subirFotosEdit() {
         estadoEl.textContent = 'Error al subir fotos';
     }
 }
+
 </script>
  <!-- MODAL EDITAR AUTO -->
 <div id="modal-editar-auto" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:1000; display:none; align-items:center; justify-content:center;"
@@ -5076,52 +5396,57 @@ async function subirFotosEdit() {
 </div>
 </body>
 </div>
-
 <!-- ════════════════════ PANEL PLACAS ════════════════════ -->
-<div id="panel-placas" style="display:none; background:#0d0d0d; min-height:100vh;">
-    <div style="display:flex; height:100vh;">
+<div id="panel-placas" style="display:none; background:#0d0d0d; height:100vh; overflow:hidden;">
+    <div style="display:grid; grid-template-columns:220px 1fr 300px; height:100vh; overflow:hidden;">
 
-        <!-- PANEL IZQUIERDO — CONTROLES -->
-        <div style="width:340px; background:#111; border-right:1px solid #1e1e1e; overflow-y:auto; display:flex; flex-direction:column; flex-shrink:0;">
+        <!-- COL 1: TIPO + ESTRUCTURA + FOTO -->
+        <div style="background:#111; border-right:1px solid #1e1e1e; overflow-y:auto; display:flex; flex-direction:column; gap:0;">
 
-            <!-- Header -->
-            <div style="padding:20px 24px 16px; border-bottom:1px solid #1e1e1e;">
-                <div style="font-size:10px; color:#E31E24; font-weight:900; letter-spacing:3px; text-transform:uppercase; margin-bottom:4px;">Marketing Studio</div>
-                <div style="font-size:16px; font-weight:900; color:#fff;">Editor de Placas</div>
+            <div style="padding:14px 16px 10px; border-bottom:1px solid #1e1e1e;">
+                <div style="font-size:8px; color:#E31E24; font-weight:900; letter-spacing:3px; text-transform:uppercase; margin-bottom:2px;">Marketing Studio</div>
+                <div style="font-size:14px; font-weight:900; color:#fff;">Editor de Placas</div>
             </div>
 
-            <!-- Tabs POST / STORY -->
-            <div style="display:flex; border-bottom:1px solid #1e1e1e;">
+            <!-- POST / STORY -->
+            <div style="display:flex; border-bottom:1px solid #1e1e1e; flex-shrink:0;">
                 <button onclick="mktSwitchEditor('post')" id="mkt-tab-post"
-                    style="flex:1; padding:12px; font-size:10px; font-weight:900; text-transform:uppercase;
+                    style="flex:1; padding:10px; font-size:9px; font-weight:900; text-transform:uppercase;
                            letter-spacing:1px; cursor:pointer; background:transparent; border:none;
                            border-bottom:2px solid #E31E24; color:#E31E24; font-family:'Montserrat',sans-serif;">
                     🖼️ POST
                 </button>
                 <button onclick="mktSwitchEditor('story')" id="mkt-tab-story"
-                    style="flex:1; padding:12px; font-size:10px; font-weight:900; text-transform:uppercase;
+                    style="flex:1; padding:10px; font-size:9px; font-weight:900; text-transform:uppercase;
                            letter-spacing:1px; cursor:pointer; background:transparent; border:none;
                            border-bottom:2px solid transparent; color:#444; font-family:'Montserrat',sans-serif;">
                     📱 STORY
                 </button>
             </div>
-            <!-- Selector layouts STORY — solo visible en modo STORY -->
-            <div id="mkt-layouts-wrap" style="display:none; padding:16px 24px; border-bottom:1px solid #1e1e1e;">
-                <div style="font-size:9px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;">Estructura del STORY</div>
-                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;" id="mkt-layouts"></div>
+
+            <!-- Estructura POST -->
+            <div id="mkt-layouts-post-wrap" style="display:block; padding:12px 16px; border-bottom:1px solid #1e1e1e; flex-shrink:0;">
+                <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Estructura del Post</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:5px;" id="mkt-layouts-post"></div>
             </div>
 
-            <!-- Modo texto STORY — solo visible en modo STORY -->
-            <div id="mkt-modo-wrap" style="display:none; border-bottom:1px solid #1e1e1e;">
+            <!-- Estructura STORY -->
+            <div id="mkt-layouts-wrap" style="display:none; padding:12px 16px; border-bottom:1px solid #1e1e1e; flex-shrink:0;">
+                <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Estructura del Story</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:5px;" id="mkt-layouts"></div>
+            </div>
+
+            <!-- Modo STORY -->
+            <div id="mkt-modo-wrap" style="display:none; border-bottom:1px solid #1e1e1e; flex-shrink:0;">
                 <div style="display:flex;">
                     <button onclick="mktSetModo('completo')" id="mkt-modo-completo"
-                        style="flex:1; padding:10px; font-size:10px; font-weight:900; text-transform:uppercase;
+                        style="flex:1; padding:9px; font-size:9px; font-weight:900; text-transform:uppercase;
                             letter-spacing:1px; cursor:pointer; background:transparent; border:none;
                             border-bottom:2px solid #E31E24; color:#E31E24; font-family:'Montserrat',sans-serif;">
                         📝 Completo
                     </button>
                     <button onclick="mktSetModo('frase')" id="mkt-modo-frase"
-                        style="flex:1; padding:10px; font-size:10px; font-weight:900; text-transform:uppercase;
+                        style="flex:1; padding:9px; font-size:9px; font-weight:900; text-transform:uppercase;
                             letter-spacing:1px; cursor:pointer; background:transparent; border:none;
                             border-bottom:2px solid transparent; color:#444; font-family:'Montserrat',sans-serif;">
                         ⚡ Frase
@@ -5130,124 +5455,235 @@ async function subirFotosEdit() {
             </div>
 
             <!-- Tipo de placa -->
-            <div style="padding:16px 24px; border-bottom:1px solid #1e1e1e;">
-                <div style="font-size:9px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;">Tipo de placa</div>
-                <div style="display:flex; flex-direction:column; gap:5px;" id="mkt-tipos"></div>
+            <div style="padding:12px 16px; border-bottom:1px solid #1e1e1e; flex-shrink:0;">
+                <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Tipo de placa</div>
+                <div style="display:flex; flex-direction:column; gap:4px;" id="mkt-tipos"></div>
             </div>
 
-            <!-- Foto de fondo -->
-            <div style="padding:16px 24px; border-bottom:1px solid #1e1e1e;">
-                <div style="font-size:9px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;">Foto de fondo</div>
-                <label id="mkt-foto-label" style="display:block; padding:12px; border-radius:9px;
-                    background:#1a1a1a; border:1px dashed #333; color:#555; font-size:11px;
-                    font-weight:700; cursor:pointer; text-align:center; transition:all .2s;">
-                    <input type="file" id="mkt-foto-input" style="display:none;" accept="image/*" onchange="mktCargarFoto(this)">
-                    📷 Cargar foto de fondo
+            
+
+            <!-- Tipografía -->
+            <div style="padding:12px 16px; flex-shrink:0;">
+                <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Tipografía</div>
+                <select id="mkt-font" onchange="mktDraw()"
+                    style="width:100%; padding:8px 10px; background:#1a1a1a; border:1px solid #2a2a2a;
+                           border-radius:7px; color:#fff; font-size:11px; box-sizing:border-box;">
+                    <option value="Montserrat, sans-serif">Montserrat</option>
+                    <option value="Impact, sans-serif">Impact</option>
+                    <option value="'Bebas Neue', sans-serif">Bebas Neue</option>
+                    <option value="Oswald, sans-serif">Oswald</option>
+                    <option value="Anton, sans-serif">Anton</option>
+                </select>
+            </div>
+
+            
+        </div>
+
+        <!-- COL 2: CAMPOS + SLIDERS INDIVIDUALES -->
+        <div style="overflow-y:auto; padding:20px 24px; display:flex; flex-direction:column; gap:16px;">
+
+            <!-- CAMPOS DE TEXTO (ocultos en layout Sin texto) -->
+            <div id="mkt-campos-texto">
+
+                <!-- TÍTULO -->
+                <div style="background:#1a1a1a; border-radius:10px; padding:14px; border:1px solid #222; margin-bottom:16px;">
+                    <div style="font-size:8px; color:#E31E24; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;">Título principal</div>
+                    <textarea id="mkt-titulo" oninput="mktDraw()"
+                        style="width:100%; padding:10px 12px; background:#111; border:1px solid #2a2a2a;
+                               border-radius:8px; color:#fff; font-size:12px; font-weight:700;
+                               resize:vertical; min-height:64px; box-sizing:border-box;
+                               font-family:'Montserrat',sans-serif; margin-bottom:12px;"></textarea>
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        <div>
+                            <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
+                                <span>Tamaño</span><span style="color:#E31E24;" id="mkt-val-titleSize">88</span>
+                            </div>
+                            <input type="range" min="30" max="160" value="88" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('titleSize', this.value, false)">
+                        </div>
+                        <div>
+                            <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
+                                <span>Posición Y</span><span style="color:#E31E24;" id="mkt-val-titleY">62</span>
+                            </div>
+                            <input type="range" min="1" max="99" value="62" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('titleY', this.value, false)">
+                        </div>
+                        <div>
+                            <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
+                                <span>Margen lateral</span><span style="color:#E31E24;" id="mkt-val-titlePad">110</span>
+                            </div>
+                            <input type="range" min="0" max="500" value="110" step="5" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('titlePad', this.value, false)">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUBTEXTO -->
+                <div style="background:#1a1a1a; border-radius:10px; padding:14px; border:1px solid #222; margin-bottom:16px;">
+                    <div style="font-size:8px; color:#E31E24; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;">Subtexto</div>
+                    <textarea id="mkt-subtexto" oninput="mktDraw()"
+                        style="width:100%; padding:10px 12px; background:#111; border:1px solid #2a2a2a;
+                               border-radius:8px; color:#fff; font-size:12px;
+                               resize:vertical; min-height:72px; box-sizing:border-box;
+                               font-family:'Montserrat',sans-serif; margin-bottom:12px;"></textarea>
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        <div>
+                            <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
+                                <span>Tamaño</span><span style="color:#E31E24;" id="mkt-val-bodySize">38</span>
+                            </div>
+                            <input type="range" min="16" max="80" value="38" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('bodySize', this.value, false)">
+                        </div>
+                        <div>
+                            <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
+                                <span>Posición Y</span><span style="color:#E31E24;" id="mkt-val-bodyY">0</span>
+                            </div>
+                            <input type="range" min="-30" max="30" value="0" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('bodyY', this.value, false)">
+                        </div>
+                        <div>
+                            <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
+                                <span>Margen lateral</span><span style="color:#E31E24;" id="mkt-val-bodyPad">110</span>
+                            </div>
+                            <input type="range" min="0" max="500" value="110" step="5" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('bodyPad', this.value, false)">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTA -->
+                <div style="background:#1a1a1a; border-radius:10px; padding:14px; border:1px solid #222; margin-bottom:16px;">
+                    <div style="font-size:8px; color:#E31E24; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;">CTA / WhatsApp</div>
+                    <input id="mkt-cta" oninput="mktDraw()" type="text"
+                        style="width:100%; padding:10px 12px; background:#111; border:1px solid #2a2a2a;
+                               border-radius:8px; color:#E31E24; font-size:12px; font-weight:700;
+                               box-sizing:border-box; font-family:'Montserrat',sans-serif; margin-bottom:12px;">
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        <div>
+                            <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
+                                <span>Tamaño</span><span style="color:#E31E24;" id="mkt-val-ctaSize">34</span>
+                            </div>
+                            <input type="range" min="16" max="70" value="34" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('ctaSize', this.value, false)">
+                        </div>
+                        <div>
+                            <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
+                                <span>Posición Y</span><span style="color:#E31E24;" id="mkt-val-ctaY">0</span>
+                            </div>
+                            <input type="range" min="-30" max="30" value="0" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('ctaY', this.value, false)">
+                        </div>
+                        <div>
+                            <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
+                                <span>Margen lateral</span><span style="color:#E31E24;" id="mkt-val-ctaPad">110</span>
+                            </div>
+                            <input type="range" min="0" max="500" value="110" step="5" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('ctaPad', this.value, false)">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FRASE (solo en modo frase) -->
+                <div id="mkt-frase-wrap" style="display:none; background:#1a1a1a; border-radius:10px; padding:14px; border:1px solid #222; margin-bottom:16px;">
+                    <div style="font-size:8px; color:#E31E24; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;">Frase impactante</div>
+                    <textarea id="mkt-frase" oninput="mktDraw()"
+                        style="width:100%; padding:10px 12px; background:#111; border:1px solid #2a2a2a;
+                               border-radius:8px; color:#fff; font-size:13px; font-weight:700;
+                               resize:vertical; min-height:80px; box-sizing:border-box;
+                               font-family:'Montserrat',sans-serif;"></textarea>
+                </div>
+                <!-- URGENCIA (solo en layout 7 story) -->
+                <div id="mkt-urgencia-wrap" style="display:none; background:#1a1a1a; border-radius:10px; padding:14px; border:1px solid #222; margin-bottom:16px;">
+                    <div style="font-size:8px; color:#E31E24; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;">Texto de urgencia</div>
+                    <input id="mkt-urgencia" oninput="mktConfig.urgenciaTexto=this.value; mktDraw();" type="text"
+                        value="OPORTUNIDAD ÚNICA"
+                        style="width:100%; padding:10px 12px; background:#111; border:1px solid #2a2a2a;
+                               border-radius:8px; color:#fff; font-size:12px; font-weight:700;
+                               box-sizing:border-box; font-family:'Montserrat',sans-serif;">
+                </div>
+            </div><!-- fin mkt-campos-texto -->
+
+            <!-- FOTO 2 (solo en layout doble foto) -->
+            <div id="mkt-foto2-wrap" style="display:none; background:#1a1a1a; border-radius:10px; padding:14px; border:1px solid #222;">
+                <div style="font-size:8px; color:#E31E24; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;">Segunda foto (abajo)</div>
+                <label id="mkt-foto2-label" style="display:block; width:100%; padding:10px; border-radius:8px;
+                    background:#111; border:1px dashed #333; color:#555; font-size:10px;
+                    font-weight:700; cursor:pointer; text-align:center; box-sizing:border-box;">
+                    <input type="file" id="mkt-foto2-input" style="display:none;" accept="image/*" onchange="mktCargarFoto2(this)">
+                    📷 Cargar foto de abajo
                 </label>
             </div>
 
-            <!-- Tabs texto / visual -->
-            <div style="display:flex; border-bottom:1px solid #1e1e1e;">
-                <button onclick="mktSwitchTab('texto')" id="mkt-subtab-texto"
-                    style="flex:1; padding:11px; font-size:10px; font-weight:900; text-transform:uppercase;
-                           letter-spacing:1px; cursor:pointer; background:transparent; border:none;
-                           border-bottom:2px solid #E31E24; color:#E31E24; font-family:'Montserrat',sans-serif;">
-                    ✏️ Texto
-                </button>
-                <button onclick="mktSwitchTab('visual')" id="mkt-subtab-visual"
-                    style="flex:1; padding:11px; font-size:10px; font-weight:900; text-transform:uppercase;
-                           letter-spacing:1px; cursor:pointer; background:transparent; border:none;
-                           border-bottom:2px solid transparent; color:#444; font-family:'Montserrat',sans-serif;">
-                    🎨 Visual
-                </button>
-            </div>
-
-            <!-- Contenido tabs -->
-            <div style="padding:16px 24px; flex:1;">
-
-                <!-- TAB TEXTO -->
-                <div id="mkt-panel-texto" style="display:flex; flex-direction:column; gap:14px;">
+            <!-- AJUSTES GLOBALES -->
+            <div style="background:#1a1a1a; border-radius:10px; padding:14px; border:1px solid #222;">
+                <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px;">Ajustes globales</div>
+                <div style="display:flex; flex-direction:column; gap:12px;">
                     <div>
-                        <div style="font-size:9px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:6px;">Título principal</div>
-                        <textarea id="mkt-titulo" oninput="mktDraw()"
-                            style="width:100%; padding:10px 12px; background:#1a1a1a; border:1px solid #2a2a2a;
-                                   border-radius:8px; color:#fff; font-size:12px; font-weight:700;
-                                   resize:vertical; min-height:72px; box-sizing:border-box;
-                                   font-family:'Montserrat',sans-serif;"></textarea>
+                        <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
+                            <span>Oscuridad fondo</span><span style="color:#E31E24;" id="mkt-val-gradientOpacity">62</span>
+                        </div>
+                        <input type="range" min="0" max="100" value="62" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('gradientOpacity', this.value, true)">
                     </div>
                     <div>
-                        <div style="font-size:9px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:6px;">Subtexto</div>
-                        <textarea id="mkt-subtexto" oninput="mktDraw()"
-                            style="width:100%; padding:10px 12px; background:#1a1a1a; border:1px solid #2a2a2a;
-                                   border-radius:8px; color:#fff; font-size:12px;
-                                   resize:vertical; min-height:80px; box-sizing:border-box;
-                                   font-family:'Montserrat',sans-serif;"></textarea>
+                        <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
+                            <span>Desenfoque foto</span><span style="color:#E31E24;" id="mkt-val-blur">0</span>
+                        </div>
+                        <input type="range" min="0" max="20" value="0" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('blur', this.value, false)">
                     </div>
                     <div>
-                        <div style="font-size:9px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:6px;">CTA / WhatsApp</div>
-                        <input id="mkt-cta" oninput="mktDraw()" type="text"
-                            style="width:100%; padding:10px 12px; background:#1a1a1a; border:1px solid #2a2a2a;
-                                   border-radius:8px; color:#E31E24; font-size:12px; font-weight:700;
-                                   box-sizing:border-box; font-family:'Montserrat',sans-serif;">
-                    </div>
-                    <div id="mkt-frase-wrap" style="display:none;">
-                        <div style="font-size:9px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:6px;">Frase impactante</div>
-                        <textarea id="mkt-frase" oninput="mktDraw()"
-                            style="width:100%; padding:10px 12px; background:#1a1a1a; border:1px solid #2a2a2a;
-                                   border-radius:8px; color:#fff; font-size:13px; font-weight:700;
-                                   resize:vertical; min-height:80px; box-sizing:border-box;
-                                   font-family:'Montserrat',sans-serif;"></textarea>
+                        <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
+                            <span>Posición branding</span><span style="color:#E31E24;" id="mkt-val-brandingY">91</span>
+                        </div>
+                        <input type="range" min="1" max="99" value="91" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('brandingY', this.value, false)">
                     </div>
                     <div>
-                        <div style="font-size:9px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:6px;">Tipografía</div>
-                        <select id="mkt-font" onchange="mktDraw()"
-                            style="width:100%; padding:10px 12px; background:#1a1a1a; border:1px solid #2a2a2a;
-                                   border-radius:8px; color:#fff; font-size:12px; box-sizing:border-box;">
-                            <option value="Montserrat, sans-serif">Montserrat</option>
-                            <option value="Impact, sans-serif">Impact</option>
-                            <option value="'Bebas Neue', sans-serif">Bebas Neue</option>
-                            <option value="'Archivo Black', sans-serif">Archivo Black</option>
-                            <option value="Oswald, sans-serif">Oswald</option>
-                            <option value="Anton, sans-serif">Anton</option>
-                        </select>
+                        <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
+                            <span>Margen branding</span><span style="color:#E31E24;" id="mkt-val-brandingPad">110</span>
+                        </div>
+                        <input type="range" min="0" max="500" value="110" step="5" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('brandingPad', this.value, false)">
                     </div>
                 </div>
-
-                <!-- TAB VISUAL -->
-                <div id="mkt-panel-visual" style="display:none; flex-direction:column; gap:16px;">
-                </div>
-
             </div>
 
-            <!-- Botón descargar -->
-            <div style="padding:16px 24px; border-top:1px solid #1e1e1e;">
-                <button onclick="mktDescargar()" 
-                    style="width:100%; padding:16px; border-radius:12px; border:none;
-                           background:linear-gradient(135deg,#E31E24,#b01018);
-                           color:#fff; font-size:12px; font-weight:900; cursor:pointer;
-                           letter-spacing:1px; text-transform:uppercase;
-                           box-shadow:0 8px 24px rgba(227,30,36,0.35);
-                           font-family:'Montserrat',sans-serif;">
-                    ⬇️ Descargar HD
-                </button>
-            </div>
         </div>
 
-        <!-- PANEL DERECHO — PREVIEW -->
-        <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; background:#0d0d0d;">
-            <div style="font-size:9px; color:#333; font-weight:900; letter-spacing:3px; text-transform:uppercase;" id="mkt-preview-label">
+        <!-- COL 3: PREVIEW -->
+        <div style="border-left:1px solid #1e1e1e; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; background:#0a0a0a; padding:20px;">
+            <label id="mkt-foto-label" style="display:block; width:100%; padding:10px; border-radius:8px;
+                background:#1a1a1a; border:1px dashed #333; color:#555; font-size:10px;
+                font-weight:700; cursor:pointer; text-align:center; box-sizing:border-box;">
+                <input type="file" id="mkt-foto-input" style="display:none;" accept="image/*" onchange="mktCargarFoto(this)">
+                📷 Cargar foto de fondo
+            </label>
+            <label id="mkt-foto2-label-preview" style="display:none; width:100%; padding:10px; border-radius:8px;
+                background:#1a1a1a; border:1px dashed #E31E24; color:#E31E24; font-size:10px;
+                font-weight:700; cursor:pointer; text-align:center; box-sizing:border-box;">
+                <input type="file" id="mkt-foto2-input-preview" style="display:none;" accept="image/*" onchange="mktCargarFoto2(this)">
+                📷 Cargar foto 2
+            </label>
+            <div id="mkt-foto-offset-wrap" style="width:100%;">
+                <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
+                    <span>Posición foto 1</span><span style="color:#E31E24;" id="mkt-val-fotoOffsetY">0</span>
+                </div>
+                <input type="range" min="-50" max="50" value="0" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('fotoOffsetY', this.value, false)">
+            </div>
+            <div id="mkt-foto2-offset-wrap" style="display:none; width:100%;">
+                <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
+                    <span>Posición foto 2</span><span style="color:#E31E24;" id="mkt-val-foto2OffsetY">0</span>
+                </div>
+                <input type="range" min="-50" max="50" value="0" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('foto2OffsetY', this.value, false)">
+            </div>
+            <button onclick="mktDescargar()"
+                style="width:100%; padding:10px; border-radius:8px; border:none;
+                       background:linear-gradient(135deg,#E31E24,#b01018);
+                       color:#fff; font-size:10px; font-weight:900; cursor:pointer;
+                       letter-spacing:1px; text-transform:uppercase;
+                       font-family:'Montserrat',sans-serif;">
+                ⬇️ Descargar HD
+            </button>
+            <div style="font-size:8px; color:#333; font-weight:900; letter-spacing:3px; text-transform:uppercase;" id="mkt-preview-label">
                 POST 4:5 · 1080×1350px
             </div>
-            <div style="box-shadow:0 40px 100px rgba(0,0,0,0.8); border:1px solid #222; border-radius:4px; overflow:hidden; cursor:pointer;"
+            <div style="box-shadow:0 20px 60px rgba(0,0,0,0.8); border:1px solid #222; border-radius:4px; overflow:hidden; cursor:pointer; max-width:100%; max-height:calc(100vh - 120px);"
                  onclick="mktDescargar()" title="Clic para descargar">
-                <canvas id="mkt-canvas" style="display:block; width:340px; height:425px;"></canvas>
+                <canvas id="mkt-canvas" style="display:block; width:220px; height:275px;"></canvas>
             </div>
-            <div style="font-size:9px; color:#2a2a2a; font-weight:700; letter-spacing:2px;">CLIC EN LA IMAGEN PARA DESCARGAR</div>
+            <div style="font-size:8px; color:#2a2a2a; font-weight:700; letter-spacing:2px; text-align:center;">CLIC PARA DESCARGAR HD</div>
         </div>
 
     </div>
 </div>
-
 <!-- ════════════════════ PANEL COMMUNITY MANAGER ════════════════════ -->
 <div id="panel-cm" style="display:none; background:#0d0d0d; height:100vh; overflow:hidden;">
     <div style="display:flex; height:100vh;">

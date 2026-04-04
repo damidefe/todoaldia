@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo @l Día — Gestión de Autos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
+.card-nueva {
+    display: block;
+    text-decoration: none;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    transition: transform 0.2s, box-shadow 0.2s;
+    aspect-ratio: 4/5;
+    position: relative;
+}
+.card-nueva:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.25); }
+
+.card-foto { width: 100%; height: 100%; position: relative; }
+.card-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card-sin-foto { width: 100%; height: 100%; background: #222; display: flex; align-items: center; justify-content: center; color: #555; font-size: 14px; }
+
+.card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, transparent 35%, transparent 50%, rgba(0,0,0,0.85) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 14px;
+}
+
+.card-top { display: flex; justify-content: flex-end; }
+
+.card-bottom { display: flex; flex-direction: column; gap: 4px; }
+
+.card-titulo {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.card-titulo strong { font-weight: 900; }
+
+.card-sub {
+    color: rgba(255,255,255,0.7);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.card-tagline {
+    color: #fff;
+    font-size: 11px;
+    font-style: italic;
+    font-weight: 500;
+    line-height: 1.4;
+    margin-top: 4px;
+    border-left: 2px solid #E31E24;
+    padding-left: 8px;
+}
+
+.card-logo {
+    color: rgba(255,255,255,0.4);
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 6px;
+}
+.card-logo span { color: #E31E24; }
+
+.badge-disponible { background: rgba(46,125,50,0.9); color: #fff; }
+.badge-reservado { background: rgba(230,81,0,0.9); color: #fff; }
+.badge-vendido { background: rgba(80,80,80,0.9); color: #fff; }
+</head>
+<body>
+
+<header>
+    <div class="logo">
+        TODO <span>@L</span> DÍA
+        <small>26 AÑOS DE CONFIANZA · CABALLITO</small>
+    </div>
+    <a href="/auto/nuevo/" class="btn-nuevo">+ Cargar Auto</a>
+</header>
+
+<div class="stats">
+    <div class="stat">
+        <div class="stat-num">{{ autos|length }}</div>
+        <div class="stat-label">Total en stock</div>
+    </div>
+    <div class="stat">
+        <div class="stat-num">{{ autos_disponibles }}</div>
+        <div class="stat-label">Disponibles</div>
+    </div>
+    <div class="stat">
+        <div class="stat-num">{{ autos_reservados }}</div>
+        <div class="stat-label">Reservados</div>
+    </div>
+    <div class="stat">
+        <div class="stat-num">{{ autos_vendidos }}</div>
+        <div class="stat-label">Vendidos</div>
+    </div>
+</div>
+
+<div class="container">
+
+    {% if autos %}
+        <div class="section-title">Stock disponible</div>
+        <div class="grid">
+           {% for auto in autos %}
+<a href="/auto/{{ auto.id }}/" class="card-nueva">
+    <div class="card-foto">
+        {% with auto.fotos.first as foto %}
+            {% if foto %}
+                <img src="{{ foto.imagen.url }}" alt="{{ auto }}">
+            {% else %}
+                <div class="card-sin-foto">📷 Sin foto</div>
+            {% endif %}
+        {% endwith %}
+        <div class="card-overlay">
+            <div class="card-top">
+                <span class="card-badge badge-{{ auto.estado }}">{{ auto.get_estado_display }}</span>
+            </div>
+            <div class="card-bottom">
+                <div class="card-titulo">{{ auto.marca }} <strong>{{ auto.modelo }}</strong></div>
+                <div class="card-sub">{{ auto.anio }} · {{ auto.km|floatformat:0 }} km · {{ auto.version }}</div>
+                {% with auto.contenidos.last as contenido %}
+                    {% if contenido.tagline %}
+                        <div class="card-tagline">"{{ contenido.tagline }}"</div>
+                    {% endif %}
+                {% endwith %}
+                <div class="card-logo">TODO <span>@L</span> DÍA · 26 AÑOS DE CONFIANZA</div>
+            </div>
+        </div>
+    </div>
+</a>
+{% endfor %}
+        </div>
+    {% else %}
+        <div class="empty">
+            <h2>No hay autos cargados todavía</h2>
+            <p>Hacé click en "Cargar Auto" para empezar</p>
+        </div>
+    {% endif %}
+
+</div>
+
+</body>
+</html>
