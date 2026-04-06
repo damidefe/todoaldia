@@ -709,10 +709,10 @@
                     <input class="field-value" type="number" name="precio" placeholder="15000">
                 </div>
                 <div class="field-group">
-                    <div class="field-group">
                     <span class="field-label">Nombre dueño</span>
                     <input class="field-value" type="text" name="nombre_dueno" placeholder="Juan García">
                 </div>
+                <div class="field-group">
                     <span class="field-label">Tel. dueño</span>
                     <input class="field-value" type="text" name="telefono_dueno" placeholder="1145678901">
                 </div>
@@ -1664,6 +1664,7 @@ ${f.consejo ? `<div style="font-size:12px; color:#555; font-style:italic; line-h
     for (const f of fotosAprobadas) {
         const img = await cargarImagenCanvas(f.imagen_url);
         if (!img) continue;
+        console.log(`Foto ${f.id}: ${img.naturalWidth}x${img.naturalHeight} → ${img.naturalHeight > img.naturalWidth ? 'VERTICAL' : 'HORIZONTAL'}`);
 
         const esVertical = img.naturalHeight > img.naturalWidth;
 
