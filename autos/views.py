@@ -935,11 +935,22 @@ def auto_json(request, auto_id):
                 analisis_completo = json.loads(f.analisis_ia)
             except:
                 pass
+        # Detectar orientación real de la imagen
+        es_vertical = False
+        try:
+            from PIL import Image as PILImage
+            with PILImage.open(f.imagen.path) as pil_img:
+                w, h = pil_img.size
+                es_vertical = h > w
+        except:
+            pass
+
         fotos.append({
         'id': f.id,
         'imagen_url': f.imagen.url,
         'es_principal': f.es_principal,
         'aprobada': f.aprobada,
+        'es_vertical': es_vertical,
         'puntuacion': puntuacion,
         'apta': analisis_completo.get('apta_publicacion', True),
         'motivo_rechazo': analisis_completo.get('comentario_negativo', ''),
