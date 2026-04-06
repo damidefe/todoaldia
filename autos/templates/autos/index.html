@@ -1686,45 +1686,43 @@ ${f.consejo ? `<div style="font-size:12px; color:#555; font-style:italic; line-h
     }
 
     // Aviso si faltan fotos de algún formato
-    if (avisoPostEl) {
-        if (cantidadPost === 0 && cantidadStory === 0) {
-            avisoPostEl.style.display = 'block';
-            avisoPostEl.textContent = '⚠️ No hay fotos aprobadas todavía.';
-        } else if (cantidadPost === 0) {
-            avisoPostEl.style.display = 'block';
-            avisoPostavisoPostEl.innerHTML = `⚠️ No hay fotos en formato Post (4:5 horizontal).<br>
-                Pedile a papá que gire el celu en modo <strong>paisaje 4:5</strong> para sacar las fotos del post 📸<br>
-                Las fotos verticales 9:16 solo se usan en Story y WhatsApp.`;El.innerHTML = `⚠️ No hay fotos en formato Post (horizontal).<br>
-                Pedile a papá que saque las fotos girando el celu en modo <strong>paisaje</strong> 📸<br>
-                Las fotos verticales solo se usan en Story y WhatsApp.`;
-        } else if (cantidadStory === 0) {
-            avisoPostEl.style.display = 'block';
-            avisoPostEl.innerHTML = `⚠️ No hay fotos en formato Story (9:16 vertical).<br>
-                Pedile a papá que saque las fotos con el celu en modo <strong>retrato 9:16</strong> 📱<br>
-                Las fotos horizontales 4:5 solo se usan en el Post de Instagram.`;
-        } else {
-            avisoPostEl.style.display = 'none';
+        if (avisoPostEl) {
+            if (cantidadPost === 0 && cantidadStory === 0) {
+                avisoPostEl.style.display = 'block';
+                avisoPostEl.textContent = '⚠️ No hay fotos aprobadas todavía.';
+            } else if (cantidadPost === 0) {
+                avisoPostEl.style.display = 'block';
+                avisoPostEl.innerHTML = `⚠️ No hay fotos en formato Post (4:5 horizontal).<br>
+                    Pedile a papá que gire el celu en modo <strong>paisaje 4:5</strong> 📸<br>
+                    Las fotos verticales 9:16 solo se usan en Story y WhatsApp.`;
+            } else if (cantidadStory === 0) {
+                avisoPostEl.style.display = 'block';
+                avisoPostEl.innerHTML = `⚠️ No hay fotos en formato Story (9:16 vertical).<br>
+                    Pedile a papá que saque las fotos con el celu en modo <strong>retrato 9:16</strong> 📱<br>
+                    Las fotos horizontales 4:5 solo se usan en el Post de Instagram.`;
+            } else {
+                avisoPostEl.style.display = 'none';
+            }
         }
-    }
-           // Insertar previews de canvas DESPUÉS de que el HTML esté en el DOM
-    if (pack) {
-            const storyEl = document.getElementById(`preview-story-${d.id}`);
-            const postEl  = document.getElementById(`preview-post-${d.id}`);
-            if (storyEl) storyEl.appendChild(pack.storyPreview);
+            // Insertar previews decanvas DESPUÉS de que el HTML esté en el DOM
+        if (pack) {
+                const storyEl = document.getElementById(`preview-story-${d.id}`);
+                const postEl  = document.getElementById(`preview-post-${d.id}`);
+                if (storyEl) storyEl.appendChild(pack.storyPreview);
 
-    // Agregar story principal como primera miniatura del pack
-    if (pack && canvasesPack[`story_${d.id}`]) {
-        const contenedorStory = document.getElementById(`fotos-logo-story-${d.id}`);
-        if (contenedorStory) {
-            const miniPrincipal = _crearMiniatura(canvasesPack[`story_${d.id}`], 'principal', 'story');
-            miniPrincipal.style.border = '2px solid #E31E24';
-            miniPrincipal.title = 'Story principal — Click para descargar HD';
-            contenedorStory.insertBefore(miniPrincipal, contenedorStory.firstChild);
+        // Agregar story principal como primera miniatura del pack
+        if (pack && canvasesPack[`story_${d.id}`]) {
+            const contenedorStory = document.getElementById(`fotos-logo-story-${d.id}`);
+            if (contenedorStory) {
+                const miniPrincipal = _crearMiniatura(canvasesPack[`story_${d.id}`], 'principal', 'story');
+                miniPrincipal.style.border = '2px solid #E31E24';
+                miniPrincipal.title = 'Story principal — Click para descargar HD';
+                contenedorStory.insertBefore(miniPrincipal, contenedorStory.firstChild);
+            }
         }
+                if (postEl)  postEl.appendChild(pack.postPreview);
+            }
     }
-            if (postEl)  postEl.appendChild(pack.postPreview);
-        }
-}
 
 async function regenerarPlaca(tipo, autoId) {
     const res = await fetch(`/auto/${autoId}/pack/`, { method: 'POST' });
