@@ -1691,13 +1691,16 @@ ${f.consejo ? `<div style="font-size:12px; color:#555; font-style:italic; line-h
             avisoPostEl.textContent = '⚠️ No hay fotos aprobadas todavía.';
         } else if (cantidadPost === 0) {
             avisoPostEl.style.display = 'block';
-            avisoPostEl.innerHTML = `⚠️ No hay fotos en formato Post (horizontal).<br>
+            avisoPostavisoPostEl.innerHTML = `⚠️ No hay fotos en formato Post (4:5 horizontal).<br>
+                Pedile a papá que gire el celu en modo <strong>paisaje 4:5</strong> para sacar las fotos del post 📸<br>
+                Las fotos verticales 9:16 solo se usan en Story y WhatsApp.`;El.innerHTML = `⚠️ No hay fotos en formato Post (horizontal).<br>
                 Pedile a papá que saque las fotos girando el celu en modo <strong>paisaje</strong> 📸<br>
                 Las fotos verticales solo se usan en Story y WhatsApp.`;
         } else if (cantidadStory === 0) {
             avisoPostEl.style.display = 'block';
-            avisoPostEl.innerHTML = `⚠️ No hay fotos en formato Story (vertical).<br>
-                Pedile a papá que saque las fotos con el celu en modo <strong>retrato</strong> 📱`;
+            avisoPostEl.innerHTML = `⚠️ No hay fotos en formato Story (9:16 vertical).<br>
+                Pedile a papá que saque las fotos con el celu en modo <strong>retrato 9:16</strong> 📱<br>
+                Las fotos horizontales 4:5 solo se usan en el Post de Instagram.`;
         } else {
             avisoPostEl.style.display = 'none';
         }
