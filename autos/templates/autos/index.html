@@ -1484,6 +1484,11 @@ async function renderColPublicacion(d) {
                     letter-spacing:1px; margin-bottom:6px;">Pack fotos post con logo</div>
         <div id="fotos-logo-post-${d.id}" 
              style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:6px;"></div>
+        <div id="aviso-fotos-post-${d.id}"
+             style="display:none; background:rgba(245,158,11,0.1); border:1px solid #f59e0b;
+                    border-radius:8px; padding:10px 12px; margin-bottom:10px;
+                    font-size:11px; color:#f59e0b; font-weight:700; line-height:1.6;">
+        </div>
         <div style="font-size:10px; color:#333; font-style:italic; margin-bottom:16px;">
             💡 Tocá cada foto para descargarla individualmente
         </div>
@@ -1651,17 +1656,51 @@ ${f.consejo ? `<div style="font-size:12px; color:#555; font-style:italic; line-h
 
     const contenedorStory = document.getElementById(`fotos-logo-story-${d.id}`);
     const contenedorPost  = document.getElementById(`fotos-logo-post-${d.id}`);
+    const avisoPostEl     = document.getElementById(`aviso-fotos-post-${d.id}`);
+
+    let cantidadPost = 0;
+    let cantidadStory = 0;
 
     for (const f of fotosAprobadas) {
         const img = await cargarImagenCanvas(f.imagen_url);
+        if (!img) continue;
 
-        const canvasStory = await generarFotoConLogo(img, d, 'story');
-        window[`fotosConLogoStory_${d.id}`].push({ canvas: canvasStory, fotoId: f.id });
-        if (contenedorStory) contenedorStory.appendChild(_crearMiniatura(canvasStory, f.id, 'story'));
+        const esVertical = img.naturalHeight > img.naturalWidth;
 
-        const canvasPost = await generarFotoConLogo(img, d, 'post');
-        window[`fotosConLogoPost_${d.id}`].push({ canvas: canvasPost, fotoId: f.id });
-        if (contenedorPost) contenedorPost.appendChild(_crearMiniatura(canvasPost, f.id, 'post'));
+        // Story → fotos verticales (9:16)
+        if (esVertical) {
+            cantidadStory++;
+            const canvasStory = await generarFotoConLogo(img, d, 'story');
+            window[`fotosConLogoStory_${d.id}`].push({ canvas: canvasStory, fotoId: f.id });
+            if (contenedorStory) contenedorStory.appendChild(_crearMiniatura(canvasStory, f.id, 'story'));
+        }
+
+        // Post → fotos horizontales o cuadradas (4:5, 16:9)
+        if (!esVertical) {
+            cantidadPost++;
+            const canvasPost = await generarFotoConLogo(img, d, 'post');
+            window[`fotosConLogoPost_${d.id}`].push({ canvas: canvasPost, fotoId: f.id });
+            if (contenedorPost) contenedorPost.appendChild(_crearMiniatura(canvasPost, f.id, 'post'));
+        }
+    }
+
+    // Aviso si faltan fotos de algún formato
+    if (avisoPostEl) {
+        if (cantidadPost === 0 && cantidadStory === 0) {
+            avisoPostEl.style.display = 'block';
+            avisoPostEl.textContent = '⚠️ No hay fotos aprobadas todavía.';
+        } else if (cantidadPost === 0) {
+            avisoPostEl.style.display = 'block';
+            avisoPostEl.innerHTML = `⚠️ No hay fotos en formato Post (horizontal).<br>
+                Pedile a papá que saque las fotos girando el celu en modo <strong>paisaje</strong> 📸<br>
+                Las fotos verticales solo se usan en Story y WhatsApp.`;
+        } else if (cantidadStory === 0) {
+            avisoPostEl.style.display = 'block';
+            avisoPostEl.innerHTML = `⚠️ No hay fotos en formato Story (vertical).<br>
+                Pedile a papá que saque las fotos con el celu en modo <strong>retrato</strong> 📱`;
+        } else {
+            avisoPostEl.style.display = 'none';
+        }
     }
            // Insertar previews de canvas DESPUÉS de que el HTML esté en el DOM
     if (pack) {
