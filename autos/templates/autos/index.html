@@ -5227,6 +5227,7 @@ fetch('/pedidos/').then(r => r.json()).then(data => {
     if (el) el.textContent = data.pedidos.length;
 });
 function abrirModalEditarAuto() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     const m = document.getElementById('modal-editar-auto');
     m.style.display = 'flex';
     // Cargar datos actuales
