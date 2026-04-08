@@ -5277,7 +5277,6 @@ fetch('/pedidos/').then(r => r.json()).then(data => {
     if (el) el.textContent = data.pedidos.length;
 });
 function abrirModalEditarAuto() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
     const m = document.getElementById('modal-editar-auto');
     m.style.display = 'flex';
     // Cargar datos actuales
@@ -5291,7 +5290,6 @@ function abrirModalEditarAuto() {
     document.getElementById('edit-auto-telefono').value = document.getElementById('campo-telefono').value;
     document.getElementById('edit-auto-nombre-dueno').value = document.getElementById('campo-nombre-dueno').value;
     document.getElementById('edit-auto-detalles-adicionales').value = document.getElementById('campo-detalles-adicionales').value;
-    // km, precio_compra y detalles los buscamos del JSON
     fetch(`/auto/${AUTO_ID_ACTUAL}/json/`)
         .then(r => r.json())
         .then(d => {
