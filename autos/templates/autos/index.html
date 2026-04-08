@@ -30,7 +30,6 @@
         -webkit-font-smoothing: antialiased; 
         -moz-osx-font-smoothing: grayscale; 
         text-rendering: geometricPrecision;
-        transform: translateZ(0);
         }
  
         /* ════ HEADER ════ */
@@ -5277,6 +5276,7 @@ fetch('/pedidos/').then(r => r.json()).then(data => {
     if (el) el.textContent = data.pedidos.length;
 });
 function abrirModalEditarAuto() {
+    window.scrollTo({ top: 0, behavior: 'instant' });
     const m = document.getElementById('modal-editar-auto');
     m.style.display = 'flex';
     // Cargar datos actuales
