@@ -468,10 +468,203 @@
     .rechazo-opcion { padding: 10px; background: #1a1a1a; border: 2px solid #222; border-radius: 8px; cursor: pointer; text-align: center; font-size: 11px; font-weight: 700; color: #555; transition: all 0.15s; font-family: 'Montserrat', sans-serif; }
     .rechazo-opcion:hover  { border-color: #E31E24; color: #E31E24; }
     .rechazo-opcion.seleccionada { border-color: #E31E24; color: #E31E24; background: rgba(227,30,36,0.08); }
+    /* ════ MOBILE ════ */
+@media (max-width: 768px) {
+
+    /* Ocultar elementos desktop */
+    header { display: none; }
+    .tabs { display: none; }
+    .buscar-wrap { display: none; }
+    .stats { display: none; }
+
+    /* Barra superior fija mobile */
+    #mobile-top-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 300;
+        background: #000;
+        padding: 10px 12px;
+        display: flex;
+        gap: 6px;
+        border-bottom: 1px solid #1a1a1a;
+    }
+
+    /* Barra inferior fija mobile */
+    #mobile-bottom-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 300;
+        background: #000;
+        border-top: 1px solid #1a1a1a;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        padding: 8px 0 20px;
+    }
+
+    /* Espaciado para las barras fijas */
+    body { 
+        padding-top: 60px;
+        padding-bottom: 80px;
+    }
+
+    /* Grid de cards */
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    .card {
+        width: 100%;
+    }
+
+    /* Ocultar columnas desktop */
+    .columns-wrap {
+        display: flex;
+        flex-direction: column;
+        padding: 12px;
+        gap: 10px;
+    }
+
+    /* Panel detalle mobile */
+    .info-bar {
+        padding: 12px;
+    }
+    .info-bar-inner {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .info-fields {
+        flex-direction: column;
+    }
+    .field-value {
+        width: 100%;
+    }
+    .estado-borrar-bar {
+        padding: 10px 12px;
+        flex-wrap: wrap;
+    }
+
+    /* Grid section */
+    .grid-section {
+        padding: 12px;
+    }
+}
+
+/* Ocultar barras mobile en desktop */
+#mobile-top-bar,
+#mobile-bottom-bar,
+#mobile-circles {
+    display: none;
+}
     </style>
 </head>
 <body>
- 
+ <!-- BARRA SUPERIOR MOBILE -->
+<div id="mobile-top-bar">
+    <button onclick="toggleFormNuevo()" 
+        style="flex:1; background:#E31E24; border:none; border-radius:8px; color:#fff;
+               font-size:9px; font-weight:900; padding:8px 4px; font-family:'Montserrat',sans-serif;
+               text-transform:uppercase; letter-spacing:1px; cursor:pointer;">
+        🚗 +Auto
+    </button>
+    <button onclick="toggleFormLead()"
+        style="flex:1; background:#1565c0; border:none; border-radius:8px; color:#fff;
+               font-size:9px; font-weight:900; padding:8px 4px; font-family:'Montserrat',sans-serif;
+               text-transform:uppercase; letter-spacing:1px; cursor:pointer;">
+        👥 +Lead
+    </button>
+    <button onclick="mostrarPedidos()"
+        style="flex:1; background:#7c3aed; border:none; border-radius:8px; color:#fff;
+               font-size:9px; font-weight:900; padding:8px 4px; font-family:'Montserrat',sans-serif;
+               text-transform:uppercase; letter-spacing:1px; cursor:pointer;">
+        📝 Pedido
+    </button>
+    <button onclick="mostrarCM()"
+        style="flex:1; background:#1a8fe3; border:none; border-radius:8px; color:#fff;
+               font-size:9px; font-weight:900; padding:8px 4px; font-family:'Montserrat',sans-serif;
+               text-transform:uppercase; letter-spacing:1px; cursor:pointer;">
+        📅 CM
+    </button>
+    <button onclick="mostrarPlacas()"
+        style="flex:1; background:#2a2a2a; border:none; border-radius:8px; color:#fff;
+               font-size:9px; font-weight:900; padding:8px 4px; font-family:'Montserrat',sans-serif;
+               text-transform:uppercase; letter-spacing:1px; cursor:pointer;">
+        🎨 Placas
+    </button>
+</div>
+
+<!-- CÍRCULOS TIPO DESTACADAS -->
+<div id="mobile-circles" style="display:none; padding:16px 12px 8px; background:#0a0a0a; border-bottom:1px solid #1a1a1a; overflow-x:auto;">
+    <div style="display:flex; gap:16px; min-width:max-content;">
+        <div onclick="cambiarTabMobile('disponible')" style="display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer;">
+            <div style="width:60px; height:60px; border-radius:50%; border:2px solid #E31E24; background:#1a1a1a; display:flex; align-items:center; justify-content:center; font-size:22px;">🚗</div>
+            <span style="font-size:9px; font-weight:900; color:#fff; text-transform:uppercase;">Stock</span>
+        </div>
+        <div onclick="cambiarTabMobile('reservado')" style="display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer;">
+            <div style="width:60px; height:60px; border-radius:50%; border:2px solid #ff9800; background:#1a1a1a; display:flex; align-items:center; justify-content:center; font-size:22px;">🔒</div>
+            <span style="font-size:9px; font-weight:900; color:#fff; text-transform:uppercase;">Reservado</span>
+        </div>
+        <div onclick="cambiarTabMobile('vendido')" style="display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer;">
+            <div style="width:60px; height:60px; border-radius:50%; border:2px solid #4caf50; background:#1a1a1a; display:flex; align-items:center; justify-content:center; font-size:22px;">✅</div>
+            <span style="font-size:9px; font-weight:900; color:#fff; text-transform:uppercase;">Vendido</span>
+        </div>
+        <div onclick="mostrarLeads()" style="display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer;">
+            <div style="width:60px; height:60px; border-radius:50%; border:2px solid #1565c0; background:#1a1a1a; display:flex; align-items:center; justify-content:center; font-size:22px;">🎯</div>
+            <span style="font-size:9px; font-weight:900; color:#fff; text-transform:uppercase;">Leads</span>
+        </div>
+        <div onclick="mostrarPedidos()" style="display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer;">
+            <div style="width:60px; height:60px; border-radius:50%; border:2px solid #7c3aed; background:#1a1a1a; display:flex; align-items:center; justify-content:center; font-size:22px;">📋</div>
+            <span style="font-size:9px; font-weight:900; color:#fff; text-transform:uppercase;">Pedidos</span>
+        </div>
+    </div>
+</div>
+
+<!-- BARRA INFERIOR MOBILE -->
+<div id="mobile-bottom-bar">
+    <button onclick="mobileVolver()"
+        style="display:flex; flex-direction:column; align-items:center; gap:3px;
+               background:transparent; border:none; color:#555; cursor:pointer;
+               font-family:'Montserrat',sans-serif;">
+        <span style="font-size:22px;">←</span>
+        <span style="font-size:8px; font-weight:900; text-transform:uppercase;">Atrás</span>
+    </button>
+    <button onclick="document.getElementById('buscador-mobile').focus(); document.getElementById('mobile-search-wrap').style.display='block';"
+        style="display:flex; flex-direction:column; align-items:center; gap:3px;
+               background:transparent; border:none; color:#555; cursor:pointer;
+               font-family:'Montserrat',sans-serif;">
+        <span style="font-size:22px;">🔍</span>
+        <span style="font-size:8px; font-weight:900; text-transform:uppercase;">Buscar</span>
+    </button>
+    <button onclick="mobileHome()"
+        style="display:flex; flex-direction:column; align-items:center; gap:3px;
+               background:transparent; border:none; color:#fff; cursor:pointer;
+               font-family:'Montserrat',sans-serif;">
+        <span style="font-size:28px;">🏠</span>
+        <span style="font-size:8px; font-weight:900; text-transform:uppercase; color:#E31E24;">Home</span>
+    </button>
+    <button onclick="mostrarCM()"
+        style="display:flex; flex-direction:column; align-items:center; gap:3px;
+               background:transparent; border:none; color:#555; cursor:pointer;
+               font-family:'Montserrat',sans-serif;">
+        <span style="font-size:22px;">📅</span>
+        <span style="font-size:8px; font-weight:900; text-transform:uppercase;">CM</span>
+    </button>
+</div>
+
+<!-- BUSCADOR MOBILE -->
+<div id="mobile-search-wrap" style="display:none; position:fixed; top:60px; left:0; right:0; z-index:299; background:#000; padding:10px 12px; border-bottom:1px solid #1a1a1a;">
+    <input type="text" id="buscador-mobile" placeholder="🔍 Buscar..."
+        style="width:100%; padding:10px 14px; background:#1a1a1a; border:1px solid #222;
+               border-radius:8px; color:#fff; font-family:'Montserrat',sans-serif;
+               font-size:13px; font-weight:700; outline:none; box-sizing:border-box;"
+        oninput="filtrarAutos(this.value)"
+        onblur="if(!this.value) document.getElementById('mobile-search-wrap').style.display='none'">
+</div>
 <!-- ════════════════════ HEADER ════════════════════ -->
 <header>
     <div class="logo">
@@ -5402,7 +5595,78 @@ async function subirFotosEdit() {
         estadoEl.textContent = 'Error al subir fotos';
     }
 }
+// ── MOBILE ────────────────────────────────────────────────────
+let mobileHistorial = [];
 
+function mobileEsMovil() {
+    return window.innerWidth <= 768;
+}
+
+function mobileInit() {
+    if (!mobileEsMovil()) return;
+    document.getElementById('mobile-circles').style.display = 'block';
+    cambiarTabMobile('disponible');
+}
+
+function cambiarTabMobile(tab) {
+    fetch(`/?tab=${tab}&solo_grid=1`)
+        .then(r => r.json())
+        .then(data => {
+            const grid = document.getElementById('grid-autos');
+            document.getElementById('grid-section').style.display = 'block';
+            if (!data.autos.length) {
+                grid.innerHTML = '<div class="empty">No hay autos</div>';
+                return;
+            }
+            grid.innerHTML = data.autos.map(a => `
+                <div class="card" id="card-${a.id}" onclick="seleccionarAuto(${a.id})">
+                    <span class="card-badge badge-${a.estado}">${a.estado_display}</span>
+                    ${a.foto_url ? `<img src="${a.foto_url}" alt="${a.modelo}">` : '<div class="card-sin-foto">📷</div>'}
+                    <div class="card-overlay">
+                        <div class="card-marca">${a.marca}</div>
+                        <div class="card-modelo">${a.modelo}</div>
+                        <div class="card-anio-km">${a.anio} · ${a.km} km</div>
+                    </div>
+                </div>`).join('');
+        });
+}
+
+function mobileHome() {
+    // Ocultar todos los paneles
+    document.getElementById('panel-detalle').classList.remove('visible');
+    document.getElementById('panel-nuevo').style.display = 'none';
+    document.getElementById('panel-lead').style.display = 'none';
+    document.getElementById('panel-pedidos').style.display = 'none';
+    document.getElementById('panel-kanban-leads').style.display = 'none';
+    document.getElementById('panel-placas').style.display = 'none';
+    document.getElementById('panel-cm').style.display = 'none';
+    document.getElementById('panel-metricas').style.display = 'none';
+    document.getElementById('grid-section').style.display = 'block';
+    document.getElementById('mobile-circles').style.display = 'block';
+    window.scrollTo(0, 0);
+    mobileHistorial = [];
+}
+
+function mobileVolver() {
+    if (mobileHistorial.length > 0) {
+        mobileHistorial.pop();
+        const anterior = mobileHistorial[mobileHistorial.length - 1];
+        if (anterior) anterior();
+        else mobileHome();
+    } else {
+        mobileHome();
+    }
+}
+
+// Inicializar mobile al cargar
+window.addEventListener('load', mobileInit);
+window.addEventListener('resize', () => {
+    if (mobileEsMovil()) {
+        document.getElementById('mobile-top-bar').style.display = 'flex';
+        document.getElementById('mobile-bottom-bar').style.display = 'flex';
+        document.getElementById('mobile-circles').style.display = 'block';
+    }
+});
 </script>
  <!-- MODAL EDITAR AUTO -->
 <div id="modal-editar-auto" style="position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:1000; display:none; align-items:center; justify-content:center;"
