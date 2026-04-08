@@ -1666,7 +1666,7 @@ ${f.consejo ? `<div style="font-size:12px; color:#555; font-style:italic; line-h
         if (!img) continue;
         console.log(`Foto ${f.id}: ${img.naturalWidth}x${img.naturalHeight} → ${img.naturalHeight > img.naturalWidth ? 'VERTICAL' : 'HORIZONTAL'}`);
 
-        const esVerticaconst esVertical = (img._realHeight > img._realWidth);l = f.es_vertical === true;
+        const esVertical = (img._realHeight > img._realWidth);
 
         // Story → fotos verticales (9:16)
         if (esVertical) {
