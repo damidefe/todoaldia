@@ -522,12 +522,18 @@
         width: 100%;
     }
 
-    /* Ocultar columnas desktop */
+    /* Columnas mobile — apiladas y scrolleables */
     .columns-wrap {
         display: flex;
         flex-direction: column;
         padding: 12px;
-        gap: 10px;
+        gap: 16px;
+        overflow-y: auto;
+    }
+
+    /* Panel detalle scrolleable */
+    #panel-detalle {
+            overflow-y: auto;
     }
 
     /* Panel detalle mobile */
@@ -553,6 +559,25 @@
     .grid-section {
         padding: 12px;
     }
+    /* Editor de placas — no disponible en mobile */
+        #panel-placas {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        #panel-placas > div {
+            display: none !important;
+        }
+        #panel-placas::after {
+            content: '🖥️ El editor de placas está disponible solo desde la computadora';
+            color: #444;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: center;
+            line-height: 1.8;
+            font-family: 'Montserrat', sans-serif;
+        }
 }
 
 /* Ocultar barras mobile en desktop */
