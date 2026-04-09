@@ -2479,12 +2479,7 @@ function toggleFormNuevo() {
     const visible = panel.style.display !== 'none';
     panel.style.display = visible ? 'none' : 'block';
     if (!visible) {
-        window.scrollTo({ top: panel.offsetTop - 130, behavior: 'smooth' });
-        // Ocultar círculos en mobile
-        if (mobileEsMovil()) document.getElementById('mobile-circles').style.display = 'none';
-    } else {
-        // Volver a mostrar círculos en mobile
-        if (mobileEsMovil()) document.getElementById('mobile-circles').style.display = 'block';
+        window.scrollTo({ top: panel.offsetTop - 160, behavior: 'smooth' });
     }
     }
 
