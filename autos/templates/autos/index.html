@@ -594,10 +594,14 @@
 
     /* Grid de cards */
     .grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-    }
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .card {
+            width: 100%;
+            aspect-ratio: 2/3;
+        }
     .card {
         width: 100%;
     }
@@ -5844,6 +5848,10 @@ function mobileActivarDetalle(d) {
     const badge = document.getElementById('m-estado-badge');
     badge.textContent = d.estado.toUpperCase();
     badge.style.color = colores[d.estado] || '#fff';
+
+    // Ocultar grid y círculos
+    document.getElementById('grid-section').style.display = 'none';
+    document.getElementById('mobile-circles').style.display = 'none';
 
     // Mostrar tabs
     document.getElementById('mobile-detalle-tabs').style.display = 'flex';
