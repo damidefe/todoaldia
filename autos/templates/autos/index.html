@@ -473,7 +473,7 @@
     /* ── TABS MOBILE DETALLE ── */
         #mobile-detalle-tabs {
             position: fixed;
-            top: 104px;
+            top: 60px;
             left: 0;
             right: 0;
             z-index: 250;
@@ -490,12 +490,12 @@
         #panel-cm,
         #panel-placas,
         #panel-metricas {
-            padding-top: 120px !important;
+            padding-top: 160px !important;
         }
         #grid-section {
-            padding-top: 120px !important;
+            padding-top: 160px !important;
         }
-        }
+
         #mobile-detalle-tabs::-webkit-scrollbar { display: none; }
         .mobile-tab-btn {
             flex-shrink: 0;
@@ -889,7 +889,7 @@
     </div>
 </div>
  <!-- ════════════════════ PANEL NUEVO AUTO ════════════════════ -->
-<div id="panel-nuevo" style="display:none; background:#161616; border-bottom:2px solid #E31E24; padding:24px 32px;">
+<div id="panel-nuevo" style="display:none; background:#161616; border-bottom:2px solid #E31E24; padding:24px 32px; scroll-margin-top:130px;">
     <div style="max-width:900px; margin:0 auto;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
             <div>
@@ -2479,9 +2479,14 @@ function toggleFormNuevo() {
     const visible = panel.style.display !== 'none';
     panel.style.display = visible ? 'none' : 'block';
     if (!visible) {
-        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        window.scrollTo({ top: panel.offsetTop - 130, behavior: 'smooth' });
+        // Ocultar círculos en mobile
+        if (mobileEsMovil()) document.getElementById('mobile-circles').style.display = 'none';
+    } else {
+        // Volver a mostrar círculos en mobile
+        if (mobileEsMovil()) document.getElementById('mobile-circles').style.display = 'block';
     }
-}
+    }
 
 function previewFotosNuevo(input) {
     const preview = document.getElementById('preview-fotos-nuevo');
@@ -3840,10 +3845,9 @@ function toggleFormLead() {
     document.getElementById('tab-pedidos').className = 'tab-link inactivo';
     const panel = document.getElementById('panel-lead');
     const visible = panel.style.display !== 'none';
-    // Cerrar el otro panel si está abierto
     document.getElementById('panel-nuevo').style.display = 'none';
     panel.style.display = visible ? 'none' : 'block';
-    if (!visible) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (!visible) window.scrollTo({ top: panel.offsetTop - 130, behavior: 'smooth' });
 }
 
 function previewFotosLead(input) {
@@ -3877,7 +3881,7 @@ async function mostrarPedidos() {
 
     const panel = document.getElementById('panel-pedidos');
     panel.style.display = 'block';
-    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.scrollTo({ top: panel.offsetTop - 130, behavior: 'smooth' });
 
     // Marcar tab activo
     document.querySelectorAll('.tab-link').forEach(t => t.className = 'tab-link inactivo');
