@@ -570,24 +570,23 @@
     .grid-section {
         padding: 12px;
     }
-    /* Editor de placas — no disponible en mobile */
+    /* Editor de placas mobile — columnas apiladas */
         #panel-placas {
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
+            height: auto !important;
+            overflow-y: auto !important;
         }
         #panel-placas > div {
-            display: none !important;
+            display: flex !important;
+            flex-direction: column !important;
+            height: auto !important;
+            overflow: visible !important;
         }
-        #panel-placas::after {
-            content: '🖥️ El editor de placas está disponible solo desde la computadora';
-            color: #444;
-            font-size: 13px;
-            font-weight: 700;
-            text-align: center;
-            line-height: 1.8;
-            font-family: 'Montserrat', sans-serif;
+        #panel-placas > div > div {
+            width: 100% !important;
+            height: auto !important;
+            border-right: none !important;
+            border-bottom: 1px solid #1e1e1e !important;
+            overflow: visible !important;
         }
 }
 
