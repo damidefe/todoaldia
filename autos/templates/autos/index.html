@@ -1488,8 +1488,9 @@ function renderColRecepcion(d) {
                     onclick="generarCopyRecepcion()">🤖 Generar con IA</button>
         </div>
         <div style="display:grid; grid-template-columns:1fr auto; gap:5px; margin-top:8px;">
-            <input id="prompt-story-${d.id}"
-                style="flex:1; background:#1a1a1a; border:1px solid #333; border-radius:7px;
+            <input id="prompt-recepcion"
+                style="width:100%; min-width:0; box-sizing:border-box;
+                        background:#1a1a1a; border:1px solid #333; border-radius:7px;
                         padding:8px 12px; font-size:11px; color:#fff;
                         font-family:'Montserrat',sans-serif; outline:none;"
                 placeholder="Ej: cambiá la etiqueta, otro título, sin precio...">
@@ -2093,7 +2094,8 @@ function renderColGastos(d) {
         <input id="prompt-informe"
                style="background:#1a1a1a; border:1px solid #333; border-radius:7px;
                       padding:8px 12px; font-size:11px; color:#fff; 
-                      font-family:'Montserrat',sans-serif; outline:none;"
+                      font-family:'Montserrat',sans-serif; outline:none;
+                      width:100%; min-width:0; box-sizing:border-box;"
                placeholder="Ej: más corto, más formal, destacá el ahorro...">
         <button onclick="regenerarCopyInforme()"
                 style="background:#1a1a1a; border:1px solid #333; border-radius:7px;
