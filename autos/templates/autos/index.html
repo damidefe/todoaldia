@@ -470,6 +470,17 @@
     .rechazo-opcion.seleccionada { border-color: #E31E24; color: #E31E24; background: rgba(227,30,36,0.08); }
     /* ════ MOBILE ════ */
 @media (max-width: 768px) {
+    /* Editor de placas mobile — columnas apiladas */
+        #panel-placas > div {
+            display: flex !important;
+            flex-direction: column !important;
+            height: auto !important;
+            overflow-y: auto !important;
+        }
+        #panel-placas {
+            height: auto !important;
+            overflow-y: auto !important;
+        }
 
     /* Ocultar elementos desktop */
     header { display: none; }
