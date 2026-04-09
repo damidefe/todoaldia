@@ -5515,6 +5515,10 @@ function crearTarjeta(lead) {
                     onclick="abrirHistorial(${lead.id},'${lead.nombre_dueno||lead.marca+' '+lead.modelo}')">
                 📋 Historial
             </button>
+            <button class="btn-sm btn-sm-dark" style="font-size:8px;"
+                    onclick="AUTO_ID_ACTUAL=${lead.id}; abrirModalEditarAuto()">
+                ✏️ Editar
+            </button>
             ${esVisitado ? `
             <button class="btn-sm" style="background:#1b5e20;color:#4caf50;font-size:8px;border-radius:4px;"
                     onclick="tomarAuto(${lead.id})">✅ Tomar auto</button>
