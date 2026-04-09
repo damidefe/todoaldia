@@ -470,6 +470,72 @@
     .rechazo-opcion.seleccionada { border-color: #E31E24; color: #E31E24; background: rgba(227,30,36,0.08); }
     /* ════ MOBILE ════ */
 @media (max-width: 768px) {
+    /* ── TABS MOBILE DETALLE ── */
+        #mobile-detalle-tabs {
+            position: sticky;
+            top: 60px;
+            z-index: 150;
+            background: #000;
+            border-bottom: 1px solid #1a1a1a;
+            display: flex;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        #mobile-detalle-tabs::-webkit-scrollbar { display: none; }
+        .mobile-tab-btn {
+            flex-shrink: 0;
+            padding: 10px 16px;
+            font-size: 9px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #444;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .mobile-tab-btn.activo {
+            color: #E31E24;
+            border-bottom-color: #E31E24;
+        }
+
+        /* ── HEADER MINI MOBILE ── */
+        #mobile-auto-header {
+            position: sticky;
+            top: 60px;
+            z-index: 149;
+            background: #161616;
+            padding: 10px 12px;
+            border-bottom: 1px solid #222;
+            display: none;
+        }
+        #mobile-auto-header.visible {
+            display: block;
+        }
+
+        /* Ocultar elementos desktop en detalle */
+        #panel-detalle .info-bar { display: none; }
+        #panel-detalle .estado-borrar-bar { display: none; }
+        #panel-detalle .timeline-bar { display: none; }
+
+        /* Columnas — solo mostrar la activa */
+        #panel-detalle .columns-wrap {
+            display: block !important;
+            padding: 12px !important;
+        }
+        #panel-detalle .col-recepcion,
+        #panel-detalle .col-publicacion,
+        #panel-detalle .col-gastos {
+            display: none;
+        }
+        #panel-detalle .col-recepcion.mobile-activo,
+        #panel-detalle .col-publicacion.mobile-activo,
+        #panel-detalle .col-gastos.mobile-activo {
+            display: block;
+        }
     /* Editor de placas mobile — columnas apiladas */
         #panel-placas > div {
             display: flex !important;
@@ -1097,6 +1163,28 @@
  
 <!-- ════════════════════ PANEL DETALLE ════════════════════ -->
 <div id="panel-detalle">
+<!-- HEADER MOBILE AUTO -->
+<div id="mobile-auto-header">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+            <div style="font-size:10px; color:#E31E24; font-weight:900; text-transform:uppercase; letter-spacing:1px;" id="m-marca">—</div>
+            <div style="font-size:20px; font-weight:900; color:#fff;" id="m-modelo">—</div>
+            <div style="font-size:10px; color:#555;" id="m-subtitulo">—</div>
+        </div>
+        <div style="text-align:right;">
+            <div style="font-size:18px; font-weight:900; color:#fff;" id="m-precio">—</div>
+            <div id="m-estado-badge" style="font-size:9px; font-weight:900; margin-top:4px;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TABS MOBILE -->
+<div id="mobile-detalle-tabs" style="display:none;">
+    <button class="mobile-tab-btn" onclick="mobileAbrirTab('editar')">✏️ Editar</button>
+    <button class="mobile-tab-btn" id="mtab-recepcion" onclick="mobileAbrirTab('recepcion')">📋 Recepción</button>
+    <button class="mobile-tab-btn" id="mtab-publicacion" onclick="mobileAbrirTab('publicacion')">📷 Publicación</button>
+    <button class="mobile-tab-btn" id="mtab-gastos" onclick="mobileAbrirTab('gastos')">💰 Gastos</button>
+</div>    
  
     <!-- INFO BAR -->
 <div class="info-bar">
@@ -1376,6 +1464,9 @@ async function seleccionarAuto(autoId) {
  
     // Scroll al panel
     panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Activar vista mobile si corresponde
+    if (mobileEsMovil()) mobileActivarDetalle(d);
 }
  
 function actualizarTimeline(rec, pub, gas) {
@@ -5708,6 +5799,55 @@ window.addEventListener('resize', () => {
         document.getElementById('mobile-circles').style.display = 'block';
     }
 });
+// ── TABS MOBILE DETALLE ──────────────────────────────────────
+function mobileAbrirTab(tab) {
+    if (!mobileEsMovil()) return;
+
+    // Si es editar, abrir modal
+    if (tab === 'editar') {
+        abrirModalEditarAuto();
+        return;
+    }
+
+    // Activar tab
+    document.querySelectorAll('.mobile-tab-btn').forEach(b => b.classList.remove('activo'));
+    const btnActivo = document.getElementById(`mtab-${tab}`);
+    if (btnActivo) btnActivo.classList.add('activo');
+
+    // Mostrar columna correcta
+    document.querySelector('.col-recepcion').classList.remove('mobile-activo');
+    document.querySelector('.col-publicacion').classList.remove('mobile-activo');
+    document.querySelector('.col-gastos').classList.remove('mobile-activo');
+    document.querySelector(`.col-${tab}`).classList.add('mobile-activo');
+
+    // Scroll arriba
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function mobileActivarDetalle(d) {
+    if (!mobileEsMovil()) return;
+
+    // Mostrar header mini
+    const header = document.getElementById('mobile-auto-header');
+    header.classList.add('visible');
+
+    // Llenar datos
+    document.getElementById('m-marca').textContent = d.marca;
+    document.getElementById('m-modelo').textContent = d.modelo;
+    document.getElementById('m-subtitulo').textContent = `${d.anio} · ${d.version} · ${d.color}`;
+    document.getElementById('m-precio').textContent = `$${Number(d.precio).toLocaleString('es-AR')}`;
+
+    const colores = { disponible: '#4caf50', reservado: '#ff9800', vendido: '#999', lead: '#1565c0' };
+    const badge = document.getElementById('m-estado-badge');
+    badge.textContent = d.estado.toUpperCase();
+    badge.style.color = colores[d.estado] || '#fff';
+
+    // Mostrar tabs
+    document.getElementById('mobile-detalle-tabs').style.display = 'flex';
+
+    // Abrir recepción por defecto
+    mobileAbrirTab('recepcion');
+}
 </script>
  <!-- MODAL EDITAR AUTO -->
 <div id="modal-editar-auto" style="position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:1000; display:none; align-items:center; justify-content:center;"
