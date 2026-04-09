@@ -470,6 +470,29 @@
     .rechazo-opcion.seleccionada { border-color: #E31E24; color: #E31E24; background: rgba(227,30,36,0.08); }
     /* ════ MOBILE ════ */
 @media (max-width: 768px) {
+    /* CM mobile — solo chat */
+        #panel-cm {
+            height: auto !important;
+            overflow-y: auto !important;
+        }
+        #panel-cm > div {
+            flex-direction: column !important;
+            height: auto !important;
+        }
+        #cm-col-chat {
+            width: 100% !important;
+            min-width: 0 !important;
+            height: 70vh !important;
+            border-right: none !important;
+            border-bottom: 1px solid #1e1e1e !important;
+        }
+        /* Ocultar columna calendario en mobile */
+        #panel-cm > div > div:last-child {
+            display: none !important;
+        }
+        #cm-btn-chat {
+            display: none !important;
+        }
     /* ── TABS MOBILE DETALLE ── */
         #mobile-detalle-tabs {
             position: fixed;
