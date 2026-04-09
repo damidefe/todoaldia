@@ -1729,9 +1729,9 @@ async function renderColPublicacion(d) {
           box-sizing:border-box;">
     📱 Compartir en Estado
 </a>
-                <div style="display:flex; gap:5px; margin-bottom:12px;">
+                <div style="display:grid; grid-template-columns:1fr auto; gap:5px; margin-bottom:12px;">
                     <input id="prompt-wa"
-                        style="flex:1; background:#1a1a1a; border:1px solid #333; border-radius:7px;
+                        style="background:#1a1a1a; border:1px solid #333; border-radius:7px;
                                 padding:8px 12px; font-size:11px; color:#fff;
                                 font-family:'Montserrat',sans-serif; outline:none;"
                         placeholder="Ej: más corto, agregá dirección, tono más informal...">
@@ -2089,9 +2089,9 @@ function renderColGastos(d) {
             <button class="btn btn-red" style="flex:1; justify-content:center;"
                     onclick="generarCopyInforme()">🤖 Generar con IA</button>
         </div>
-        <div style="display:flex; gap:5px; margin-top:8px;">
+        <div style="display:grid; grid-template-columns:1fr auto; gap:5px; margin-top:8px;">
         <input id="prompt-informe"
-               style="flex:1; background:#1a1a1a; border:1px solid #333; border-radius:7px;
+               style="background:#1a1a1a; border:1px solid #333; border-radius:7px;
                       padding:8px 12px; font-size:11px; color:#fff; 
                       font-family:'Montserrat',sans-serif; outline:none;"
                placeholder="Ej: más corto, más formal, destacá el ahorro...">
