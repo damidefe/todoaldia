@@ -473,7 +473,7 @@
     /* ── TABS MOBILE DETALLE ── */
         #mobile-detalle-tabs {
             position: fixed;
-            top: 60px;
+            top: 155px;
             left: 0;
             right: 0;
             z-index: 250;
@@ -5846,7 +5846,7 @@ function mobileAbrirTab(tab) {
     const el = document.querySelector(colMap[tab]);
     if (el) {
         // 120px de offset para compensar las barras fijas
-        const y = el.getBoundingClientRect().top + window.scrollY - 120;
+        const y = el.getBoundingClientRect().top + window.scrollY - 155;
         window.scrollTo({ top: y, behavior: 'smooth' });
     }
 }
@@ -5869,9 +5869,8 @@ function mobileActivarDetalle(d) {
     badge.textContent = d.estado.toUpperCase();
     badge.style.color = colores[d.estado] || '#fff';
 
-    // Ocultar grid y círculos
+    // Ocultar solo el grid, mantener círculos
     document.getElementById('grid-section').style.display = 'none';
-    document.getElementById('mobile-circles').style.display = 'none';
 
     // Mostrar tabs
     document.getElementById('mobile-detalle-tabs').style.display = 'flex';
