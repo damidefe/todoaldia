@@ -606,7 +606,7 @@
         z-index: 400;
         background: #000;
         border-top: 1px solid #1a1a1a;
-        display: flex;
+        display: none;
         align-items: center;
         justify-content: space-around;
         padding: 8px 0 20px;
@@ -5496,44 +5496,7 @@ function crearTarjeta(lead) {
         </div>
         <div class="lead-card-top">
             ${fotoHtml}
-            <div class="lead-card-info">
-                <div class="lead-card-nombre">${lead.nombre_dueno || 'Sin nombre'}</div>
-                <div class="lead-card-auto">${lead.marca} ${lead.modelo} ${lead.anio} · ${lead.km ? Number(lead.km).toLocaleString('es-AR')+' km' : '—'}</div>
-                <div class="lead-card-origen">${origenLabel[lead.lead_origen]||'📝 Manual'}</div>
-            </div>
-        </div>
-        ${preciosHtml}
-        <div class="lead-card-tiempo">
-            <span class="${lead.alerta_tiempo?'tiempo-alerta':''}">
-                ${lead.alerta_tiempo?'⚠️':'⏱️'} ${lead.dias_en_pipeline===0?'Hoy':lead.dias_en_pipeline+(lead.dias_en_pipeline===1?' día':' días')}
-            </span>
-        </div>
-        ${comentarioHtml}
-        <div class="lead-card-acciones">
-            ${tel ? `<a href="https://wa.me/54${tel}" target="_blank" class="btn-sm btn-sm-dark" style="font-size:8px;">📲 WA</a>` : ''}
-            <button class="btn-sm btn-sm-dark" style="font-size:8px;"
-                    onclick="abrirHistorial(${lead.id},'${lead.nombre_dueno||lead.marca+' '+lead.modelo}')">
-                📋 Historial
-            </button>
-            <button class="btn-sm btn-sm-dark" style="font-size:8px;"
-                    onclick="AUTO_ID_ACTUAL=${lead.id}; abrirModalEditarAuto()">
-                ✏️ Editar
-            </button>
-            ${esVisitado ? `
-            <button class="btn-sm" style="background:#1b5e20;color:#4caf50;font-size:8px;border-radius:4px;"
-                    onclick="tomarAuto(${lead.id})">✅ Tomar auto</button>
-            <button class="btn-sm" style="background:#2a0000;color:#E31E24;font-size:8px;border-radius:4px;"
-                    onclick="abrirRechazo(${lead.id})">❌ Rechazar</button>` : ''}
-        </div>`;
 
-    div.addEventListener('dragstart', e => {
-        leadDragging = lead.id;
-        div.classList.add('dragging');
-        e.dataTransfer.effectAllowed = 'move';
-    });
-    div.addEventListener('dragend', () => {
-        div.classList.remove('dragging');
-        leadDragging = null;
     });
     return div;
 }
@@ -5847,6 +5810,10 @@ window.addEventListener('resize', () => {
         document.getElementById('mobile-top-bar').style.display = 'flex';
         document.getElementById('mobile-bottom-bar').style.display = 'flex';
         document.getElementById('mobile-circles').style.display = 'block';
+    } else {
+        document.getElementById('mobile-top-bar').style.display = 'none';
+        document.getElementById('mobile-bottom-bar').style.display = 'none';
+        document.getElementById('mobile-circles').style.display = 'none';
     }
 });
 // ── TABS MOBILE DETALLE ──────────────────────────────────────
