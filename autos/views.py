@@ -43,9 +43,10 @@ def index(request):
         'autos_reservados': todos.filter(estado='reservado').count(),
         'autos_vendidos': todos.filter(estado='vendido').count(),
         'autos_leads': todos.filter(estado='lead').count(),
-        
     }
-    def index_app(request):
+    return render(request, 'autos/index.html', context)
+
+def index_app(request):
     tab = request.GET.get('tab', 'disponible')
     todos = Auto.objects.all().order_by('-fecha_ingreso')
     autos = todos.filter(estado=tab)
@@ -77,7 +78,6 @@ def index(request):
         'autos_leads': todos.filter(estado='lead').count(),
     }
     return render(request, 'autos/index_app.html', context)
-    return render(request, 'autos/index.html', context)
 def _analizar_foto(foto):
     try:
         with open(foto.imagen.path, 'rb') as f:
