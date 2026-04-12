@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('app/', views.index_app, name='index_app'),    
     path('auto/nuevo/', views.nuevo_auto, name='nuevo_auto'),
     path('auto/<int:auto_id>/', views.detalle_auto, name='detalle_auto'),
     path('auto/<int:auto_id>/editar/', views.editar_auto, name='editar_auto'),
@@ -49,6 +50,6 @@ urlpatterns = [
     path('cm/contexto/', views.community_manager_contexto),
     path('cm/chat/', views.community_manager_chat),
     path('cm/metricas/', views.metricas_semanales),
-    
+  
 
 ]

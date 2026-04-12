@@ -45,6 +45,38 @@ def index(request):
         'autos_leads': todos.filter(estado='lead').count(),
         
     }
+    def index_app(request):
+    tab = request.GET.get('tab', 'disponible')
+    todos = Auto.objects.all().order_by('-fecha_ingreso')
+    autos = todos.filter(estado=tab)
+    if request.GET.get('solo_grid'):
+        autos_data = []
+        for auto in autos:
+            foto = auto.fotos.filter(es_principal=True).first() or auto.fotos.first()
+            autos_data.append({
+                'id': auto.id,
+                'marca': auto.marca,
+                'modelo': auto.modelo,
+                'anio': auto.anio,
+                'km': auto.km,
+                'estado': auto.estado,
+                'estado_display': auto.get_estado_display(),
+                'foto_url': foto.imagen.url if foto else None,
+            })
+        return JsonResponse({'autos': autos_data})
+    autos_con_foto = []
+    for auto in autos:
+        foto = auto.fotos.filter(es_principal=True).first() or auto.fotos.first()
+        autos_con_foto.append({'auto': auto, 'foto': foto})
+    context = {
+        'autos': autos_con_foto,
+        'tab_activo': tab,
+        'autos_disponibles': todos.filter(estado='disponible').count(),
+        'autos_reservados': todos.filter(estado='reservado').count(),
+        'autos_vendidos': todos.filter(estado='vendido').count(),
+        'autos_leads': todos.filter(estado='lead').count(),
+    }
+    return render(request, 'autos/index_app.html', context)
     return render(request, 'autos/index.html', context)
 def _analizar_foto(foto):
     try:
