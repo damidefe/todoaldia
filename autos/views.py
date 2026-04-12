@@ -1134,7 +1134,7 @@ def actualizar_datos(request, auto_id):
     if 'detalles_adicionales' in data:
         auto.detalles_adicionales = data['detalles_adicionales']
     if 'moneda' in data:
-    auto.moneda = data['moneda']
+        auto.moneda = data['moneda']
     
     auto.save()
     return JsonResponse({
