@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+{% load filtros %}
+{{ item.precio_display }}
 <html lang="es-AR">
 <head>
     <meta charset="UTF-8">
@@ -1778,7 +1780,7 @@ async function cargarPreviewHero() {
                 <div class="hero-mini-info">
                     <div class="hero-mini-modelo">${a.marca} ${a.modelo}</div>
                     <div class="hero-mini-detalle">${a.anio} · ${Number(a.km).toLocaleString('es-AR')} km</div>
-                    <div class="hero-mini-precio">$${Number(a.precio || 0).toLocaleString('es-AR')}</div>
+                    <div class="hero-mini-precio">${a.precio}</div>
                 </div>
             </div>`).join('');
     } catch(e) {

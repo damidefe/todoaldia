@@ -7,6 +7,8 @@ class Auto(models.Model):
         ('vendido', 'Vendido'),
         ('lead', 'Lead'),
     ]
+    MONEDA_CHOICES = [('ARS', 'Pesos $'), ('USD', 'Dólares USD')]
+
 
     # ── Campos existentes ──────────────────────────────────────
     modelo = models.CharField(max_length=100)
@@ -26,6 +28,7 @@ class Auto(models.Model):
     nombre_dueno = models.CharField(max_length=200, blank=True)
     telefono_dueno = models.CharField(max_length=50, blank=True)
     detalles_adicionales = models.TextField(blank=True)
+    moneda = models.CharField(max_length=3, choices=MONEDA_CHOICES, default='ARS')
 
     # ── Campos nuevos para Leads ───────────────────────────────
     # En qué columna del kanban está el lead.

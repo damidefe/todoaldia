@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from .models import Auto, FotoAuto, DocumentoAuto, ContenidoGenerado, GastoAuto , RecepcionAuto, DocumentoRecepcion
+from django.contrib.humanize.templatetags.humanize import intcomma
 
 import anthropic
 import os
@@ -1093,6 +1094,7 @@ def auto_json(request, auto_id):
         'tiene_contenido':      contenido_data is not None,
         'tiene_gastos':         len(gastos) > 0,
         'id':                   auto.id,
+        'moneda':               auto.moneda,
         
     })
     
@@ -1131,6 +1133,8 @@ def actualizar_datos(request, auto_id):
         auto.telefono_dueno = data['telefono_dueno']
     if 'detalles_adicionales' in data:
         auto.detalles_adicionales = data['detalles_adicionales']
+    if 'moneda' in data:
+    auto.moneda = data['moneda']
     
     auto.save()
     return JsonResponse({
@@ -2412,18 +2416,23 @@ def publico_pedido(request):
     return JsonResponse({'ok': True})
 
 def publico_stock_json(request):
-    """Endpoint público para el hero preview"""
     from .models import Auto, FotoAuto
     autos = Auto.objects.filter(estado='disponible').order_by('-fecha_ingreso')[:4]
     resultado = []
     for auto in autos:
         foto = FotoAuto.objects.filter(auto=auto, aprobada=True).first()
+        try:
+            precio_fmt = '{:,.0f}'.format(float(auto.precio)).replace(',', '.')
+            moneda = getattr(auto, 'moneda', 'ARS')
+            precio_display = f'USD {precio_fmt}' if moneda == 'USD' else f'$ {precio_fmt}'
+        except:
+            precio_display = str(auto.precio)
         resultado.append({
             'marca': auto.marca,
             'modelo': auto.modelo,
             'anio': auto.anio,
             'km': auto.km,
-            'precio': str(auto.precio),
+            'precio': precio_display,
             'foto_url': foto.imagen.url if foto else None,
         })
     return JsonResponse({'autos': resultado, 'total': Auto.objects.filter(estado='disponible').count()})
@@ -2438,3 +2447,24 @@ def publico_fotos(request, auto_id):
     return JsonResponse({
         'fotos': [{'url': f.imagen.url, 'es_principal': f.es_principal} for f in fotos]
     })
+    
+def publico(request):
+    from .models import Auto, FotoAuto
+    autos_qs = Auto.objects.filter(estado='disponible').order_by('-fecha_ingreso')
+    items = []
+    for auto in autos_qs:
+        foto = FotoAuto.objects.filter(auto=auto, aprobada=True, es_principal=True).first() \
+            or FotoAuto.objects.filter(auto=auto, aprobada=True).first()
+        # Formatear precio
+        try:
+            precio_fmt = '{:,.0f}'.format(float(auto.precio)).replace(',', '.')
+            moneda = getattr(auto, 'moneda', 'ARS')
+            if moneda == 'USD':
+                precio_display = f'USD {precio_fmt}'
+            else:
+                precio_display = f'$ {precio_fmt}'
+        except:
+            precio_display = f'$ {auto.precio}'
+        
+        items.append({'auto': auto, 'foto': foto, 'precio_display': precio_display})
+    return render(request, 'autos/publico.html', {'autos': items})

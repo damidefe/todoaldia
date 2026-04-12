@@ -5728,6 +5728,13 @@ function abrirModalEditarAuto() {
     document.getElementById('edit-auto-nombre-dueno').value = document.getElementById('campo-nombre-dueno').value;
     document.getElementById('edit-auto-detalles-adicionales').value = document.getElementById('campo-detalles-adicionales').value;
     fetch(`/auto/${AUTO_ID_ACTUAL}/json/`)
+    .then(r => r.json())
+    .then(d => {
+        // ... lo que ya existe ...
+        const monedaSel = document.getElementById('edit-auto-moneda');
+        if (monedaSel) monedaSel.value = d.moneda || 'ARS';
+    });
+    fetch(`/auto/${AUTO_ID_ACTUAL}/json/`)
         .then(r => r.json())
         .then(d => {
             document.getElementById('edit-auto-km').value = d.km || '';
@@ -5761,6 +5768,7 @@ async function guardarEdicionAuto() {
             nombre_dueno:         document.getElementById('edit-auto-nombre-dueno').value,
             telefono_dueno:       document.getElementById('edit-auto-telefono').value,
             detalles_adicionales: document.getElementById('edit-auto-detalles-adicionales').value,
+            moneda: document.getElementById('edit-auto-moneda')?.value || 'ARS',
         })
     });
     const data = await res.json();
@@ -6044,6 +6052,13 @@ function mobileActivarDetalle(d) {
                 <div class="field-group">
                     <span class="field-label">Precio venta</span>
                     <input class="field-value" id="edit-auto-precio" type="number">
+                </div>
+                <div class="field-group">
+                    <span class="field-label">Moneda</span>
+                    <select class="field-value" id="edit-auto-moneda">
+                        <option value="ARS">$ Pesos</option>
+                        <option value="USD">USD Dólares</option>
+                    </select>
                 </div>
                 <div class="field-group">
                     <span class="field-label">Precio compra</span>
