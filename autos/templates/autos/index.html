@@ -749,56 +749,23 @@ body {
     </style>
 </head>
 <body>
+
+
+    
  <!-- BARRA SUPERIOR MOBILE -->
 <div id="mobile-top-bar">
-<button onclick="toggleFormNuevo()" 
-    style="flex:1; height:100%; background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775957098/Gemini_Generated_Image_oodbsuoodbsuoodb_fcw8ke.png');
-           background-size:cover; background-position:center;
-            border:none; border-radius:8px; color:#fff;
-            font-size:9px; font-weight:900; padding:8px 4px; font-family:'Montserrat',sans-serif;
-            text-transform:uppercase; letter-spacing:1px; cursor:pointer;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);">
+<button onclick="toggleFormNuevo()" style="flex:1; height:100%; background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775957098/Gemini_Generated_Image_oodbsuoodbsuoodb_fcw8ke.png'); background-size:cover; background-position:center; border:none; border-radius:8px; cursor:pointer;">
 </button>
-    <button onclick="toggleFormLead()"
-       style="flex:1; height:100%; background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775957097/Gemini_Generated_Image_alurulalurulalur_fii18y.png');
-            background-size:cover; background-position:center;
-            border:none; border-radius:8px; color:#fff;
-            font-size:9px; font-weight:900; padding:8px 4px; font-family:'Montserrat',sans-serif;
-            text-transform:uppercase; letter-spacing:1px; cursor:pointer;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);">
-    </button>
-    <button onclick="mostrarPedidos()"
-        style="flex:1; height:100%; background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775957281/Gemini_Generated_Image_sy0lylsy0lylsy0l_wh3iz3.png');
-            background-size:cover; background-position:center;
-            border:none; border-radius:8px; color:#fff;
-            font-size:9px; font-weight:900; padding:8px 4px; font-family:'Montserrat',sans-serif;
-            text-transform:uppercase; letter-spacing:1px; cursor:pointer;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);">
-    </button>
-    <button onclick="mostrarCM()"
-            style="flex:1; height:100%; background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775959360/Gemini_Generated_Image_jptuhfjptuhfjptu_bteuos.png');
-            background-size:cover; background-position:center;
-            border:none; border-radius:8px; color:#fff;
-            font-size:9px; font-weight:900; padding:8px 4px; font-family:'Montserrat',sans-serif;
-            text-transform:uppercase; letter-spacing:1px; cursor:pointer;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);">
-    </button>
-    <button onclick="mostrarPlacas()"
-        style="flex:1; height:100%; background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775959565/Gemini_Generated_Image_a3ra8ha3ra8ha3ra_f87xva.png');
-            background-size:cover; background-position:center;
-            border:none; border-radius:8px; color:#fff;
-            font-size:9px; font-weight:900; padding:8px 4px; font-family:'Montserrat',sans-serif;
-            text-transform:uppercase; letter-spacing:1px; cursor:pointer;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);">
-    </button>
-    <button id="btn-ciclar-tema" onclick="ciclarTema()"
-        style="flex:1;  height:100%; background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775959732/Gemini_Generated_Image_bqyraebqyraebqyr_mlpfhv.png');
-            background-size:cover; background-position:center;
-            border:none; border-radius:8px; color:#fff;
-            font-size:9px; font-weight:900; padding:8px 4px; font-family:'Montserrat',sans-serif;
-            text-transform:uppercase; letter-spacing:1px; cursor:pointer;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);">
-    </button>
+<button onclick="toggleFormLead()" style="flex:1; height:100%; background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775957097/Gemini_Generated_Image_alurulalurulalur_fii18y.png'); background-size:cover; background-position:center; border:none; border-radius:8px; cursor:pointer;">
+</button>
+<button onclick="mostrarPedidos()" style="flex:1; height:100%; background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775957281/Gemini_Generated_Image_sy0lylsy0lylsy0l_wh3iz3.png'); background-size:cover; background-position:center; border:none; border-radius:8px; cursor:pointer;">
+</button>
+<button onclick="mostrarCM()" style="flex:1; height:100%; background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775959360/Gemini_Generated_Image_jptuhfjptuhfjptu_bteuos.png'); background-size:cover; background-position:center; border:none; border-radius:8px; cursor:pointer;">
+</button>
+<button onclick="mostrarPlacas()" style="flex:1; height:100%; background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775959565/Gemini_Generated_Image_a3ra8ha3ra8ha3ra_f87xva.png'); background-size:cover; background-position:center; border:none; border-radius:8px; cursor:pointer;">
+</button>
+<button onclick="ciclarTema()" style="flex:1; height:100%; background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775959732/Gemini_Generated_Image_bqyraebqyraebqyr_mlpfhv.png'); background-size:cover; background-position:center; border:none; border-radius:8px; cursor:pointer;">
+</button>
 </div>
 
 <!-- CÍRCULOS TIPO DESTACADAS -->
@@ -5716,7 +5683,6 @@ function abrirModalEditarAuto() {
     window.scrollTo({ top: 0, behavior: 'instant' });
     const m = document.getElementById('modal-editar-auto');
     m.style.display = 'flex';
-    // Cargar datos actuales
     document.getElementById('edit-auto-marca').value = document.getElementById('d-marca').textContent;
     document.getElementById('edit-auto-modelo').value = document.getElementById('d-modelo').textContent;
     const subtitulo = document.getElementById('d-subtitulo').textContent.split(' · ');
@@ -5728,18 +5694,13 @@ function abrirModalEditarAuto() {
     document.getElementById('edit-auto-nombre-dueno').value = document.getElementById('campo-nombre-dueno').value;
     document.getElementById('edit-auto-detalles-adicionales').value = document.getElementById('campo-detalles-adicionales').value;
     fetch(`/auto/${AUTO_ID_ACTUAL}/json/`)
-    .then(r => r.json())
-    .then(d => {
-        // ... lo que ya existe ...
-        const monedaSel = document.getElementById('edit-auto-moneda');
-        if (monedaSel) monedaSel.value = d.moneda || 'ARS';
-    });
-    fetch(`/auto/${AUTO_ID_ACTUAL}/json/`)
         .then(r => r.json())
         .then(d => {
             document.getElementById('edit-auto-km').value = d.km || '';
             document.getElementById('edit-auto-precio-compra').value = d.precio_compra || '';
             document.getElementById('edit-auto-detalles').value = d.detalles || '';
+            const monedaSel = document.getElementById('edit-auto-moneda');
+            if (monedaSel) monedaSel.value = d.moneda || 'ARS';
         });
 }
 
