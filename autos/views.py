@@ -242,7 +242,7 @@ def nuevo_auto(request):
             marca=request.POST.get('marca'),
             modelo=request.POST.get('modelo'),
             anio=int(request.POST.get('anio')),
-            km=int(request.POST.get('km')),
+            km=int(requekm=int(request.POST.get('km') or 0),st.POST.get('km')),
             version=request.POST.get('version', ''),
             color=request.POST.get('color', ''),
             precio=float(request.POST.get('precio') or 0),
