@@ -584,20 +584,19 @@
     .buscar-wrap { display: none; }
     .stats { display: none; }
 
-    /* Barra superior fija mobile */
     #mobile-top-bar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 300;
-        background: #000;
-        padding: 10px 12px;
-        display: flex;
-        gap: 6px;
-        border-bottom: 1px solid #1a1a1a;
+    display: flex;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 300;
+    background: #000;
+    padding: 6px 8px;
+    gap: 6px;
+    border-bottom: 1px solid #1a1a1a;
+    height: 70px;
+    box-sizing: border-box;
     }
-
+    
     #mobile-bottom-bar {
         position: fixed;
         bottom: 0;
@@ -613,7 +612,7 @@
     }
      #mobile-circles {
         position: fixed;
-        top: 60px;
+        top: 70px;
         left: 0;
         right: 0;
         z-index: 350;
@@ -713,7 +712,7 @@
     padding: 6px 8px;
     gap: 6px;
     border-bottom: 1px solid #1a1a1a;
-    height: 80px;
+    height: 70px;
 }
 #mobile-circles {
     position: fixed;
@@ -744,7 +743,7 @@ header { display: none !important; }
 
 /* Espaciado para las tres barras fijas */
 body {
-    padding-top: 155px;
+    padding-top: 145px;
     padding-bottom: 80px;
 }
     </style>
@@ -753,52 +752,34 @@ body {
  <!-- BARRA SUPERIOR MOBILE -->
 <div id="mobile-top-bar">
 <button onclick="toggleFormNuevo()" 
-    style="flex:1; height:100%; background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775957098/Gemini_Generated_Image_oodbsuoodbsuoodb_fcw8ke.png');
-           background-size:cover; background-position:center;
-            border:none; border-radius:8px; color:#fff;
-            font-size:9px; font-weight:900; padding:8px 4px; font-family:'Montserrat',sans-serif;
-            text-transform:uppercase; letter-spacing:1px; cursor:pointer;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);">
+    style="flex:1; height:100%; background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775963109/Gemini_Generated_Image_hn6gxphn6gxphn6g_fbljta.png');
+               background-size:cover; background-position:center;
+               border:none; border-radius:8px; cursor:pointer;">
 </button>
     <button onclick="toggleFormLead()"
-       style="flex:1; height:100%; background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775957097/Gemini_Generated_Image_alurulalurulalur_fii18y.png');
-            background-size:cover; background-position:center;
-            border:none; border-radius:8px; color:#fff;
-            font-size:9px; font-weight:900; padding:8px 4px; font-family:'Montserrat',sans-serif;
-            text-transform:uppercase; letter-spacing:1px; cursor:pointer;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);">
+       style="flex:1; height:100%; background-image:url('');
+               background-size:cover; background-position:center;
+               border:none; border-radius:8px; cursor:pointer;">
     </button>
     <button onclick="mostrarPedidos()"
-        style="flex:1; height:100%; background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775957281/Gemini_Generated_Image_sy0lylsy0lylsy0l_wh3iz3.png');
-            background-size:cover; background-position:center;
-            border:none; border-radius:8px; color:#fff;
-            font-size:9px; font-weight:900; padding:8px 4px; font-family:'Montserrat',sans-serif;
-            text-transform:uppercase; letter-spacing:1px; cursor:pointer;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);">
+        style="flex:1; height:100%; background-image:url('');
+               background-size:cover; background-position:center;
+               border:none; border-radius:8px; cursor:pointer;">
     </button>
     <button onclick="mostrarCM()"
-            style="flex:1; height:100%; background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775959360/Gemini_Generated_Image_jptuhfjptuhfjptu_bteuos.png');
-            background-size:cover; background-position:center;
-            border:none; border-radius:8px; color:#fff;
-            font-size:9px; font-weight:900; padding:8px 4px; font-family:'Montserrat',sans-serif;
-            text-transform:uppercase; letter-spacing:1px; cursor:pointer;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);">
+        style="flex:1; height:100%; background-image:url('');
+               background-size:cover; background-position:center;
+               border:none; border-radius:8px; cursor:pointer;">
     </button>
     <button onclick="mostrarPlacas()"
-        style="flex:1; height:100%; background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775959565/Gemini_Generated_Image_a3ra8ha3ra8ha3ra_f87xva.png');
-            background-size:cover; background-position:center;
-            border:none; border-radius:8px; color:#fff;
-            font-size:9px; font-weight:900; padding:8px 4px; font-family:'Montserrat',sans-serif;
-            text-transform:uppercase; letter-spacing:1px; cursor:pointer;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);">
+        style="flex:1; height:100%; background-image:url('');
+               background-size:cover; background-position:center;
+               border:none; border-radius:8px; cursor:pointer;">
     </button>
     <button id="btn-ciclar-tema" onclick="ciclarTema()"
-        style="flex:1;  height:100%; background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775959732/Gemini_Generated_Image_bqyraebqyraebqyr_mlpfhv.png');
-            background-size:cover; background-position:center;
-            border:none; border-radius:8px; color:#fff;
-            font-size:9px; font-weight:900; padding:8px 4px; font-family:'Montserrat',sans-serif;
-            text-transform:uppercase; letter-spacing:1px; cursor:pointer;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);">
+        style="flex:1; height:100%; background-image:url('');
+               background-size:cover; background-position:center;
+               border:none; border-radius:8px; cursor:pointer;">
     </button>
 </div>
 <!-- CÍRCULOS TIPO DESTACADAS -->
