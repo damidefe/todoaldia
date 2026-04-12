@@ -1205,10 +1205,16 @@
                                 <small>Precio</small>
                                 ${{ item.auto.precio|floatformat:0 }}
                             </div>
-                            <button class="btn-ver-auto"
-                                onclick="abrirCita({{ item.auto.id }}, '{{ item.auto.marca }} {{ item.auto.modelo }} {{ item.auto.anio }}')">
-                                Reservar cita
-                            </button>
+                            <div style="display:flex; gap:8px;">
+                                <button class="btn-ver-auto" style="background:var(--fondo); color:var(--negro); border:1px solid var(--borde);"
+                                    onclick="abrirGaleria({{ item.auto.id }}, '{{ item.auto.marca }} {{ item.auto.modelo }} {{ item.auto.anio }}')">
+                                    📷 Ver fotos
+                                </button>
+                                <button class="btn-ver-auto"
+                                    onclick="abrirCita({{ item.auto.id }}, '{{ item.auto.marca }} {{ item.auto.modelo }} {{ item.auto.anio }}')">
+                                    Reservar cita
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1523,6 +1529,89 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// ── GALERÍA ──────────────────────────────────────────────────
+let galeriaFotos = [];
+let galeriaIndex = 0;
+let galeriaAutoId = null;
+let galeriaAutoNombre = null;
+
+async function abrirGaleria(autoId, autoNombre) {
+    galeriaAutoId = autoId;
+    galeriaAutoNombre = autoNombre;
+    galeriaFotos = [];
+    galeriaIndex = 0;
+
+    document.getElementById('galeria-titulo').textContent = autoNombre;
+    document.getElementById('galeria-contador').textContent = 'Cargando fotos...';
+    document.getElementById('galeria-img-principal').src = '';
+    document.getElementById('galeria-miniaturas').innerHTML = '';
+    document.getElementById('modal-galeria').classList.add('activo');
+    document.body.style.overflow = 'hidden';
+
+    // Botón de cita en la galería
+    document.getElementById('galeria-btn-cita').onclick = () => {
+        cerrarGaleria();
+        abrirCita(autoId, autoNombre);
+    };
+
+    try {
+        const res = await fetch(`/publico/fotos/${autoId}/`);
+        const data = await res.json();
+        galeriaFotos = data.fotos || [];
+    } catch(e) {
+        galeriaFotos = [];
+    }
+
+    if (!galeriaFotos.length) {
+        document.getElementById('galeria-contador').textContent = 'Sin fotos cargadas';
+        return;
+    }
+
+    renderGaleria();
+}
+
+function renderGaleria() {
+    const foto = galeriaFotos[galeriaIndex];
+    document.getElementById('galeria-img-principal').src = foto.url;
+    document.getElementById('galeria-contador').textContent =
+        `Foto ${galeriaIndex + 1} de ${galeriaFotos.length}`;
+
+    const mins = document.getElementById('galeria-miniaturas');
+    mins.innerHTML = galeriaFotos.map((f, i) => `
+        <img src="${f.url}" onclick="irFoto(${i})"
+             style="height:64px; width:96px; object-fit:cover; border-radius:6px; cursor:pointer;
+                    border:2px solid ${i === galeriaIndex ? 'var(--acento)' : 'transparent'};
+                    opacity:${i === galeriaIndex ? '1' : '0.5'}; transition:all 0.2s; flex-shrink:0;">`
+    ).join('');
+}
+
+function irFoto(i) {
+    galeriaIndex = i;
+    renderGaleria();
+}
+
+function fotoAnterior() {
+    galeriaIndex = (galeriaIndex - 1 + galeriaFotos.length) % galeriaFotos.length;
+    renderGaleria();
+}
+
+function fotoSiguiente() {
+    galeriaIndex = (galeriaIndex + 1) % galeriaFotos.length;
+    renderGaleria();
+}
+
+function cerrarGaleria() {
+    document.getElementById('modal-galeria').classList.remove('activo');
+    document.body.style.overflow = '';
+}
+
+// Navegación con teclado
+document.addEventListener('keydown', e => {
+    if (!document.getElementById('modal-galeria').classList.contains('activo')) return;
+    if (e.key === 'ArrowRight') fotoSiguiente();
+    if (e.key === 'ArrowLeft')  fotoAnterior();
+    if (e.key === 'Escape')     cerrarGaleria();
+});
 // ── CSRF ──────────────────────────────────────────────────────
 function getCookie(name) {
     let c = null;
@@ -1675,14 +1764,10 @@ async function cargarPreviewHero() {
         const res  = await fetch('/publico/stock/');
         const data = await res.json();
         const autos = data.autos || [];
+
         const statEl = document.getElementById('stat-autos');
         if (statEl) statEl.textContent = data.total;
 
-        // Stat de disponibles
-        const statEl = document.getElementById('stat-autos');
-        if (statEl) statEl.textContent = autos.length;
-
-        // Minicartas en el hero
         const cont = document.getElementById('hero-preview-autos');
         if (!cont || !autos.length) return;
         cont.innerHTML = autos.slice(0, 4).map(a => `
@@ -1696,11 +1781,57 @@ async function cargarPreviewHero() {
                     <div class="hero-mini-precio">$${Number(a.precio || 0).toLocaleString('es-AR')}</div>
                 </div>
             </div>`).join('');
-    } catch(e) {}
+    } catch(e) {
+        console.error('Error hero preview:', e);
+    }
 }
 
 cargarPreviewHero();
 </script>
-
+<!-- MODAL GALERÍA -->
+<div class="modal-overlay" id="modal-galeria" onclick="if(event.target===this) cerrarGaleria()">
+    <div style="background:var(--negro); border-radius:20px; width:100%; max-width:860px;
+                max-height:90vh; overflow:hidden; display:flex; flex-direction:column;">
+        <div style="padding:20px 28px; display:flex; justify-content:space-between; align-items:center;
+                    border-bottom:1px solid rgba(255,255,255,0.1);">
+            <div>
+                <div style="font-family:'Playfair Display',serif; font-size:20px; color:var(--blanco); font-weight:700;"
+                     id="galeria-titulo">—</div>
+                <div style="font-size:11px; color:var(--acento); margin-top:3px;" id="galeria-contador">—</div>
+            </div>
+            <button onclick="cerrarGaleria()"
+                    style="background:transparent; border:none; color:rgba(255,255,255,0.5); font-size:24px; cursor:pointer;">✕</button>
+        </div>
+        <!-- Foto principal -->
+        <div style="position:relative; flex:1; min-height:0; display:flex; align-items:center; justify-content:center;
+                    background:#0a0a0a; padding:20px;">
+            <button onclick="fotoAnterior()"
+                    style="position:absolute; left:16px; background:rgba(255,255,255,0.1); border:none;
+                           color:var(--blanco); font-size:24px; width:44px; height:44px; border-radius:50%;
+                           cursor:pointer; transition:all 0.2s; z-index:2;"
+                    onmouseover="this.style.background='rgba(255,255,255,0.2)'"
+                    onmouseout="this.style.background='rgba(255,255,255,0.1)'">‹</button>
+            <img id="galeria-img-principal" src="" alt=""
+                 style="max-height:420px; max-width:100%; object-fit:contain; border-radius:10px;">
+            <button onclick="fotoSiguiente()"
+                    style="position:absolute; right:16px; background:rgba(255,255,255,0.1); border:none;
+                           color:var(--blanco); font-size:24px; width:44px; height:44px; border-radius:50%;
+                           cursor:pointer; transition:all 0.2s; z-index:2;"
+                    onmouseover="this.style.background='rgba(255,255,255,0.2)'"
+                    onmouseout="this.style.background='rgba(255,255,255,0.1)'">›</button>
+        </div>
+        <!-- Miniaturas -->
+        <div id="galeria-miniaturas"
+             style="display:flex; gap:8px; padding:16px 24px; overflow-x:auto;
+                    border-top:1px solid rgba(255,255,255,0.08); scrollbar-width:none;">
+        </div>
+        <!-- Botón reservar desde galería -->
+        <div style="padding:16px 24px; border-top:1px solid rgba(255,255,255,0.08); text-align:center;">
+            <button class="btn-primario" id="galeria-btn-cita" onclick="" style="width:100%; justify-content:center;">
+                📅 Reservar cita para ver este auto
+            </button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
