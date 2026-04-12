@@ -1,1 +1,1 @@
-web: python manage.py migrate && gunicorn todoaldia.wsgi
+web: python manage.py migrate && python manage.py reset_admin && gunicorn todoaldia.wsgi
