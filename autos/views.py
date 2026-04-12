@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
@@ -11,6 +12,7 @@ import base64
 
 client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
+@login_required(login_url='/login/')
 def index(request):
     tab = request.GET.get('tab', 'disponible')
     todos = Auto.objects.all().order_by('-fecha_ingreso')
@@ -46,6 +48,7 @@ def index(request):
     }
     return render(request, 'autos/index.html', context)
 
+@login_required(login_url='/login/')
 def index_app(request):
     tab = request.GET.get('tab', 'disponible')
     todos = Auto.objects.all().order_by('-fecha_ingreso')
