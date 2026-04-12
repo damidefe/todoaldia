@@ -1350,8 +1350,9 @@ function cambiarTab(tab) {
     ocultarPedidos();  
     document.getElementById('grid-section').style.display = 'block'; 
     document.getElementById('panel-pedidos').style.display = 'none';
-    document.getElementById('tab-pedidos').className = 'tab-link inactivo';
-    document.getElementById('tab-lead-kanban').className  = 'tab-link inactivo';
+    const tabPedidos = document.getElementById('tab-pedidos');
+    if (tabPedidos) tabPedidos.className = 'tab-link inactivo';
+    const tabL = document.getElementById('tab-lead-kanban'); if (tabL) tabL.className = 'tab-link inactivo';
     document.getElementById('panel-placas').style.display = 'none';
     document.getElementById('panel-cm').style.display = 'none';
     document.getElementById('panel-metricas').style.display = 'none';
@@ -1403,8 +1404,8 @@ async function filtrarAutos(query) {
     document.getElementById('panel-pedidos').style.display      = 'none';
     document.getElementById('panel-kanban-leads').style.display = 'none';
     document.getElementById('grid-section').style.display       = 'block';
-    document.getElementById('tab-pedidos').className      = 'tab-link inactivo';
-    document.getElementById('tab-lead-kanban').className  = 'tab-link inactivo';
+    const tabP = document.getElementById('tab-pedidos'); if (tabP) tabP.className = 'tab-link inactivo';
+    const tabL2 = document.getElementById('tab-lead-kanban'); if (tabL2) tabL2.className = 'tab-link inactivo';
 
     // Ocultar cards del tab actual mientras buscamos en todo
     document.querySelectorAll('.card').forEach(card => card.style.display = 'none');
@@ -2510,7 +2511,7 @@ if (autoParam) seleccionarAuto(autoParam);
 // ── PANEL NUEVO AUTO ──────────────────────────────────────────
 function toggleFormNuevo() {
     document.getElementById('panel-pedidos').style.display = 'none';
-    document.getElementById('tab-pedidos').className = 'tab-link inactivo';
+    const tabPed1 = document.getElementById('tab-pedidos'); if (tabPed1) tabPed1.className = 'tab-link inactivo';
     document.getElementById('panel-lead').style.display = 'none';
     const panel = document.getElementById('panel-nuevo');
     const visible = panel.style.display !== 'none';
@@ -3874,7 +3875,7 @@ function descargarComprobanteInline() {
 // ── PANEL LEAD ────────────────────────────────────────────────
 function toggleFormLead() {
     document.getElementById('panel-pedidos').style.display = 'none';
-    document.getElementById('tab-pedidos').className = 'tab-link inactivo';
+    const tabPed2 = document.getElementById('tab-pedidos'); if (tabPed2) tabPed2.className = 'tab-link inactivo';
     const panel = document.getElementById('panel-lead');
     const visible = panel.style.display !== 'none';
     document.getElementById('panel-nuevo').style.display = 'none';
@@ -3917,14 +3918,14 @@ async function mostrarPedidos() {
 
     // Marcar tab activo
     document.querySelectorAll('.tab-link').forEach(t => t.className = 'tab-link inactivo');
-    document.getElementById('tab-pedidos').className = 'tab-link activo';
+    const tabPed3 = document.getElementById('tab-pedidos'); if (tabPed3) tabPed3.className = 'tab-link activo';
 
     await cargarPedidos();
 }
 
 function ocultarPedidos() {
     document.getElementById('panel-pedidos').style.display = 'none';
-    document.getElementById('tab-pedidos').className = 'tab-link inactivo';
+    const tabPed4 = document.getElementById('tab-pedidos'); if (tabPed4) tabPed4.className = 'tab-link inactivo';
     document.getElementById('grid-section').style.display = 'block';
 }
 
@@ -5437,7 +5438,7 @@ async function mostrarLeads() {
     document.getElementById('panel-pedidos').style.display = 'none';
     document.getElementById('panel-detalle').classList.remove('visible');
     document.querySelectorAll('.tab-link').forEach(t => t.className = 'tab-link inactivo');
-    document.getElementById('tab-lead-kanban').className = 'tab-link activo';
+    const tabLK = document.getElementById('tab-lead-kanban'); if (tabLK) tabLK.className = 'tab-link activo';
     const panel = document.getElementById('panel-kanban-leads');
     panel.style.display = 'block';
     panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
