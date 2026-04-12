@@ -786,28 +786,48 @@ body {
 <div id="mobile-circles">
     <div style="display:flex; gap:16px; min-width:max-content;">
         <div onclick="cambiarTabMobile('disponible')" style="display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; position:relative;">
-            <div style="width:60px; height:60px; border-radius:50%; border:2px solid #E31E24; background:#1a1a1a; display:flex; align-items:center; justify-content:center; font-size:22px;">🚗</div>
+            <div style="width:60px; height:60px; border-radius:50%; border:2px solid #E31E24;
+                        background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775965738/Gemini_Generated_Image_ibmbs0ibmbs0ibmb_afeuak.png');
+                        background-size:cover; background-position:center;
+                        overflow:hidden;">
+            </div>
             <span id="badge-disponible" style="display:none; position:absolute; top:-4px; right:-4px; background:#E31E24; color:#fff; border-radius:50%; width:18px; height:18px; font-size:9px; font-weight:900; align-items:center; justify-content:center;">0</span>
             <span style="font-size:9px; font-weight:900; color:#fff; text-transform:uppercase;">Stock</span>
         </div>
         <div onclick="cambiarTabMobile('reservado')" style="display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; position:relative;">
-            <div style="width:60px; height:60px; border-radius:50%; border:2px solid #ff9800; background:#1a1a1a; display:flex; align-items:center; justify-content:center; font-size:22px;">🔒</div>
-            <span id="badge-reservado" style="display:none; position:absolute; top:-4px; right:-4px; background:#ff9800; color:#fff; border-radius:50%; width:18px; height:18px; font-size:9px; font-weight:900; align-items:center; justify-content:center;">0</span>
+            <div style="width:60px; height:60px; border-radius:50%; border:2px solid #fa9600;
+                        background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775965927/Gemini_Generated_Image_ybn5lwybn5lwybn5_gjxoyy.png');
+                        background-size:cover; background-position:center;
+                        overflow:hidden;">
+            </div>
+            <span id="badge-reservado" style="display:none; position:absolute; top:-4px; right:-4px; background:#E31E24; color:#fff; border-radius:50%; width:18px; height:18px; font-size:9px; font-weight:900; align-items:center; justify-content:center;">0</span>
             <span style="font-size:9px; font-weight:900; color:#fff; text-transform:uppercase;">Reservado</span>
         </div>
         <div onclick="cambiarTabMobile('vendido')" style="display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; position:relative;">
-            <div style="width:60px; height:60px; border-radius:50%; border:2px solid #4caf50; background:#1a1a1a; display:flex; align-items:center; justify-content:center; font-size:22px;">✅</div>
-            <span id="badge-vendido" style="display:none; position:absolute; top:-4px; right:-4px; background:#4caf50; color:#fff; border-radius:50%; width:18px; height:18px; font-size:9px; font-weight:900; align-items:center; justify-content:center;">0</span>
+            <div style="width:60px; height:60px; border-radius:50%; border:2px solid #2fe748b4;
+                        background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775966067/Gemini_Generated_Image_sk328xsk328xsk32_xrjra6.png');
+                        background-size:cover; background-position:center;
+                        overflow:hidden;">
+            </div>
+            <span id="badge-vendido" style="display:none; position:absolute; top:-4px; right:-4px; background:#E31E24; color:#fff; border-radius:50%; width:18px; height:18px; font-size:9px; font-weight:900; align-items:center; justify-content:center;">0</span>
             <span style="font-size:9px; font-weight:900; color:#fff; text-transform:uppercase;">Vendido</span>
         </div>
-        <div onclick="mostrarLeads()" style="display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; position:relative;">
-            <div style="width:60px; height:60px; border-radius:50%; border:2px solid #1565c0; background:#1a1a1a; display:flex; align-items:center; justify-content:center; font-size:22px;">🤝</div>
-            <span id="badge-leads" style="display:none; position:absolute; top:-4px; right:-4px; background:#1565c0; color:#fff; border-radius:50%; width:18px; height:18px; font-size:9px; font-weight:900; align-items:center; justify-content:center;">0</span>
-            <span style="font-size:9px; font-weight:900; color:#fff; text-transform:uppercase;">Consignas</span>
+        <div onclick="cambiarTabMobile('leads')" style="display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; position:relative;">
+            <div style="width:60px; height:60px; border-radius:50%; border:2px solid #e31ea8;
+                        background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775966396/Gemini_Generated_Image_3gdhh23gdhh23gdh_jesnki.png');
+                        background-size:cover; background-position:center;
+                        overflow:hidden;">
+            </div>
+            <span id="badge-leads" style="display:none; position:absolute; top:-4px; right:-4px; background:#E31E24; color:#fff; border-radius:50%; width:18px; height:18px; font-size:9px; font-weight:900; align-items:center; justify-content:center;">0</span>
+            <span style="font-size:9px; font-weight:900; color:#fff; text-transform:uppercase;">Leads</span>
         </div>
-        <div onclick="mostrarPedidos()" style="display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; position:relative;">
-            <div style="width:60px; height:60px; border-radius:50%; border:2px solid #7c3aed; background:#1a1a1a; display:flex; align-items:center; justify-content:center; font-size:22px;">📋</div>
-            <span id="badge-pedidos" style="display:none; position:absolute; top:-4px; right:-4px; background:#7c3aed; color:#fff; border-radius:50%; width:18px; height:18px; font-size:9px; font-weight:900; align-items:center; justify-content:center;">0</span>
+        <div onclick="cambiarTabMobile('pedidos')" style="display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; position:relative;">
+            <div style="width:60px; height:60px; border-radius:50%; border:2px solid #b40817;
+                        background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775966633/Gemini_Generated_Image_tcy9gatcy9gatcy9_kq77jv.png');
+                        background-size:cover; background-position:center;
+                        overflow:hidden;">
+            </div>
+            <span id="badge-pedidos" style="display:none; position:absolute; top:-4px; right:-4px; background:#E31E24; color:#fff; border-radius:50%; width:18px; height:18px; font-size:9px; font-weight:900; align-items:center; justify-content:center;">0</span>
             <span style="font-size:9px; font-weight:900; color:#fff; text-transform:uppercase;">Pedidos</span>
         </div>
     </div>
