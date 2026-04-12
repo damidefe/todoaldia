@@ -806,35 +806,35 @@ body {
 <div id="mobile-circles">
     <div style="display:flex; gap:16px; min-width:max-content;">
         <div onclick="cambiarTabMobile('disponible')" style="display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; position:relative;">
-            <div style="width:60px; height:60px; border-radius:50%; border:2px solid #E31E24;
+            <div class="circulo" style="width:60px; height:60px; border-radius:50%; border:2px solid #19c203;
                         background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775965738/Gemini_Generated_Image_ibmbs0ibmbs0ibmb_afeuak.png');
                         background-size:cover; background-position:center;
                         overflow:hidden;">
             </div>
         </div>
         <div onclick="cambiarTabMobile('reservado')" style="display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; position:relative;">
-            <div style="width:60px; height:60px; border-radius:50%; border:2px solid #fa9600;
+            <div class="circulo" style="width:60px; height:60px; border-radius:50%; border:2px solid #e60404;
                         background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775965927/Gemini_Generated_Image_ybn5lwybn5lwybn5_gjxoyy.png');
                         background-size:cover; background-position:center;
                         overflow:hidden;">
             </div>
         </div>
         <div onclick="cambiarTabMobile('vendido')" style="display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; position:relative;">
-            <div style="width:60px; height:60px; border-radius:50%; border:2px solid #2fe748b4;
+            <div class="circulo" style="width:60px; height:60px; border-radius:50%; border:2px solid #E31E24;
                         background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775966067/Gemini_Generated_Image_sk328xsk328xsk32_xrjra6.png');
                         background-size:cover; background-position:center;
                         overflow:hidden;">
             </div>
         </div>
         <div onclick="cambiarTabMobile('leads')" style="display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; position:relative;">
-            <div style="width:60px; height:60px; border-radius:50%; border:2px solid #e31ea8;
+            <div class="circulo" style="width:60px; height:60px; border-radius:50%; border:2px solid #df06b0;
                         background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775966396/Gemini_Generated_Image_3gdhh23gdhh23gdh_jesnki.png');
                         background-size:cover; background-position:center;
                         overflow:hidden;">
             </div>
         </div>
         <div onclick="cambiarTabMobile('pedidos')" style="display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; position:relative;">
-            <div style="width:60px; height:60px; border-radius:50%; border:2px solid #0d90fc;
+            <div class="circulo" style="width:60px; height:60px; border-radius:50%; border:2px solid #009bf5;
                         background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775966633/Gemini_Generated_Image_tcy9gatcy9gatcy9_kq77jv.png');
                         background-size:cover; background-position:center;
                         overflow:hidden;">
@@ -5424,6 +5424,18 @@ function cmRenderCalendario(texto, contexto) {
     html += `</div>`;
     body.innerHTML = html;
     cmMostrarCalendarioFullscreen();
+}
+
+/* Círculos más grandes en desktop */
+@media (min-width: 769px) {
+    #mobile-circles .circulo {
+        width: 90px !important;
+        height: 90px !important;
+    }
+    #mobile-circles {
+        padding: 12px 20px;
+        gap: 24px;
+    }
 }
 // ════ MARKETING ════
 
