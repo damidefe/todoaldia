@@ -2412,3 +2412,20 @@ def publico_pedido(request):
     except Exception as e:
         print(f"Error pedido: {e}")
     return JsonResponse({'ok': True})
+
+def publico_stock_json(request):
+    """Endpoint público para el hero preview"""
+    from .models import Auto, FotoAuto
+    autos = Auto.objects.filter(estado='disponible').order_by('-fecha_ingreso')[:4]
+    resultado = []
+    for auto in autos:
+        foto = FotoAuto.objects.filter(auto=auto, aprobada=True).first()
+        resultado.append({
+            'marca': auto.marca,
+            'modelo': auto.modelo,
+            'anio': auto.anio,
+            'km': auto.km,
+            'precio': str(auto.precio),
+            'foto_url': foto.imagen.url if foto else None,
+        })
+    return JsonResponse({'autos': resultado, 'total': Auto.objects.filter(estado='disponible').count()})

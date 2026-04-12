@@ -1672,9 +1672,11 @@ function toggleMenu() {
 // ── CARGAR PREVIEW HERO ──────────────────────────────────────
 async function cargarPreviewHero() {
     try {
-        const res  = await fetch('/?tab=disponible&solo_grid=1');
+        const res  = await fetch('/publico/stock/');
         const data = await res.json();
         const autos = data.autos || [];
+        const statEl = document.getElementById('stat-autos');
+        if (statEl) statEl.textContent = data.total;
 
         // Stat de disponibles
         const statEl = document.getElementById('stat-autos');
