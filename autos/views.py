@@ -2370,31 +2370,45 @@ def publico_consulta(request):
         print(f"Error consulta: {e}")
     return JsonResponse({'ok': True})
 
-
 @csrf_exempt  
 def publico_consignacion(request):
-    """Guarda un lead de consignación desde la web pública"""
+    """Guarda un lead de consignación mapeando correctamente los nombres del models.py"""
     if request.method != 'POST':
         return JsonResponse({'ok': False})
     try:
         data = json.loads(request.body)
-        from .models import Auto
-        Auto.objects.create(
-            marca=data.get('marca', 'Sin datos'),
-            modelo=data.get('modelo', 'Sin datos'),
-            anio=int(data.get('anio') or 2000),
-            km=int(data.get('km') or 0),
-            precio=0,
-            precio_compra=0,
-            nombre_dueno=data.get('nombre_dueno', ''),
-            telefono_dueno=data.get('telefono_dueno', ''),
-            detalles_adicionales='[CONSIGNACION WEB] ' + data.get('detalles_adicionales', ''),
-            estado='lead',
-        )
-    except Exception as e:
-        print(f"Error consignacion: {e}")
-    return JsonResponse({'ok': True})
+        
+        # Función auxiliar para que no falle si el usuario manda texto en lugar de números
+        def limpiar_numero(valor, default=0):
+            try:
+                # Quitamos puntos o comas que el usuario pueda poner manualmente
+                return int(str(valor).replace('.', '').replace(',', '').strip())
+            except: return default
 
+        from .models import Auto
+        nuevo_lead = Auto.objects.create(
+            marca=data.get('marca', 'Sin marca'),
+            modelo=data.get('modelo', 'Sin modelo'),
+            anio=limpiar_numero(data.get('anio'), 2000),
+            km=limpiar_numero(data.get('km'), 0),
+            precio=0, # Valor por defecto para el stock
+            
+            # MAPEO CORRECTO SEGÚN TU MODELS.PY:
+            # Buscamos 'nombre_dueno' o 'nombre' por si acaso
+            nombre_dueno=data.get('nombre_dueno', data.get('nombre', '')),
+            telefono_dueno=data.get('telefono_dueno', data.get('telefono', '')),
+            
+            # Guardamos el precio que pide el cliente en su campo correspondiente
+            lead_precio_pedido=data.get('precio_pedido', 0),
+            
+            detalles_adicionales=f"[CONSIGNACION WEB] {data.get('detalles_adicionales', '')}",
+            estado='lead',
+            lead_origen='web',
+            lead_estado='sin_contacto' # Para que aparezca en tu Kanban
+        )
+        return JsonResponse({'ok': True, 'id': nuevo_lead.id})
+    except Exception as e:
+        return JsonResponse({'ok': False, 'error': str(e)})
 
 @csrf_exempt
 def publico_pedido(request):
