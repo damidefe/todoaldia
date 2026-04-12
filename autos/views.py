@@ -2355,22 +2355,19 @@ def publico_consulta(request):
         return JsonResponse({'ok': False})
     try:
         data = json.loads(request.body)
-        from .models import Auto, Lead
+        from .models import Auto
         auto = Auto.objects.filter(id=data.get('auto_id')).first()
-        # Guardamos como comentario en el lead o como nuevo lead
-        lead = Lead.objects.create(
-            auto=auto,
-            nombre_dueno=data.get('nombre', ''),
-            telefono_dueno=data.get('telefono', ''),
-            detalles_adicionales=f"CITA WEB: {data.get('comentario', '')}",
-            lead_estado='sin_contacto',
-        ) if auto else None
+        if auto:
+            # Guardamos el comentario en detalles del auto
+            comentario = f"CITA WEB — {data.get('nombre','')} ({data.get('telefono','')}) {data.get('comentario','')}"
+            auto.detalles_adicionales = (auto.detalles_adicionales or '') + ' | ' + comentario
+            auto.save()
     except Exception as e:
         print(f"Error consulta: {e}")
     return JsonResponse({'ok': True})
 
 
-@csrf_exempt
+@csrf_exempt  
 def publico_consignacion(request):
     """Guarda un lead de consignación desde la web pública"""
     if request.method != 'POST':
@@ -2378,15 +2375,16 @@ def publico_consignacion(request):
     try:
         data = json.loads(request.body)
         from .models import Auto
-        auto = Auto.objects.create(
-            marca=data.get('marca', ''),
-            modelo=data.get('modelo', ''),
+        Auto.objects.create(
+            marca=data.get('marca', 'Sin datos'),
+            modelo=data.get('modelo', 'Sin datos'),
             anio=int(data.get('anio') or 2000),
             km=int(data.get('km') or 0),
             precio=0,
+            precio_compra=0,
             nombre_dueno=data.get('nombre_dueno', ''),
             telefono_dueno=data.get('telefono_dueno', ''),
-            detalles_adicionales=data.get('detalles_adicionales', '') + ' [CONSIGNACION WEB]',
+            detalles_adicionales='[CONSIGNACION WEB] ' + data.get('detalles_adicionales', ''),
             estado='lead',
         )
     except Exception as e:
