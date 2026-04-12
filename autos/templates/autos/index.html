@@ -741,6 +741,20 @@
 header { display: none !important; }
 .buscar-wrap { display: none !important; }
 
+@media (min-width: 769px) {
+    body {
+        padding-top: 0px;
+        padding-bottom: 0px;
+    }
+    .tabs { display: flex !important; }
+    .stats { display: flex !important; }
+    .buscar-wrap { display: block !important; }
+    header { display: flex !important; }
+    #mobile-top-bar { display: none !important; }
+    #mobile-bottom-bar { display: none !important; }
+    #mobile-circles { display: none !important; }
+}
+
 /* Espaciado para las tres barras fijas */
 body {
     padding-top: 155px;
@@ -748,10 +762,14 @@ body {
 }
 
 @media (min-width: 769px) {
-    body {
-        padding-top: 0px;
-        padding-bottom: 0px;
-    }
+    body { padding-top: 0; padding-bottom: 0; }
+    header { display: flex !important; }
+    .buscar-wrap { display: block !important; }
+    .tabs { display: flex !important; }
+    .stats { display: flex !important; }
+    #mobile-top-bar { display: none !important; }
+    #mobile-bottom-bar { display: none !important; }
+    #mobile-circles { display: none !important; }
 }
     </style>
 </head>
