@@ -55,6 +55,8 @@ urlpatterns = [
     path('publico/consulta/', views.publico_consulta),
     path('publico/consignacion/', views.publico_consignacion),
     path('publico/pedido/', views.publico_pedido),
+    path('publico/stock/', views.publico_stock_json),
+    path('publico/fotos/<int:auto_id>/', views.publico_fotos),
   
 
 ]

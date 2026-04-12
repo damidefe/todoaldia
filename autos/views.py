@@ -2427,3 +2427,14 @@ def publico_stock_json(request):
             'foto_url': foto.imagen.url if foto else None,
         })
     return JsonResponse({'autos': resultado, 'total': Auto.objects.filter(estado='disponible').count()})
+
+def publico_fotos(request, auto_id):
+    """Devuelve las fotos aprobadas de un auto para la galería pública"""
+    from .models import Auto, FotoAuto
+    auto = Auto.objects.filter(id=auto_id, estado='disponible').first()
+    if not auto:
+        return JsonResponse({'fotos': []})
+    fotos = FotoAuto.objects.filter(auto=auto, aprobada=True).order_by('-es_principal', '-puntuacion')
+    return JsonResponse({
+        'fotos': [{'url': f.imagen.url, 'es_principal': f.es_principal} for f in fotos]
+    })

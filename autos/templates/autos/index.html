@@ -1994,6 +1994,16 @@ async function renderColPublicacion(d) {
 
     // ── FOTOS APROBADAS ──
     html += `<div class="section-title">Fotos aprobadas</div>
+    html += `
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div class="section-title" style="margin:0;">Fotos</div>
+        <button onclick="aprobarTodasLasFotos()" 
+                style="background:#2e7d32; color:#fff; border:none; border-radius:6px;
+                    padding:5px 12px; font-size:9px; font-weight:900; cursor:pointer;
+                    font-family:'Montserrat',sans-serif; text-transform:uppercase; letter-spacing:1px;">
+            ✓ Aprobar todas
+        </button>
+    </div>`;
         <div class="fotos-grid" id="fotos-grid">`;
 
     if (d.fotos && d.fotos.length) {
@@ -2162,6 +2172,23 @@ ${f.consejo ? `<div style="font-size:12px; color:#555; font-style:italic; line-h
                 if (postEl)  postEl.appendChild(pack.postPreview);
             }
     }
+
+async function aprobarTodasLasFotos() {
+    if (!AUTO_ID_ACTUAL) return;
+    const res = await fetch(`/auto/${AUTO_ID_ACTUAL}/json/`);
+    const d = await res.json();
+    const fotos = d.fotos || [];
+    for (const f of fotos) {
+        if (!f.aprobada && !f.es_principal) {
+            await fetch(`/foto/${f.id}/aprobar/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ aprobada: true, es_principal: false })
+            });
+        }
+    }
+    await seleccionarAuto(AUTO_ID_ACTUAL);
+}
 
 async function regenerarPlaca(tipo, autoId) {
     const res = await fetch(`/auto/${autoId}/pack/`, { method: 'POST' });
