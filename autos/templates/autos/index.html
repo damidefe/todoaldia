@@ -1525,7 +1525,7 @@ async function seleccionarAuto(autoId) {
     document.getElementById('d-marca').textContent = d.marca;
     document.getElementById('d-modelo').textContent = d.modelo;
     document.getElementById('d-subtitulo').textContent = `${d.anio} · ${d.version} · ${d.color}`;
-    document.getElementById('campo-precio').value = d.precio;
+    document.getElementById('campo-precio').value = Number(d.precio).toLocaleString('es-AR');
     document.getElementById('campo-nombre-dueno').value = d.nombre_dueno || '';
     document.getElementById('campo-telefono').value = d.telefono_dueno || '';
     document.getElementById('campo-detalles-adicionales').value = d.detalles_adicionales || '';
@@ -5679,7 +5679,7 @@ function abrirModalEditarAuto() {
     document.getElementById('edit-auto-anio').value = subtitulo[0] || '';
     document.getElementById('edit-auto-version').value = subtitulo[1] || '';
     document.getElementById('edit-auto-color').value = subtitulo[2] || '';
-    document.getElementById('edit-auto-precio').value = document.getElementById('campo-precio').value;
+    document.getElementById('edit-auto-precio').value = Number(document.getElementById('campo-precio').value.replace(/\./g,'')).toLocaleString('es-AR');
     document.getElementById('edit-auto-telefono').value = document.getElementById('campo-telefono').value;
     document.getElementById('edit-auto-nombre-dueno').value = document.getElementById('campo-nombre-dueno').value;
     document.getElementById('edit-auto-detalles-adicionales').value = document.getElementById('campo-detalles-adicionales').value;
@@ -5713,7 +5713,7 @@ async function guardarEdicionAuto() {
             km:                   document.getElementById('edit-auto-km').value,
             version:              document.getElementById('edit-auto-version').value,
             color:                document.getElementById('edit-auto-color').value,
-            precio:               document.getElementById('edit-auto-precio').value,
+            precio:               document.getElementById('edit-auto-precio').value.replace(/\./g,''),
             precio_compra:        document.getElementById('edit-auto-precio-compra').value,
             detalles:             document.getElementById('edit-auto-detalles').value,
             nombre_dueno:         document.getElementById('edit-auto-nombre-dueno').value,
@@ -5909,6 +5909,17 @@ function mobileVolver() {
 
 // Inicializar mobile al cargar
 window.addEventListener('load', mobileInit);
+
+// Formato precio mientras escribe
+const campoPrecio = document.getElementById('campo-precio');
+if (campoPrecio) {
+    campoPrecio.addEventListener('input', function() {
+        const raw = this.value.replace(/\./g, '');
+        if (!isNaN(raw) && raw !== '') {
+            this.value = Number(raw).toLocaleString('es-AR');
+        }
+    });
+}
 // ── TABS MOBILE DETALLE ──────────────────────────────────────
 function mobileAbrirTab(tab) {
     if (!mobileEsMovil()) return;
