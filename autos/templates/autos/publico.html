@@ -1,0 +1,1704 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo @l Día — Autos Seleccionados · Caballito</title>
+    <meta name="description" content="Concesionaria familiar con 26 años de trayectoria en Caballito. Autos usados seleccionados, consignaciones y asesoramiento personalizado.">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --negro: #111111;
+            --negro-suave: #1e1e1e;
+            --gris-oscuro: #3a3a3a;
+            --gris-medio: #888;
+            --gris-claro: #e8e8e8;
+            --fondo: #f8f7f4;
+            --blanco: #ffffff;
+            --acento: #c9a84c;
+            --acento-oscuro: #a8882a;
+            --texto: #1a1a1a;
+            --borde: #e2e0db;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--fondo);
+            color: var(--texto);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ══════════ NAV ══════════ */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            background: rgba(248, 247, 244, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--borde);
+            padding: 0 40px;
+            height: 68px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--negro);
+            letter-spacing: -0.5px;
+            text-decoration: none;
+        }
+
+        .nav-logo span { color: var(--acento); }
+        .nav-logo small {
+            display: block;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 9px;
+            font-weight: 500;
+            letter-spacing: 3px;
+            color: var(--gris-medio);
+            margin-top: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--gris-oscuro);
+            text-decoration: none;
+            letter-spacing: 0.3px;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--negro); }
+
+        .nav-cta {
+            background: var(--negro);
+            color: var(--blanco) !important;
+            padding: 9px 20px;
+            border-radius: 6px;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-cta:hover {
+            background: var(--acento) !important;
+            color: var(--blanco) !important;
+        }
+
+        .nav-hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .nav-hamburger span {
+            width: 22px;
+            height: 2px;
+            background: var(--negro);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        /* ══════════ HERO ══════════ */
+        .hero {
+            min-height: 100vh;
+            background: var(--negro);
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding-top: 68px;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse at 70% 50%, rgba(201,168,76,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 20% 80%, rgba(201,168,76,0.04) 0%, transparent 50%);
+        }
+
+        .hero-grid {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 2;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(201,168,76,0.12);
+            border: 1px solid rgba(201,168,76,0.3);
+            color: var(--acento);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 6px 14px;
+            border-radius: 20px;
+            margin-bottom: 24px;
+        }
+
+        .hero-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--acento);
+        }
+
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(42px, 5vw, 68px);
+            font-weight: 900;
+            color: var(--blanco);
+            line-height: 1.05;
+            letter-spacing: -1.5px;
+            margin-bottom: 20px;
+        }
+
+        .hero-title em {
+            font-style: italic;
+            color: var(--acento);
+        }
+
+        .hero-subtitle {
+            font-size: 16px;
+            font-weight: 300;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.7;
+            margin-bottom: 40px;
+            max-width: 440px;
+        }
+
+        .hero-btns {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primario {
+            background: var(--acento);
+            color: var(--negro);
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-primario:hover {
+            background: var(--acento-oscuro);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(201,168,76,0.25);
+        }
+
+        .btn-secundario {
+            background: transparent;
+            color: var(--blanco);
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(255,255,255,0.25);
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-secundario:hover {
+            border-color: var(--acento);
+            color: var(--acento);
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 32px;
+            margin-top: 48px;
+            padding-top: 32px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .hero-stat-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--blanco);
+        }
+
+        .hero-stat-label {
+            font-size: 11px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 2px;
+        }
+
+        /* Lado derecho del hero */
+        .hero-visual {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .hero-card-preview {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-card-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--acento);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+
+        .hero-card-autos {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .hero-mini-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .hero-mini-card:hover { transform: translateY(-2px); }
+
+        .hero-mini-img {
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+            display: block;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .hero-mini-info {
+            padding: 10px 12px;
+        }
+
+        .hero-mini-modelo {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--blanco);
+        }
+
+        .hero-mini-detalle {
+            font-size: 10px;
+            color: rgba(255,255,255,0.4);
+            margin-top: 2px;
+        }
+
+        .hero-mini-precio {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--acento);
+            margin-top: 6px;
+        }
+
+        /* ══════════ SECCIONES ══════════ */
+        section { padding: 80px 40px; }
+
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        .section-badge {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--acento);
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 3.5vw, 44px);
+            font-weight: 900;
+            color: var(--negro);
+            letter-spacing: -1px;
+            line-height: 1.1;
+            margin-bottom: 12px;
+        }
+
+        .section-subtitle {
+            font-size: 15px;
+            color: var(--gris-medio);
+            font-weight: 400;
+            line-height: 1.6;
+            max-width: 520px;
+        }
+
+        .section-header {
+            margin-bottom: 48px;
+        }
+
+        /* ══════════ STOCK ══════════ */
+        #stock {
+            background: var(--blanco);
+        }
+
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .stock-buscador {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-buscar {
+            padding: 10px 16px;
+            border: 1px solid var(--borde);
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            background: var(--fondo);
+            color: var(--texto);
+            outline: none;
+            width: 220px;
+            transition: border-color 0.2s;
+        }
+
+        .input-buscar:focus { border-color: var(--negro); }
+        .input-buscar::placeholder { color: #bbb; }
+
+        /* Grid de autos */
+        .autos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .auto-card {
+            background: var(--blanco);
+            border: 1px solid var(--borde);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.25s;
+            position: relative;
+        }
+
+        .auto-card:hover {
+            border-color: var(--negro);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+            transform: translateY(-3px);
+        }
+
+        .auto-card-img {
+            width: 100%;
+            height: 190px;
+            object-fit: cover;
+            display: block;
+            background: var(--gris-claro);
+        }
+
+        .auto-card-sin-foto {
+            width: 100%;
+            height: 190px;
+            background: var(--fondo);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: var(--gris-claro);
+        }
+
+        .auto-card-body {
+            padding: 20px;
+        }
+
+        .auto-card-marca {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--gris-medio);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+        }
+
+        .auto-card-modelo {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--negro);
+            margin-bottom: 4px;
+        }
+
+        .auto-card-version {
+            font-size: 12px;
+            color: var(--gris-medio);
+            margin-bottom: 12px;
+        }
+
+        .auto-card-specs {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .auto-spec {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: var(--gris-oscuro);
+            font-weight: 500;
+        }
+
+        .auto-spec::before {
+            content: '';
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--acento);
+            flex-shrink: 0;
+        }
+
+        .auto-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            border-top: 1px solid var(--borde);
+        }
+
+        .auto-card-precio {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--negro);
+        }
+
+        .auto-card-precio small {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--gris-medio);
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .btn-ver-auto {
+            background: var(--negro);
+            color: var(--blanco);
+            padding: 9px 16px;
+            border-radius: 7px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            border: none;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-ver-auto:hover {
+            background: var(--acento);
+            color: var(--negro);
+        }
+
+        /* Modal reserva cita */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.activo { display: flex; }
+
+        .modal-box {
+            background: var(--blanco);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 480px;
+            overflow: hidden;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            background: var(--negro);
+            padding: 24px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .modal-header-titulo {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            color: var(--blanco);
+            font-weight: 700;
+        }
+
+        .modal-header-auto {
+            font-size: 12px;
+            color: var(--acento);
+            margin-top: 4px;
+        }
+
+        .modal-cerrar {
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.5);
+            font-size: 22px;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .modal-body { padding: 28px; }
+
+        /* ══════════ FORMULARIOS ══════════ */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group.full { grid-column: 1 / -1; }
+
+        .form-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--gris-oscuro);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-input {
+            padding: 11px 14px;
+            border: 1.5px solid var(--borde);
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 400;
+            color: var(--texto);
+            background: var(--fondo);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus { border-color: var(--negro); }
+        .form-input::placeholder { color: #bbb; }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 80px;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .form-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--negro);
+            color: var(--blanco);
+            border: none;
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 6px;
+            transition: all 0.2s;
+            letter-spacing: 0.5px;
+        }
+
+        .form-submit:hover { background: var(--acento); color: var(--negro); }
+
+        .form-ok {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .form-ok-icon { font-size: 40px; margin-bottom: 10px; }
+        .form-ok-titulo { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+        .form-ok-texto { font-size: 13px; color: var(--gris-medio); line-height: 1.6; }
+
+        /* ══════════ CONSIGNACION ══════════ */
+        #consignacion {
+            background: var(--fondo);
+        }
+
+        .consign-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .consign-pasos {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+            margin-top: 32px;
+        }
+
+        .consign-paso {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .paso-num {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--negro);
+            color: var(--blanco);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+
+        .paso-titulo {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--negro);
+            margin-bottom: 4px;
+        }
+
+        .paso-desc {
+            font-size: 13px;
+            color: var(--gris-medio);
+            line-height: 1.6;
+        }
+
+        .consign-form-card {
+            background: var(--blanco);
+            border-radius: 20px;
+            padding: 36px;
+            border: 1px solid var(--borde);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.05);
+        }
+
+        .form-titulo {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--negro);
+            margin-bottom: 4px;
+        }
+
+        .form-subtitulo {
+            font-size: 13px;
+            color: var(--gris-medio);
+            margin-bottom: 24px;
+        }
+
+        /* ══════════ PEDIDOS ══════════ */
+        #pedidos {
+            background: var(--negro);
+        }
+
+        #pedidos .section-title { color: var(--blanco); }
+        #pedidos .section-subtitle { color: rgba(255,255,255,0.5); }
+        #pedidos .section-badge { color: var(--acento); }
+
+        .pedidos-inner {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .pedidos-beneficios {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 32px;
+        }
+
+        .beneficio {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+
+        .beneficio-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+            width: 44px;
+            height: 44px;
+            background: rgba(201,168,76,0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .beneficio-titulo {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--blanco);
+            margin-bottom: 3px;
+        }
+
+        .beneficio-desc {
+            font-size: 12px;
+            color: rgba(255,255,255,0.4);
+            line-height: 1.6;
+        }
+
+        .pedidos-form-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 36px;
+        }
+
+        .pedidos-form-card .form-titulo { color: var(--blanco); }
+        .pedidos-form-card .form-subtitulo { color: rgba(255,255,255,0.4); }
+        .pedidos-form-card .form-label { color: rgba(255,255,255,0.5); }
+
+        .pedidos-form-card .form-input {
+            background: rgba(255,255,255,0.06);
+            border-color: rgba(255,255,255,0.12);
+            color: var(--blanco);
+        }
+
+        .pedidos-form-card .form-input:focus { border-color: var(--acento); }
+        .pedidos-form-card .form-input::placeholder { color: rgba(255,255,255,0.2); }
+
+        .pedidos-form-card .form-submit {
+            background: var(--acento);
+            color: var(--negro);
+        }
+
+        .pedidos-form-card .form-submit:hover {
+            background: var(--acento-oscuro);
+        }
+
+        /* ══════════ NOSOTROS ══════════ */
+        #nosotros {
+            background: var(--blanco);
+        }
+
+        .nosotros-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .nosotros-numeros {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 40px;
+        }
+
+        .numero-card {
+            background: var(--fondo);
+            border-radius: 14px;
+            padding: 24px;
+            border: 1px solid var(--borde);
+        }
+
+        .numero-big {
+            font-family: 'Playfair Display', serif;
+            font-size: 40px;
+            font-weight: 900;
+            color: var(--negro);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .numero-big span { color: var(--acento); }
+
+        .numero-label {
+            font-size: 12px;
+            color: var(--gris-medio);
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .nosotros-texto p {
+            font-size: 15px;
+            color: var(--gris-oscuro);
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .nosotros-destacado {
+            background: var(--negro);
+            color: var(--blanco);
+            border-radius: 16px;
+            padding: 28px;
+            margin-top: 24px;
+        }
+
+        .nosotros-destacado p {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--blanco);
+            font-style: italic;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .nosotros-destacado span {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--acento);
+            font-style: normal;
+            display: block;
+            margin-top: 10px;
+            letter-spacing: 1px;
+        }
+
+        /* ══════════ CONTACTO / FOOTER ══════════ */
+        footer {
+            background: var(--negro);
+            padding: 60px 40px 40px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-top {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr;
+            gap: 60px;
+            margin-bottom: 48px;
+            padding-bottom: 48px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .footer-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--blanco);
+            margin-bottom: 12px;
+        }
+
+        .footer-logo span { color: var(--acento); }
+
+        .footer-desc {
+            font-size: 13px;
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+
+        .footer-wa {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #25D366;
+            color: var(--blanco);
+            padding: 11px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .footer-wa:hover {
+            background: #1dbd58;
+            transform: translateY(-1px);
+        }
+
+        .footer-col-titulo {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--blanco);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+
+        .footer-info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 16px;
+        }
+
+        .footer-info-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--acento);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .footer-info-valor {
+            font-size: 13px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .footer-copy {
+            font-size: 12px;
+            color: rgba(255,255,255,0.3);
+        }
+
+        /* ══════════ TOAST ══════════ */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--negro);
+            color: var(--blanco);
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 999;
+            transform: translateY(80px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            max-width: 300px;
+        }
+
+        .toast.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* ══════════ EMPTY STATE ══════════ */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gris-medio);
+        }
+
+        .empty-state-icon { font-size: 48px; margin-bottom: 16px; }
+        .empty-state-titulo { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--negro); margin-bottom: 8px; }
+        .empty-state-texto { font-size: 14px; line-height: 1.6; }
+
+        /* ══════════ RESPONSIVE ══════════ */
+        @media (max-width: 900px) {
+            nav { padding: 0 20px; }
+            .nav-links { display: none; }
+            .nav-hamburger { display: flex; }
+
+            section { padding: 60px 20px; }
+
+            .hero-inner {
+                grid-template-columns: 1fr;
+                padding: 60px 20px;
+                gap: 40px;
+            }
+
+            .hero-visual { display: none; }
+
+            .stock-header { flex-direction: column; align-items: flex-start; }
+
+            .consign-grid,
+            .pedidos-inner,
+            .nosotros-grid { grid-template-columns: 1fr; gap: 40px; }
+
+            .footer-top { grid-template-columns: 1fr; gap: 32px; }
+
+            .form-grid { grid-template-columns: 1fr; }
+
+            .autos-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 540px) {
+            .autos-grid { grid-template-columns: 1fr; }
+            .nosotros-numeros { grid-template-columns: 1fr 1fr; }
+            .hero-stats { flex-direction: column; gap: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+    <a href="#" class="nav-logo">
+        Todo <span>@l</span> Día
+        <small>Autos Seleccionados · Caballito</small>
+    </a>
+    <ul class="nav-links">
+        <li><a href="#stock">Stock</a></li>
+        <li><a href="#consignacion">Consignación</a></li>
+        <li><a href="#pedidos">Buscamos tu auto</a></li>
+        <li><a href="#nosotros">Nosotros</a></li>
+        <li><a href="https://wa.me/5491160958854" target="_blank" class="nav-cta">💬 WhatsApp</a></li>
+    </ul>
+    <div class="nav-hamburger" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="inicio">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-inner">
+        <div class="hero-content">
+            <div class="hero-badge">26 años en Caballito</div>
+            <h1 class="hero-title">
+                Tu próximo auto,<br>
+                <em>bien elegido.</em>
+            </h1>
+            <p class="hero-subtitle">
+                Somos una concesionaria familiar con más de 26 años en Caballito. 
+                Cada auto que vendemos pasa por nuestra revisión. Sin sorpresas.
+            </p>
+            <div class="hero-btns">
+                <a href="#stock" class="btn-primario">🚗 Ver stock disponible</a>
+                <a href="#consignacion" class="btn-secundario">Vender mi auto →</a>
+            </div>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="hero-stat-num">26<span style="color:var(--acento)">+</span></div>
+                    <div class="hero-stat-label">Años de experiencia</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-num" id="stat-autos">—</div>
+                    <div class="hero-stat-label">Autos disponibles</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-num">100<span style="color:var(--acento)">%</span></div>
+                    <div class="hero-stat-label">Revisados</div>
+                </div>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="hero-card-preview">
+                <div class="hero-card-label">🟢 Stock disponible ahora</div>
+                <div class="hero-card-autos" id="hero-preview-autos">
+                    <div class="hero-mini-card">
+                        <div class="hero-mini-img" style="background:#222; display:flex; align-items:center; justify-content:center; color:#444; font-size:24px;">🚗</div>
+                        <div class="hero-mini-info">
+                            <div class="hero-mini-modelo">Cargando...</div>
+                            <div class="hero-mini-detalle">—</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- STOCK -->
+<section id="stock">
+    <div class="container">
+        <div class="stock-header">
+            <div>
+                <div class="section-badge">Stock disponible</div>
+                <h2 class="section-title">Autos seleccionados</h2>
+                <p class="section-subtitle">Todos con papeles al día y revisión completa.</p>
+            </div>
+            <div class="stock-buscador">
+                <input type="text" class="input-buscar" placeholder="🔍 Buscar marca o modelo..."
+                       oninput="filtrarAutos(this.value)" id="buscador">
+            </div>
+        </div>
+
+        <div class="autos-grid" id="autos-grid">
+            {% if autos %}
+                {% for item in autos %}
+                <div class="auto-card" data-busca="{{ item.auto.marca|lower }} {{ item.auto.modelo|lower }} {{ item.auto.anio }}">
+                    {% if item.foto %}
+                        <img src="{{ item.foto.imagen.url }}" alt="{{ item.auto }}" class="auto-card-img">
+                    {% else %}
+                        <div class="auto-card-sin-foto">🚗</div>
+                    {% endif %}
+                    <div class="auto-card-body">
+                        <div class="auto-card-marca">{{ item.auto.marca }}</div>
+                        <div class="auto-card-modelo">{{ item.auto.modelo }}</div>
+                        <div class="auto-card-version">{{ item.auto.version|default:"—" }}</div>
+                        <div class="auto-card-specs">
+                            <span class="auto-spec">{{ item.auto.anio }}</span>
+                            <span class="auto-spec">{{ item.auto.km|floatformat:0 }} km</span>
+                            {% if item.auto.color %}
+                            <span class="auto-spec">{{ item.auto.color }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="auto-card-footer">
+                            <div class="auto-card-precio">
+                                <small>Precio</small>
+                                ${{ item.auto.precio|floatformat:0 }}
+                            </div>
+                            <button class="btn-ver-auto"
+                                onclick="abrirCita({{ item.auto.id }}, '{{ item.auto.marca }} {{ item.auto.modelo }} {{ item.auto.anio }}')">
+                                Reservar cita
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state" style="grid-column: 1/-1;">
+                    <div class="empty-state-icon">🚗</div>
+                    <div class="empty-state-titulo">Stock en actualización</div>
+                    <div class="empty-state-texto">Estamos cargando los autos disponibles. Mientras tanto escribinos por WhatsApp.</div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- MODAL RESERVA CITA -->
+<div class="modal-overlay" id="modal-cita" onclick="if(event.target===this) cerrarModal()">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div>
+                <div class="modal-header-titulo">Reservar una cita</div>
+                <div class="modal-header-auto" id="modal-auto-nombre">—</div>
+            </div>
+            <button class="modal-cerrar" onclick="cerrarModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div id="form-cita-wrap">
+                <p style="font-size:13px; color:var(--gris-medio); margin-bottom:20px; line-height:1.6;">
+                    Dejanos tu nombre y teléfono y te contactamos para coordinar cuándo venir a ver el auto. Sin compromiso.
+                </p>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Tu nombre *</label>
+                        <input type="text" class="form-input" id="cita-nombre" placeholder="Juan García">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Teléfono *</label>
+                        <input type="text" class="form-input" id="cita-tel" placeholder="1145678901">
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">¿Algún comentario?</label>
+                        <input type="text" class="form-input" id="cita-comentario" placeholder="Ej: tarde del jueves me vendría bien...">
+                    </div>
+                </div>
+                <button class="form-submit" onclick="enviarCita()" style="margin-top:16px;">
+                    📅 Reservar cita
+                </button>
+                <p style="font-size:11px; color:#bbb; text-align:center; margin-top:12px; line-height:1.5;">
+                    También podés escribirnos directamente a 
+                    <a href="https://wa.me/5491160958854" target="_blank" style="color:var(--acento);">WhatsApp</a>
+                </p>
+            </div>
+            <div class="form-ok" id="cita-ok">
+                <div class="form-ok-icon">✅</div>
+                <div class="form-ok-titulo">¡Cita reservada!</div>
+                <div class="form-ok-texto">Te vamos a contactar pronto para confirmar el horario. ¡Gracias por elegirnos!</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CONSIGNACION -->
+<section id="consignacion">
+    <div class="container">
+        <div class="consign-grid">
+            <div>
+                <div class="section-badge">Consignación</div>
+                <h2 class="section-title">Vendé tu auto<br>sin moverte de casa</h2>
+                <p class="section-subtitle">Nos encargamos de todo. Fotos, publicación, trámites. Vos cobrás cuando se vende.</p>
+                <div class="consign-pasos">
+                    <div class="consign-paso">
+                        <div class="paso-num">1</div>
+                        <div>
+                            <div class="paso-titulo">Completás el formulario</div>
+                            <div class="paso-desc">Nos contás sobre tu auto. Marca, modelo, año, estado y precio esperado.</div>
+                        </div>
+                    </div>
+                    <div class="consign-paso">
+                        <div class="paso-num">2</div>
+                        <div>
+                            <div class="paso-titulo">Te llamamos y coordinamos</div>
+                            <div class="paso-desc">Acordamos una visita, sacamos las fotos y publicamos en todos los portales.</div>
+                        </div>
+                    </div>
+                    <div class="consign-paso">
+                        <div class="paso-num">3</div>
+                        <div>
+                            <div class="paso-titulo">Vos cobrás, nosotros gestionamos</div>
+                            <div class="paso-desc">Cuando se vende, te pagamos y nos encargamos de toda la transferencia.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="consign-form-card">
+                <div class="form-titulo">Quiero consignar mi auto</div>
+                <div class="form-subtitulo">Completá los datos y te contactamos en el día.</div>
+                <div id="form-consign-wrap">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Tu nombre *</label>
+                            <input type="text" class="form-input" id="c-nombre" placeholder="Juan García">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Teléfono *</label>
+                            <input type="text" class="form-input" id="c-tel" placeholder="1145678901">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Marca *</label>
+                            <input type="text" class="form-input" id="c-marca" placeholder="Toyota">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Modelo *</label>
+                            <input type="text" class="form-input" id="c-modelo" placeholder="Corolla">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Año</label>
+                            <input type="number" class="form-input" id="c-anio" placeholder="2019">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Kilómetros</label>
+                            <input type="number" class="form-input" id="c-km" placeholder="80000">
+                        </div>
+                        <div class="form-group full">
+                            <label class="form-label">Observaciones</label>
+                            <textarea class="form-input" id="c-obs" placeholder="Estado general, extras, precio que esperás..."></textarea>
+                        </div>
+                    </div>
+                    <button class="form-submit" onclick="enviarConsignacion()">
+                        🔑 Quiero consignar
+                    </button>
+                </div>
+                <div class="form-ok" id="consign-ok">
+                    <div class="form-ok-icon">🎉</div>
+                    <div class="form-ok-titulo">¡Recibimos tu consulta!</div>
+                    <div class="form-ok-texto">Te contactamos hoy mismo para coordinar los próximos pasos. ¡Gracias!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PEDIDOS -->
+<section id="pedidos">
+    <div class="container">
+        <div class="pedidos-inner">
+            <div>
+                <div class="section-badge">Buscamos tu auto</div>
+                <h2 class="section-title" style="color:var(--blanco);">¿No encontrás<br>lo que buscás?</h2>
+                <p class="section-subtitle">Decinos qué auto necesitás y lo buscamos por vos en toda la red de contactos.</p>
+                <div class="pedidos-beneficios">
+                    <div class="beneficio">
+                        <div class="beneficio-icon">🔍</div>
+                        <div>
+                            <div class="beneficio-titulo">Búsqueda activa</div>
+                            <div class="beneficio-desc">Usamos nuestra red de 26 años para encontrar el auto que necesitás.</div>
+                        </div>
+                    </div>
+                    <div class="beneficio">
+                        <div class="beneficio-icon">📱</div>
+                        <div>
+                            <div class="beneficio-titulo">Te avisamos cuando aparece</div>
+                            <div class="beneficio-desc">En cuanto tengamos una opción, te contactamos antes de que salga a la venta.</div>
+                        </div>
+                    </div>
+                    <div class="beneficio">
+                        <div class="beneficio-icon">🤝</div>
+                        <div>
+                            <div class="beneficio-titulo">Sin cargo extra</div>
+                            <div class="beneficio-desc">El servicio de búsqueda es gratuito. Pagás solo si comprás.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pedidos-form-card">
+                <div class="form-titulo">Busco este auto</div>
+                <div class="form-subtitulo">Cuanto más detalles, mejor podemos ayudarte.</div>
+                <div id="form-pedido-wrap">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Tu nombre *</label>
+                            <input type="text" class="form-input" id="p-nombre" placeholder="Juan García">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Teléfono *</label>
+                            <input type="text" class="form-input" id="p-tel" placeholder="1145678901">
+                        </div>
+                        <div class="form-group full">
+                            <label class="form-label">¿Qué auto buscás? *</label>
+                            <input type="text" class="form-input" id="p-desc" placeholder="Ej: Ecosport 2018-2020, automática, menos de 80k km">
+                        </div>
+                        <div class="form-group full">
+                            <label class="form-label">Presupuesto aproximado (USD)</label>
+                            <input type="number" class="form-input" id="p-presupuesto" placeholder="15000">
+                        </div>
+                        <div class="form-group full">
+                            <label class="form-label">Detalle adicional</label>
+                            <textarea class="form-input" id="p-notas" placeholder="Color preferido, si tiene financiación disponible, urgencia..."></textarea>
+                        </div>
+                    </div>
+                    <button class="form-submit" onclick="enviarPedido()">
+                        🔍 Buscar mi auto
+                    </button>
+                </div>
+                <div class="form-ok" id="pedido-ok">
+                    <div class="form-ok-icon">✅</div>
+                    <div class="form-ok-titulo">¡Pedido registrado!</div>
+                    <div class="form-ok-texto" style="color:rgba(255,255,255,0.5);">Vamos a buscar activamente y te avisamos en cuanto tengamos algo.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- NOSOTROS -->
+<section id="nosotros">
+    <div class="container">
+        <div class="nosotros-grid">
+            <div>
+                <div class="section-badge">Quiénes somos</div>
+                <h2 class="section-title">Una familia<br>apasionada por los autos</h2>
+                <div class="nosotros-numeros">
+                    <div class="numero-card">
+                        <div class="numero-big">26<span>+</span></div>
+                        <div class="numero-label">Años en el mercado</div>
+                    </div>
+                    <div class="numero-card">
+                        <div class="numero-big" id="num-vendidos">—</div>
+                        <div class="numero-label">Autos vendidos este año</div>
+                    </div>
+                    <div class="numero-card">
+                        <div class="numero-big">100<span>%</span></div>
+                        <div class="numero-label">Revisión antes de la venta</div>
+                    </div>
+                    <div class="numero-card">
+                        <div class="numero-big">1<span>°</span></div>
+                        <div class="numero-label">Generación familiar</div>
+                    </div>
+                </div>
+            </div>
+            <div class="nosotros-texto">
+                <p>
+                    Somos una concesionaria familiar ubicada en el barrio de Caballito, 
+                    Capital Federal. Desde hace más de 26 años nos dedicamos a la compra, venta 
+                    y consignación de autos usados con un solo objetivo: que cada cliente quede 
+                    conforme con su compra.
+                </p>
+                <p>
+                    Cada auto que ingresa a nuestro stock pasa por una revisión completa de documentación 
+                    y estado mecánico. No vendemos algo que no compraríamos nosotros mismos.
+                </p>
+                <p>
+                    Trabajamos con transparencia: precio claro, papeles en orden y sin sorpresas 
+                    después de la venta. Por eso nuestros clientes vuelven y nos recomiendan.
+                </p>
+                <div class="nosotros-destacado">
+                    <p>"Vendemos autos como si los estuviéramos vendiendo a un familiar."</p>
+                    <span>TODO @L DÍA · CABALLITO DESDE 1999</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-inner">
+        <div class="footer-top">
+            <div>
+                <div class="footer-logo">Todo <span>@l</span> Día</div>
+                <p class="footer-desc">
+                    Concesionaria familiar en Caballito con más de 26 años de experiencia. 
+                    Autos usados seleccionados, consignación y asesoramiento personalizado.
+                </p>
+                <a href="https://wa.me/5491160958854" target="_blank" class="footer-wa">
+                    📲 Escribinos al WhatsApp
+                </a>
+            </div>
+            <div>
+                <div class="footer-col-titulo">Contacto</div>
+                <div class="footer-info-item">
+                    <div class="footer-info-label">Teléfono</div>
+                    <div class="footer-info-valor">11-6095-8854</div>
+                </div>
+                <div class="footer-info-item">
+                    <div class="footer-info-label">Barrio</div>
+                    <div class="footer-info-valor">Caballito, CABA</div>
+                </div>
+                <div class="footer-info-item">
+                    <div class="footer-info-label">Horario</div>
+                    <div class="footer-info-valor">Lunes a Sábado<br>9:00 a 18:00 hs</div>
+                </div>
+            </div>
+            <div>
+                <div class="footer-col-titulo">Links rápidos</div>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <a href="#stock" style="font-size:13px; color:rgba(255,255,255,0.5); text-decoration:none;">Ver stock disponible</a>
+                    <a href="#consignacion" style="font-size:13px; color:rgba(255,255,255,0.5); text-decoration:none;">Consignar mi auto</a>
+                    <a href="#pedidos" style="font-size:13px; color:rgba(255,255,255,0.5); text-decoration:none;">Buscar un auto</a>
+                    <a href="#nosotros" style="font-size:13px; color:rgba(255,255,255,0.5); text-decoration:none;">Quiénes somos</a>
+                    <a href="https://wa.me/5491160958854" target="_blank" style="font-size:13px; color:var(--acento); text-decoration:none;">💬 WhatsApp</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="footer-copy">© 2026 Todo @l Día · Caballito · Todos los derechos reservados</div>
+            <div class="footer-copy">Autos usados seleccionados · Buenos Aires, Argentina</div>
+        </div>
+    </div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CSRF ──────────────────────────────────────────────────────
+function getCookie(name) {
+    let c = null;
+    document.cookie.split(';').forEach(s => {
+        const [k, v] = s.trim().split('=');
+        if (k === name) c = decodeURIComponent(v);
+    });
+    return c;
+}
+
+// ── TOAST ────────────────────────────────────────────────────
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('visible');
+    setTimeout(() => t.classList.remove('visible'), 3500);
+}
+
+// ── FILTRAR AUTOS ────────────────────────────────────────────
+function filtrarAutos(q) {
+    const busca = q.toLowerCase().trim();
+    document.querySelectorAll('.auto-card').forEach(card => {
+        const texto = card.dataset.busca || '';
+        card.style.display = !busca || texto.includes(busca) ? '' : 'none';
+    });
+}
+
+// ── MODAL CITA ───────────────────────────────────────────────
+let autoIdCita = null;
+
+function abrirCita(autoId, autoNombre) {
+    autoIdCita = autoId;
+    document.getElementById('modal-auto-nombre').textContent = autoNombre;
+    document.getElementById('modal-cita').classList.add('activo');
+    document.getElementById('form-cita-wrap').style.display = 'block';
+    document.getElementById('cita-ok').style.display = 'none';
+    document.body.style.overflow = 'hidden';
+}
+
+function cerrarModal() {
+    document.getElementById('modal-cita').classList.remove('activo');
+    document.body.style.overflow = '';
+}
+
+async function enviarCita() {
+    const nombre = document.getElementById('cita-nombre').value.trim();
+    const tel    = document.getElementById('cita-tel').value.trim();
+    if (!nombre || !tel) { showToast('⚠️ Nombre y teléfono son obligatorios'); return; }
+
+    try {
+        await fetch('/publico/consulta/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                auto_id: autoIdCita,
+                nombre,
+                telefono: tel,
+                comentario: document.getElementById('cita-comentario').value.trim()
+            })
+        });
+    } catch(e) {}
+
+    document.getElementById('form-cita-wrap').style.display = 'none';
+    document.getElementById('cita-ok').style.display = 'block';
+}
+
+// ── CONSIGNACION ─────────────────────────────────────────────
+async function enviarConsignacion() {
+    const nombre = document.getElementById('c-nombre').value.trim();
+    const tel    = document.getElementById('c-tel').value.trim();
+    const marca  = document.getElementById('c-marca').value.trim();
+    const modelo = document.getElementById('c-modelo').value.trim();
+
+    if (!nombre || !tel || !marca || !modelo) {
+        showToast('⚠️ Completá los campos obligatorios (*)');
+        return;
+    }
+
+    try {
+        await fetch('/publico/consignacion/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                nombre_dueno: nombre,
+                telefono_dueno: tel,
+                marca,
+                modelo,
+                anio: document.getElementById('c-anio').value || null,
+                km: document.getElementById('c-km').value || null,
+                detalles_adicionales: document.getElementById('c-obs').value.trim(),
+            })
+        });
+    } catch(e) {}
+
+    document.getElementById('form-consign-wrap').style.display = 'none';
+    document.getElementById('consign-ok').style.display = 'block';
+}
+
+// ── PEDIDO ───────────────────────────────────────────────────
+async function enviarPedido() {
+    const nombre = document.getElementById('p-nombre').value.trim();
+    const tel    = document.getElementById('p-tel').value.trim();
+    const desc   = document.getElementById('p-desc').value.trim();
+
+    if (!nombre || !tel || !desc) {
+        showToast('⚠️ Nombre, teléfono y descripción son obligatorios');
+        return;
+    }
+
+    try {
+        await fetch('/publico/pedido/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                nombre_cliente: nombre,
+                telefono_cliente: tel,
+                descripcion: desc,
+                presupuesto: document.getElementById('p-presupuesto').value || null,
+                notas: document.getElementById('p-notas').value.trim(),
+            })
+        });
+    } catch(e) {}
+
+    document.getElementById('form-pedido-wrap').style.display = 'none';
+    document.getElementById('pedido-ok').style.display = 'block';
+}
+
+// ── NAV HAMBURGER ────────────────────────────────────────────
+function toggleMenu() {
+    const links = document.querySelector('.nav-links');
+    if (links.style.display === 'flex') {
+        links.style.display = '';
+    } else {
+        links.style.cssText = 'display:flex; flex-direction:column; position:fixed; top:68px; left:0; right:0; background:var(--fondo); padding:20px 24px; border-bottom:1px solid var(--borde); gap:16px; z-index:99;';
+    }
+}
+
+// ── CARGAR PREVIEW HERO ──────────────────────────────────────
+async function cargarPreviewHero() {
+    try {
+        const res  = await fetch('/?tab=disponible&solo_grid=1');
+        const data = await res.json();
+        const autos = data.autos || [];
+
+        // Stat de disponibles
+        const statEl = document.getElementById('stat-autos');
+        if (statEl) statEl.textContent = autos.length;
+
+        // Minicartas en el hero
+        const cont = document.getElementById('hero-preview-autos');
+        if (!cont || !autos.length) return;
+        cont.innerHTML = autos.slice(0, 4).map(a => `
+            <div class="hero-mini-card">
+                ${a.foto_url
+                    ? `<img src="${a.foto_url}" class="hero-mini-img" alt="${a.modelo}">`
+                    : `<div class="hero-mini-img" style="display:flex;align-items:center;justify-content:center;font-size:24px;color:#444;">🚗</div>`}
+                <div class="hero-mini-info">
+                    <div class="hero-mini-modelo">${a.marca} ${a.modelo}</div>
+                    <div class="hero-mini-detalle">${a.anio} · ${Number(a.km).toLocaleString('es-AR')} km</div>
+                    <div class="hero-mini-precio">$${Number(a.precio || 0).toLocaleString('es-AR')}</div>
+                </div>
+            </div>`).join('');
+    } catch(e) {}
+}
+
+cargarPreviewHero();
+</script>
+
+</body>
+</html>

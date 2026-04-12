@@ -51,6 +51,10 @@ urlpatterns = [
     path('cm/contexto/', views.community_manager_contexto),
     path('cm/chat/', views.community_manager_chat),
     path('cm/metricas/', views.metricas_semanales),
+    path('publico/', views.publico, name='publico'),
+    path('publico/consulta/', views.publico_consulta),
+    path('publico/consignacion/', views.publico_consignacion),
+    path('publico/pedido/', views.publico_pedido),
   
 
 ]

@@ -2327,3 +2327,88 @@ def metricas_semanales(request):
             'notas': m.notas,
         })
     return JsonResponse({'metricas': data})
+
+# ── VISTA PÚBLICA ──────────────────────────────────────────────
+import json
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+def publico(request):
+    """Web pública sin login — solo muestra disponibles"""
+    from .models import Auto, FotoAuto
+
+    autos_qs = Auto.objects.filter(estado='disponible').order_by('-fecha_ingreso')
+    
+    items = []
+    for auto in autos_qs:
+        foto = FotoAuto.objects.filter(auto=auto, aprobada=True, es_principal=True).first() \
+            or FotoAuto.objects.filter(auto=auto, aprobada=True).first()
+        items.append({'auto': auto, 'foto': foto})
+
+    return render(request, 'autos/publico.html', {'autos': items})
+
+
+@csrf_exempt
+def publico_consulta(request):
+    """Guarda una consulta de 'quiero ver este auto'"""
+    if request.method != 'POST':
+        return JsonResponse({'ok': False})
+    try:
+        data = json.loads(request.body)
+        from .models import Auto, Lead
+        auto = Auto.objects.filter(id=data.get('auto_id')).first()
+        # Guardamos como comentario en el lead o como nuevo lead
+        lead = Lead.objects.create(
+            auto=auto,
+            nombre_dueno=data.get('nombre', ''),
+            telefono_dueno=data.get('telefono', ''),
+            detalles_adicionales=f"CITA WEB: {data.get('comentario', '')}",
+            lead_estado='sin_contacto',
+        ) if auto else None
+    except Exception as e:
+        print(f"Error consulta: {e}")
+    return JsonResponse({'ok': True})
+
+
+@csrf_exempt
+def publico_consignacion(request):
+    """Guarda un lead de consignación desde la web pública"""
+    if request.method != 'POST':
+        return JsonResponse({'ok': False})
+    try:
+        data = json.loads(request.body)
+        from .models import Auto
+        auto = Auto.objects.create(
+            marca=data.get('marca', ''),
+            modelo=data.get('modelo', ''),
+            anio=int(data.get('anio') or 2000),
+            km=int(data.get('km') or 0),
+            precio=0,
+            nombre_dueno=data.get('nombre_dueno', ''),
+            telefono_dueno=data.get('telefono_dueno', ''),
+            detalles_adicionales=data.get('detalles_adicionales', '') + ' [CONSIGNACION WEB]',
+            estado='lead',
+        )
+    except Exception as e:
+        print(f"Error consignacion: {e}")
+    return JsonResponse({'ok': True})
+
+
+@csrf_exempt
+def publico_pedido(request):
+    """Guarda un pedido desde la web pública"""
+    if request.method != 'POST':
+        return JsonResponse({'ok': False})
+    try:
+        data = json.loads(request.body)
+        from .models import Pedido
+        Pedido.objects.create(
+            descripcion=data.get('descripcion', ''),
+            nombre_cliente=data.get('nombre_cliente', ''),
+            telefono_cliente=data.get('telefono_cliente', ''),
+            presupuesto=data.get('presupuesto') or None,
+            notas=data.get('notas', '') + ' [PEDIDO WEB]',
+        )
+    except Exception as e:
+        print(f"Error pedido: {e}")
+    return JsonResponse({'ok': True})
