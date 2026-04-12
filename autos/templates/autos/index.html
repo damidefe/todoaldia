@@ -1960,18 +1960,8 @@ async function renderColPublicacion(d) {
     </div>`;
 
     // ── FOTOS APROBADAS ──
-    html += `<div class="section-title">Fotos aprobadas</div>
-    html += `
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-        <div class="section-title" style="margin:0;">Fotos</div>
-        <button onclick="aprobarTodasLasFotos()" 
-                style="background:#2e7d32; color:#fff; border:none; border-radius:6px;
-                    padding:5px 12px; font-size:9px; font-weight:900; cursor:pointer;
-                    font-family:'Montserrat',sans-serif; text-transform:uppercase; letter-spacing:1px;">
-            ✓ Aprobar todas
-        </button>
-    </div>`;
-        <div class="fotos-grid" id="fotos-grid">`;
+    html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"><div class="section-title" style="margin:0;">Fotos aprobadas</div><button onclick="aprobarTodasLasFotos()" style="background:#2e7d32; color:#fff; border:none; border-radius:6px; padding:5px 12px; font-size:9px; font-weight:900; cursor:pointer; font-family:'Montserrat',sans-serif; text-transform:uppercase; letter-spacing:1px;">✓ Aprobar todas</button></div>`;
+    html += `<div class="fotos-grid" id="fotos-grid">`;
 
     if (d.fotos && d.fotos.length) {
         // Ordenar: primero aprobadas, después por puntuación
