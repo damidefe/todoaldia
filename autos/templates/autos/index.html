@@ -4220,12 +4220,12 @@ let mktConfig = {
     bodyPad: 110,
     // CTA
     ctaSize: 34,
-    ctaY: 0,
+    ctaY: 75,
     ctaPad: 110,
     // Globales
     gradientOpacity: 0.62,
     blur: 0,
-    brandingPad: 110,
+    brandingPad: 110,\n    brandingY: 91,,
     layout: 1,
     modo: 'completo',
     frase: '',
@@ -4247,7 +4247,7 @@ function mktInit() {
     const layoutsEl = document.getElementById('mkt-layouts');
     const layoutDefsStory = [
         { id:1, icon:'⬆️📷', label:'Texto arriba\nFoto abajo' },
-        { id:2, icon:'🖼️',   label:'Foto full\ntexto centro' },
+        { id:2, icon:'🖼️',   label:'Foto full\ntexto centro' }, 
         { id:3, icon:'◧',    label:'Dos zonas\nimg+texto' },
         { id:4, icon:'🏷️',   label:'Logo arriba\nCTA grande' },
         { id:5, icon:'✏️',   label:'Solo texto\nsin foto' },
@@ -4390,11 +4390,11 @@ function mktSetLayout(id) {
     // Resetear posiciones predeterminadas por layout
     if (isPost) {
         const defaults = {
-            1: { titleY: 62, bodyY: 0, ctaY: 0, brandingY: 91 },
-            2: { titleY: 62, bodyY: 0, ctaY: 0, brandingY: 88 },
-            3: { titleY: 62, bodyY: 0, ctaY: 0, brandingY: 88 },
-            4: { titleY: 38, bodyY: 0, ctaY: 0, brandingY: 88 },
-            5: { titleY: 62, bodyY: 0, ctaY: 0, brandingY: 88 },
+            1: { titleY: 62, bodyY: 0, ctaY: 75, brandingY: 91 },
+            2: { titleY: 62, bodyY: 0, ctaY: 75, brandingY: 88 },
+            3: { titleY: 62, bodyY: 0, ctaY: 75, brandingY: 88 },
+            4: { titleY: 38, bodyY: 0, ctaY: 75, brandingY: 88 },
+            5: { titleY: 62, bodyY: 0, ctaY: 75, brandingY: 88 },
         };
         const d = defaults[id] || defaults[1];
         mktConfig.titleY    = d.titleY;
