@@ -5965,6 +5965,7 @@ function mobileActivarDetalle(d) {
     // Abrir recepción por defecto
     mobileAbrirTab('recepcion');
 }
+
 // ══════════════════════════════════════════════
 // EDITOR FOTOS DEL VEHÍCULO
 // ══════════════════════════════════════════════
@@ -6092,8 +6093,21 @@ function fvSetModo(modo) {
     if (esPrincipal) {
         FV.elementos = [
             { id:'titulo',   label:'Título',   x: w*0.05, y: h*0.08, fontSize: 72, color:'#fff', bold:true,  texto: document.getElementById('fv-titulo').value || 'MARCA MODELO AÑO' },
-            { id:'badge',    label:'Badge',    x: w*0.05, y: h*0.68, fontSize: 30, color:'#fff', bold:true,  texto: document.getElementById('fv-badge').value  || 'NUEVO
-</script>
+            { id:'badge',    label:'Badge',    x: w*0.05, y: h*0.68, fontSize: 30, color:'#fff', bold:true,  texto: document.getElementById('fv-badge').value  || 'NUEVO INGRESO', esBadge: true },
+            { id:'bullet1',  label:'Bullet 1', x: w*0.05, y: h*0.73, fontSize: 32, color:'#fff', bold:true,  texto: document.getElementById('fv-bullet-1').value || '• ...' },
+            { id:'bullet2',  label:'Bullet 2', x: w*0.05, y: h*0.79, fontSize: 32, color:'#fff', bold:true,  texto: document.getElementById('fv-bullet-2').value || '• ...' },
+            { id:'bullet3',  label:'Bullet 3', x: w*0.05, y: h*0.85, fontSize: 32, color:'#fff', bold:true,  texto: document.getElementById('fv-bullet-3').value || '• ...' },
+            { id:'branding', label:'Branding', x: w*0.5,  y: h*0.93, fontSize: 38, color:'#fff', bold:true,  texto: 'TODO @L DÍA', esBranding: true },
+        ];
+    } else {
+        FV.elementos = [
+            { id:'logo', label:'Logo', x: w*0.5, y: FV.logoPos === 'top' ? h*0.07 : h*0.93, fontSize: 38, color:'#fff', bold:true, texto:'TODO @L DÍA', esBranding: true },
+        ];
+    }
+
+    FV.elSeleccionado = null;
+    fvDraw();
+}
  <!-- MODAL EDITAR AUTO -->
 <div id="modal-editar-auto" style="position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:1000; display:none; align-items:center; justify-content:center;"
      onclick="if(event.target===this) cerrarModalEditarAuto()">
