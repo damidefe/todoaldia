@@ -4367,12 +4367,12 @@ function mktSwitchEditor(tipo) {
     // Ajustar canvas
     const canvas = document.getElementById('mkt-canvas');
     if (isPost) {
-        canvas.style.width  = '220px';
-        canvas.style.height = '275px';
+        canvas.style.width  = '320px';
+        canvas.style.height = '400px';
         document.getElementById('mkt-preview-label').textContent = 'POST 4:5 · 1080×1350px';
     } else {
-        canvas.style.width  = '152px';
-        canvas.style.height = '270px';
+        canvas.style.width  = '220px';
+        canvas.style.height = '390px';
         document.getElementById('mkt-preview-label').textContent = 'STORY 9:16 · 1080×1920px';
     }
     mktDraw();
@@ -4386,11 +4386,11 @@ function mktSetLayout(id) {
     // Resetear posiciones predeterminadas por layout
     if (isPost) {
         const defaults = {
-            1: { titleY: 62, bodyY: 0, ctaY: 75, brandingY: 91 },
-            2: { titleY: 62, bodyY: 0, ctaY: 75, brandingY: 88 },
-            3: { titleY: 62, bodyY: 0, ctaY: 75, brandingY: 88 },
-            4: { titleY: 38, bodyY: 0, ctaY: 75, brandingY: 88 },
-            5: { titleY: 62, bodyY: 0, ctaY: 75, brandingY: 88 },
+            1: { titleY: 58, bodyY: 70, ctaY: 82, brandingY: 91 },
+            2: { titleY: 8,  bodyY: 22, ctaY: 38, brandingY: 91 },
+            3: { titleY: 58, bodyY: 70, ctaY: 82, brandingY: 91 },
+            4: { titleY: 42, bodyY: 54, ctaY: 66, brandingY: 91 },
+            5: { titleY: 58, bodyY: 70, ctaY: 82, brandingY: 91 },
         };
         const d = defaults[id] || defaults[1];
         mktConfig.titleY    = d.titleY;
@@ -4522,8 +4522,8 @@ function mktDraw() {
         const DPR = 2;
         canvas.width  = W * DPR;
         canvas.height = H * DPR;
-        canvas.style.width  = isPost ? '220px' : '152px';
-        canvas.style.height = isPost ? '275px' : '270px';
+        canvas.style.width  = isPost ? '320px' : '220px';
+        canvas.style.height = isPost ? '400px' : '390px';
         const ctx = canvas.getContext('2d');
         ctx.scale(DPR, DPR);
         ctx.imageSmoothingEnabled = true;
@@ -4683,7 +4683,7 @@ function mktDrawPost(ctx, W, H) {
     function drawSubtexto(startY) {
         const x = W * (cfg.bodyPad / 100);
         const safeW = W - x;
-        const y = startY + cfg.bodyY * 4;
+        const y = H * (cfg.bodyY / 100);
         ctx.globalAlpha = 0.85;
         ctx.font = `300 ${cfg.bodySize}px ${font}`;
         ctx.fillStyle = '#fff';
@@ -4697,7 +4697,7 @@ function mktDrawPost(ctx, W, H) {
     function drawCTA(startY) {
         const x = W * (cfg.ctaPad / 100);
         const safeW = W - x;
-        const y = startY + cfg.ctaY * 4;
+        const y = H * (cfg.ctaY / 100)
         ctx.font = `700 ${cfg.ctaSize}px ${font}`;
         ctx.fillStyle = '#E31E24';
         ctx.textAlign = 'left';
@@ -4749,7 +4749,7 @@ function mktDrawPost(ctx, W, H) {
         // Re-dibujamos con el Y correcto
         ctx.clearRect(0, 8, W, H - 8);
         drawFondo(cfg.gradientOpacity);
-        const tY = H * 0.52 + (cfg.titleY - 62) * 5;
+        const tY = H * (cfg.titleY / 100); - 62) * 5;
         ctx.fillStyle = '#E31E24';
         ctx.fillRect(cfg.titlePad, tY - 20, 100, 5);
         ctx.fillStyle = '#fff';
@@ -4775,7 +4775,7 @@ function mktDrawPost(ctx, W, H) {
         gTop.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = gTop; ctx.fillRect(0, 0, W, H * 0.55);
         drawLinea();
-        const tY2 = H * 0.07 + (cfg.titleY - 62) * 3;
+        const tY2 = H * (cfg.titleY / 100); - 62) * 3;
         ctx.fillStyle = '#E31E24';
         ctx.fillRect(cfg.titlePad, tY2 - 20, 100, 5);
         ctx.fillStyle = '#fff';
@@ -6204,8 +6204,8 @@ function mobileActivarDetalle(d) {
                         <div>
                             <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
                                 <span>Posición Y</span><span style="color:#E31E24;" id="mkt-val-titleY">62</span>
-                            </div>
-                            <input type="range" min="1" max="99" value="62" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('titleY', this.value, false)">
+                            </div>min="1" max="99" value="62" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('bodyY'
+                            <input type="range" min="20" max="120" value="62" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('titleY', this.value, false)">
                         </div>
                         <div>
                             <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
@@ -6229,19 +6229,19 @@ function mobileActivarDetalle(d) {
                             <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
                                 <span>Tamaño</span><span style="color:#E31E24;" id="mkt-val-bodySize">38</span>
                             </div>
-                            <input type="range" min="16" max="80" value="38" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('bodySize', this.value, false)">
+                            <input type="range" min="20" max="120" value="38" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('bodySize', this.value, false)">
                         </div>
                         <div>
                             <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
                                 <span>Posición Y</span><span style="color:#E31E24;" id="mkt-val-bodyY">0</span>
                             </div>
-                            <input type="range" min="-30" max="30" value="0" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('bodyY', this.value, false)">
+                            <input type="range" min="-20" max="120" value="0" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('bodyY', this.value, false)">
                         </div>
                         <div>
                             <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
                                 <span>Margen lateral</span><span style="color:#E31E24;" id="mkt-val-bodyPad">110</span>
                             </div>
-                            <input type="range" min="0" max="500" value="110" step="5" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('bodyPad', this.value, false)">
+                            <input type="range" min="-20" max="500" value="110" step="5" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('bodyPad', this.value, false)">
                         </div>
                     </div>
                 </div>
@@ -6258,19 +6258,19 @@ function mobileActivarDetalle(d) {
                             <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
                                 <span>Tamaño</span><span style="color:#E31E24;" id="mkt-val-ctaSize">34</span>
                             </div>
-                            <input type="range" min="16" max="70" value="34" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('ctaSize', this.value, false)">
+                            <input type="range" min="-20" max="120" value="34" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('ctaSize', this.value, false)">
                         </div>
                         <div>
                             <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
                                 <span>Posición Y</span><span style="color:#E31E24;" id="mkt-val-ctaY">0</span>
                             </div>
-                            <input type="range" min="-30" max="30" value="0" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('ctaY', this.value, false)">
+                            <input type="range" min="-20" max="120" value="0" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('ctaY', this.value, false)">
                         </div>
                         <div>
                             <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
                                 <span>Margen lateral</span><span style="color:#E31E24;" id="mkt-val-ctaPad">110</span>
                             </div>
-                            <input type="range" min="0" max="500" value="110" step="5" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('ctaPad', this.value, false)">
+                            <input type="range" min="-20" max="120" value="110" step="5" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('ctaPad', this.value, false)">
                         </div>
                     </div>
                 </div>
@@ -6378,7 +6378,7 @@ function mobileActivarDetalle(d) {
             </div>
             <div style="box-shadow:0 20px 60px rgba(0,0,0,0.8); border:1px solid #222; border-radius:4px; overflow:hidden; cursor:pointer; max-width:100%; max-height:calc(100vh - 120px);"
                  onclick="mktDescargar()" title="Clic para descargar">
-                <canvas id="mkt-canvas" style="display:block; width:220px; height:275px;"></canvas>
+                <canvas id="mkt-canvas" style="display:block; width:320px; height:400px;"></canvas>
             </div>
             <div style="font-size:8px; color:#2a2a2a; font-weight:700; letter-spacing:2px; text-align:center;">CLIC PARA DESCARGAR HD</div>
         </div>
