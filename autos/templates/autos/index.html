@@ -4662,25 +4662,24 @@ function mktDrawPost(ctx, W, H) {
         }
     }
 
-    function drawTitulo(baseY) {
+    function drawTitulo() {
         const x = W * (cfg.titlePad / 100);
         const safeW = W - x;
-
-        const startY = H * (baseY / 100) + cfg.titleY * 0; // titleY controla baseY directamente
+        const y = H * (cfg.titleY / 100);
         ctx.fillStyle = '#E31E24';
-        ctx.fillRect(x, startY - 20, 100, 5);
+        ctx.fillRect(x, y - 20, 100, 5);
         ctx.fillStyle = '#fff';
         ctx.font = `900 ${cfg.titleSize}px ${font}`;
         ctx.textAlign = 'left';
         ctx.textBaseline = 'top';
         ctx.shadowColor = 'rgba(0,0,0,0.8)';
         ctx.shadowBlur = 16;
-        const endY = mktWrapText(ctx, titulo.toUpperCase(), x, startY, safeW, cfg.titleSize * 1.12);
+        const endY = mktWrapText(ctx, titulo.toUpperCase(), x, y, safeW, cfg.titleSize * 1.12);
         ctx.shadowBlur = 0;
         return endY;
     }
 
-    function drawSubtexto(startY) {
+    function drawSubtexto() {
         const x = W * (cfg.bodyPad / 100);
         const safeW = W - x;
         const y = H * (cfg.bodyY / 100);
@@ -4694,20 +4693,15 @@ function mktDrawPost(ctx, W, H) {
         return endY;
     }
 
-    function drawCTA(startY) {
+    function drawCTA() {
         const x = W * (cfg.ctaPad / 100);
         const safeW = W - x;
-        const y = H * (cfg.ctaY / 100)
+        const y = H * (cfg.ctaY / 100);
         ctx.font = `700 ${cfg.ctaSize}px ${font}`;
         ctx.fillStyle = '#E31E24';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'top';
         mktWrapText(ctx, cta, x, y, safeW, cfg.ctaSize * 1.2);
-    }
-
-    function drawSeparador(y, x, w) {
-        ctx.fillStyle = '#E31E24';
-        ctx.fillRect(x || cfg.titlePad, y, w || 70, 4);
     }
 
     function drawBranding() {
@@ -4738,67 +4732,27 @@ function mktDrawPost(ctx, W, H) {
         ctx.fillRect(0, 0, W, 8);
     }
 
-    // ── LAYOUTS POST ──
-
     if (layout === 1) {
-        // Texto abajo
         drawFondo(cfg.gradientOpacity);
         drawLinea();
-        const startY = H * (cfg.titleY / 100);
-        const titEnd = drawTitulo(0) + 0;
-        // Re-dibujamos con el Y correcto
-        ctx.clearRect(0, 8, W, H - 8);
-        drawFondo(cfg.gradientOpacity);
-        const tY = H * (cfg.titleY / 100);
-        ctx.fillStyle = '#E31E24';
-        ctx.fillRect(cfg.titlePad, tY - 20, 100, 5);
-        ctx.fillStyle = '#fff';
-        ctx.font = `900 ${cfg.titleSize}px ${font}`;
-        ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-        ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 16;
-        let y = mktWrapText(ctx, titulo.toUpperCase(), cfg.titlePad, tY, W - cfg.titlePad*2, cfg.titleSize * 1.12);
-        ctx.shadowBlur = 0;
-        y += 14;
-        drawSeparador(y);
-        y += 36;
-        y = drawSubtexto(y - cfg.bodyY * 4);
-        y += 14 + cfg.ctaY * 4;
-        drawCTA(y - cfg.ctaY*4);
+        drawTitulo();
+        drawSubtexto();
+        drawCTA();
         drawBranding();
-        drawLinea();
 
     } else if (layout === 2) {
-        // Texto arriba
         drawFondo(cfg.gradientOpacity);
         const gTop = ctx.createLinearGradient(0, 0, 0, H * 0.55);
         gTop.addColorStop(0, 'rgba(0,0,0,0.75)');
         gTop.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = gTop; ctx.fillRect(0, 0, W, H * 0.55);
         drawLinea();
-        const tY2 = H * (cfg.titleY / 100);
-        ctx.fillStyle = '#E31E24';
-        ctx.fillRect(cfg.titlePad, tY2 - 20, 100, 5);
-        ctx.fillStyle = '#fff';
-        ctx.font = `900 ${cfg.titleSize}px ${font}`;
-        ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-        ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 16;
-        let y2 = mktWrapText(ctx, titulo.toUpperCase(), cfg.titlePad, tY2, W - cfg.titlePad*2, cfg.titleSize * 1.12);
-        ctx.shadowBlur = 0;
-        y2 += 14; drawSeparador(y2); y2 += 24;
-        const subY2 = y2 + cfg.bodyY * 4;
-        ctx.globalAlpha = 0.85;
-        ctx.font = `300 ${cfg.bodySize}px ${font}`;
-        ctx.fillStyle = '#fff'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-        let y2b = mktWrapText(ctx, subtexto, cfg.bodyPad, subY2, W - cfg.bodyPad*2, cfg.bodySize * 1.45);
-        ctx.globalAlpha = 1;
-        y2b += 14 + cfg.ctaY * 4;
-        ctx.font = `700 ${cfg.ctaSize}px ${font}`;
-        ctx.fillStyle = '#E31E24'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-        mktWrapText(ctx, cta, cfg.ctaPad, y2b, W - cfg.ctaPad*2, cfg.ctaSize * 1.2);
+        drawTitulo();
+        drawSubtexto();
+        drawCTA();
         drawBranding();
 
     } else if (layout === 3) {
-        // Sin texto — foto limpia con logo
         drawFondo(0.15);
         drawLinea();
         const gBot = ctx.createLinearGradient(0, H * 0.75, 0, H);
@@ -4808,7 +4762,6 @@ function mktDrawPost(ctx, W, H) {
         drawBranding();
 
     } else if (layout === 4) {
-        // Texto centrado
         drawFondo(cfg.gradientOpacity);
         const gCenter = ctx.createRadialGradient(W/2, H/2, 80, W/2, H/2, W * 0.85);
         gCenter.addColorStop(0, 'rgba(0,0,0,0.55)');
@@ -4821,28 +4774,24 @@ function mktDrawPost(ctx, W, H) {
         ctx.font = `900 ${cfg.titleSize}px ${font}`;
         ctx.textAlign = 'center'; ctx.textBaseline = 'top';
         ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 16;
-        let y4 = mktWrapText(ctx, titulo.toUpperCase(), W/2, tY4, W - cfg.titlePad*2, cfg.titleSize * 1.12, 'center');
+        mktWrapText(ctx, titulo.toUpperCase(), W/2, tY4, W - cfg.titlePad*2, cfg.titleSize * 1.12, 'center');
         ctx.shadowBlur = 0;
-        y4 += 14; ctx.fillStyle = '#E31E24'; ctx.fillRect(W/2 - 35, y4, 70, 4); y4 += 24;
-        const subY4 = y4 + cfg.bodyY * 4;
+        const bY4 = H * (cfg.bodyY / 100);
         ctx.globalAlpha = 0.85;
         ctx.font = `300 ${cfg.bodySize}px ${font}`;
         ctx.fillStyle = '#fff';
-        let y4b = mktWrapText(ctx, subtexto, W/2, subY4, W - cfg.bodyPad*2, cfg.bodySize * 1.45, 'center');
+        mktWrapText(ctx, subtexto, W/2, bY4, W - cfg.bodyPad*2, cfg.bodySize * 1.45, 'center');
         ctx.globalAlpha = 1;
-        y4b += 14 + cfg.ctaY * 4;
+        const cY4 = H * (cfg.ctaY / 100);
         ctx.font = `700 ${cfg.ctaSize}px ${font}`;
         ctx.fillStyle = '#E31E24';
-        mktWrapText(ctx, cta, W/2, y4b, W - cfg.ctaPad*2, cfg.ctaSize * 1.2, 'center');
+        mktWrapText(ctx, cta, W/2, cY4, W - cfg.ctaPad*2, cfg.ctaSize * 1.2, 'center');
         ctx.textAlign = 'left';
         drawBranding();
 
     } else if (layout === 5) {
-        // Doble foto
         const topH = H * 0.47, botH = H * 0.47;
         const midY = topH, midH = H - topH - botH;
-
-        // Foto 1 arriba
         if (img) {
             const scale = Math.max(W / img.width, topH / img.height);
             ctx.save();
@@ -4852,8 +4801,6 @@ function mktDrawPost(ctx, W, H) {
         } else {
             ctx.fillStyle = '#1a1a1a'; ctx.fillRect(0, 0, W, topH);
         }
-
-        // Foto 2 abajo
         if (cfg.imagen2) {
             const scale2 = Math.max(W / cfg.imagen2.width, botH / cfg.imagen2.height);
             ctx.save();
@@ -4861,16 +4808,13 @@ function mktDrawPost(ctx, W, H) {
             ctx.drawImage(cfg.imagen2, (W - cfg.imagen2.width*scale2)/2, H - botH + (botH - cfg.imagen2.height*scale2)/2 + (cfg.foto2OffsetY / 100) * botH, cfg.imagen2.width*scale2, cfg.imagen2.height*scale2);
             ctx.restore();
         } else {
-            ctx.fillStyle = '#111';
-            ctx.fillRect(0, H - botH, W, botH);
+            ctx.fillStyle = '#111'; ctx.fillRect(0, H - botH, W, botH);
             ctx.fillStyle = '#2a2a2a';
             ctx.font = '700 32px Montserrat, sans-serif';
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             ctx.fillText('📷 Cargar foto 2', W/2, H - botH/2);
             ctx.textAlign = 'left';
         }
-
-        // Franja central
         ctx.fillStyle = '#0d0d0d'; ctx.fillRect(0, midY, W, midH);
         ctx.fillStyle = '#E31E24'; ctx.fillRect(0, midY, W, 5);
         ctx.fillStyle = '#E31E24'; ctx.fillRect(0, midY + midH - 5, W, 5);
@@ -4879,7 +4823,6 @@ function mktDrawPost(ctx, W, H) {
     }
 }
 
-
 function mktDrawStory(ctx, W, H, canvas) {
     const cfg = mktConfig;
     const font = document.getElementById('mkt-font').value;
@@ -4887,19 +4830,16 @@ function mktDrawStory(ctx, W, H, canvas) {
     const subtexto = document.getElementById('mkt-subtexto').value;
     const cta      = document.getElementById('mkt-cta').value;
     const frase    = document.getElementById('mkt-frase') ? document.getElementById('mkt-frase').value : '';
-    const safeW    = W - cfg.padding * 2;
     const img      = cfg.imagen;
-    const img2     = cfg.imagen2 || null;
     const layout   = cfg.layout || 1;
     const modo     = cfg.modo || 'completo';
 
-    // Helper fondo
     function drawFondo(x, y, w, h, opacity) {
         if (img) {
             const scale = Math.max(w / img.width, h / img.height);
             const ix = x + (w - img.width * scale) / 2;
-            const _ciy2 = (h - img.height * scale) / 2;
-            const iy = y + _ciy2 + _ciy2 * (cfg.fotoOffsetY / 99);
+            const _ciy = (h - img.height * scale) / 2;
+            const iy = y + _ciy + _ciy * (cfg.fotoOffsetY / 99);
             ctx.save();
             ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
             if (cfg.blur > 0) ctx.filter = `blur(${cfg.blur}px)`;
@@ -4917,61 +4857,64 @@ function mktDrawStory(ctx, W, H, canvas) {
         }
     }
 
-    // Helper branding
-    function drawBranding(y) {
+    function drawBranding() {
+        const logoY = H * (cfg.brandingY / 100);
+        const bx = W * (cfg.brandingPad / 100);
         ctx.fillStyle = '#fff';
         ctx.globalAlpha = 0.12;
-        ctx.fillRect(60, y - 44, W - 120, 1);
+        ctx.fillRect(bx, logoY - 44, W - bx*2, 1);
         ctx.globalAlpha = 1;
         ctx.fillStyle = '#E31E24';
-        ctx.fillRect(W/2 - 50, y - 52, 100, 5);
+        ctx.fillRect(W/2 - 50, logoY - 52, 100, 5);
         ctx.fillStyle = '#fff';
         ctx.font = `900 40px Montserrat, sans-serif`;
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 12;
-        ctx.fillText('TODO @L DÍA', W/2, y - 18);
+        ctx.fillText('TODO @L DÍA', W/2, logoY - 18);
         ctx.shadowBlur = 0;
         ctx.globalAlpha = 0.6;
         ctx.font = `300 22px Montserrat, sans-serif`;
-        ctx.fillText('Autos Seleccionados · Caballito', W/2, y + 20);
+        ctx.fillText('Autos Seleccionados · Caballito', W/2, logoY + 20);
         ctx.globalAlpha = 1;
         ctx.textAlign = 'left';
     }
 
-    // Helper texto completo
-    function drawTextoCompleto(startY) {
-        const adjY = startY + (cfg.titleY - 62) * 4;
+    function drawTextoCompleto() {
+        const tY = H * (cfg.titleY / 100);
+        const bY = H * (cfg.bodyY / 100);
+        const cY = H * (cfg.ctaY / 100);
+        const x  = W * (cfg.titlePad / 100);
+        const safeW = W - x;
+
         ctx.fillStyle = '#E31E24';
-        ctx.fillRect(cfg.padding, adjY - 24, 100, 6);
+        ctx.fillRect(x, tY - 24, 100, 6);
         ctx.fillStyle = '#fff';
         ctx.font = `900 ${cfg.titleSize}px ${font}`;
         ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-        let y = mktWrapText(ctx, titulo.toUpperCase(), cfg.padding, adjY, W - cfg.padding*2, cfg.titleSize * 1.12);
-        y += 16;
-        ctx.fillStyle = '#E31E24'; ctx.fillRect(cfg.padding, y, 70, 4); y += 28;
+        ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 16;
+        mktWrapText(ctx, titulo.toUpperCase(), x, tY, safeW, cfg.titleSize * 1.12);
+        ctx.shadowBlur = 0;
+
         ctx.globalAlpha = 0.85;
         ctx.font = `300 ${cfg.bodySize}px ${font}`;
         ctx.fillStyle = '#fff';
-        y = mktWrapText(ctx, subtexto, cfg.padding, y, W - cfg.padding*2, cfg.bodySize * 1.45);
-        ctx.globalAlpha = 1; y += 20;
+        mktWrapText(ctx, subtexto, W * (cfg.bodyPad / 100), bY, W - W*(cfg.bodyPad/100), cfg.bodySize * 1.45);
+        ctx.globalAlpha = 1;
+
         ctx.font = `700 ${cfg.ctaSize}px ${font}`;
         ctx.fillStyle = '#E31E24';
-        mktWrapText(ctx, cta, cfg.padding, y, W - cfg.padding*2, cfg.ctaSize * 1.2);
+        mktWrapText(ctx, cta, W * (cfg.ctaPad / 100), cY, W - W*(cfg.ctaPad/100), cfg.ctaSize * 1.2);
     }
 
-    // Helper frase
     function drawFrase(centerY) {
+        const safeW = W - W * (cfg.titlePad / 100) * 2;
         ctx.fillStyle = '#fff';
         ctx.font = `900 ${cfg.fraseSize || 110}px ${font}`;
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        const fraseY = centerY - (cfg.fraseSize || 110) * 0.6;
-        const endY = mktWrapText(ctx, frase.toUpperCase(), W/2, fraseY, safeW, (cfg.fraseSize||110) * 1.1, 'center');
-        ctx.fillStyle = '#E31E24';
-        ctx.fillRect(cfg.padding, endY + 10, safeW, 6);
+        mktWrapText(ctx, frase.toUpperCase(), W/2, centerY, safeW, (cfg.fraseSize||110) * 1.1, 'center');
         ctx.textAlign = 'left';
     }
 
-    // ── LÓGICA DE LAYOUTS ──
     if (layout === 1) {
         ctx.fillStyle = '#0d0d0d'; ctx.fillRect(0, 0, W, H);
         const fotoY = H * 0.48;
@@ -4980,52 +4923,50 @@ function mktDrawStory(ctx, W, H, canvas) {
         grad.addColorStop(0, '#0d0d0d'); grad.addColorStop(1, 'rgba(13,13,13,0)');
         ctx.fillStyle = grad; ctx.fillRect(0, fotoY-80, W, 180);
         if (modo === 'frase') drawFrase(H * 0.25);
-        else drawTextoCompleto(H * 0.08);
-        drawBranding(H * (cfg.brandingY / 100));
+        else drawTextoCompleto();
+        drawBranding();
+
     } else if (layout === 2) {
         drawFondo(0, 0, W, H, cfg.gradientOpacity);
         const g = ctx.createRadialGradient(W/2, H/2, 100, W/2, H/2, W*0.9);
         g.addColorStop(0, 'rgba(0,0,0,0.5)'); g.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
         if (modo === 'frase') drawFrase(H * 0.45);
-        else drawTextoCompleto(H * 0.32);
-        drawBranding(H * (cfg.brandingY / 100));
+        else drawTextoCompleto();
+        drawBranding();
+
     } else if (layout === 3) {
         const splitY = H * 0.52;
         drawFondo(0, 0, W, splitY, 0.15);
         ctx.fillStyle = '#0d0d0d'; ctx.fillRect(0, splitY, W, H - splitY);
         ctx.fillStyle = '#E31E24'; ctx.fillRect(0, splitY, W, 6);
         if (modo === 'frase') drawFrase(H * 0.72);
-        else drawTextoCompleto(splitY + 60);
-        drawBranding(H * (cfg.brandingY / 100));
+        else drawTextoCompleto();
+        drawBranding();
+
     } else if (layout === 4) {
         drawFondo(0, 0, W, H, cfg.gradientOpacity);
-        ctx.fillStyle = '#E31E24'; ctx.fillRect(cfg.padding, 80, 80, 6);
+        ctx.fillStyle = '#E31E24'; ctx.fillRect(60, 80, 80, 6);
         ctx.fillStyle = '#fff'; ctx.font = `900 44px Montserrat, sans-serif`;
         ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-        ctx.fillText('TODO @L DÍA', cfg.padding, 110);
+        ctx.fillText('TODO @L DÍA', 60, 110);
         ctx.globalAlpha = 0.5; ctx.font = `300 22px Montserrat, sans-serif`;
-        ctx.fillText('Autos Seleccionados · Caballito', cfg.padding, 168);
+        ctx.fillText('Autos Seleccionados · Caballito', 60, 168);
         ctx.globalAlpha = 1;
         if (modo === 'frase') drawFrase(H * 0.48);
-        else drawTextoCompleto(H * 0.35);
-        drawBranding(H * (cfg.brandingY / 100));
+        else drawTextoCompleto();
+
     } else if (layout === 5) {
         const g = ctx.createLinearGradient(0, 0, W, H);
         g.addColorStop(0, '#0d0d0d'); g.addColorStop(0.5, '#1a0000'); g.addColorStop(1, '#0d0d0d');
         ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-        ctx.strokeStyle = '#E31E24'; ctx.globalAlpha = 0.06; ctx.lineWidth = 80;
-        ctx.beginPath(); ctx.arc(W*0.85, H*0.15, 500, 0, Math.PI*2); ctx.stroke();
-        ctx.beginPath(); ctx.arc(W*0.15, H*0.85, 400, 0, Math.PI*2); ctx.stroke();
-        ctx.globalAlpha = 1;
         if (modo === 'frase') drawFrase(H * 0.45);
-        else drawTextoCompleto(H * 0.30);
-        drawBranding(H * (cfg.brandingY / 100));
-} else if (layout === 6) {
+        else drawTextoCompleto();
+        drawBranding();
+
+    } else if (layout === 6) {
         const topH = H * 0.42, botH = H * 0.42;
         const midY = topH, midH = H - topH - botH;
-
-        // Foto 1 arriba
         if (img) {
             const scale = Math.max(W / img.width, topH / img.height);
             ctx.save();
@@ -5038,8 +4979,6 @@ function mktDrawStory(ctx, W, H, canvas) {
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             ctx.fillText('📷 Foto 1', W/2, topH/2); ctx.textAlign = 'left';
         }
-
-        // Foto 2 abajo
         if (cfg.imagen2) {
             const scale2 = Math.max(W / cfg.imagen2.width, botH / cfg.imagen2.height);
             ctx.save();
@@ -5050,41 +4989,30 @@ function mktDrawStory(ctx, W, H, canvas) {
             ctx.fillStyle = '#111'; ctx.fillRect(0, H - botH, W, botH);
             ctx.fillStyle = '#333'; ctx.font = '700 32px Montserrat, sans-serif';
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText('📷 Foto 2 — cargala arriba', W/2, H - botH/2); ctx.textAlign = 'left';
+            ctx.fillText('📷 Foto 2', W/2, H - botH/2); ctx.textAlign = 'left';
         }
-
-        // Franja central con texto
         ctx.fillStyle = '#0d0d0d'; ctx.fillRect(0, midY, W, midH);
         ctx.fillStyle = '#E31E24'; ctx.fillRect(0, midY, W, 5);
         ctx.fillStyle = '#E31E24'; ctx.fillRect(0, midY + midH - 5, W, 5);
-
-        // Texto centrado en la franja
-        const midCenterY = midY + midH / 2 - 60;
         ctx.fillStyle = '#fff'; ctx.font = `900 ${cfg.titleSize * 0.65}px ${font}`;
-        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-        ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 10;
-        let midY2 = mktWrapText(ctx, titulo.toUpperCase(), W/2, midCenterY, W - 120, cfg.titleSize * 0.65 * 1.1, 'center');
-        ctx.shadowBlur = 0;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        mktWrapText(ctx, titulo.toUpperCase(), W/2, midY + midH/2 - 40, W - 120, cfg.titleSize * 0.65 * 1.1, 'center');
         ctx.globalAlpha = 0.7; ctx.font = `300 ${cfg.bodySize * 0.6}px ${font}`;
-        mktWrapText(ctx, cta, W/2, midY2 + 10, W - 120, cfg.bodySize * 0.6 * 1.3, 'center');
+        mktWrapText(ctx, cta, W/2, midY + midH/2 + 40, W - 120, cfg.bodySize * 0.6 * 1.3, 'center');
         ctx.globalAlpha = 1; ctx.textAlign = 'left';
+
     } else if (layout === 7) {
         drawFondo(0, 0, W, H, cfg.gradientOpacity);
-        ctx.fillStyle = '#E31E24'; ctx.fillRect(cfg.padding, 90, 100, 7);
         if (modo === 'frase') drawFrase(H * 0.30);
-        else drawTextoCompleto(H * 0.15);
+        else drawTextoCompleto();
         const bandaY = H * 0.63;
         ctx.fillStyle = cfg.urgenciaColor || '#E31E24'; ctx.globalAlpha = 0.93;
         ctx.fillRect(0, bandaY, W, H * 0.20); ctx.globalAlpha = 1;
         ctx.fillStyle = '#fff'; ctx.font = `900 ${cfg.fraseSize || 90}px ${font}`;
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
         const textoUrg = (cfg.urgenciaTexto || 'OPORTUNIDAD ÚNICA').toUpperCase();
-        const bandaCentro = bandaY + H * 0.10;
-        mktWrapText(ctx, textoUrg, W/2, bandaCentro, W - 80, (cfg.fraseSize||90)*1.0, 'center');
-        ctx.fillStyle = '#E31E24'; ctx.globalAlpha = 0;
-        drawBranding(H * (cfg.brandingY / 100));
+        mktWrapText(ctx, textoUrg, W/2, bandaY + H * 0.10, W - 80, (cfg.fraseSize||90)*1.0, 'center');
+        drawBranding();
     }
 }
 function mktDescargar() {
