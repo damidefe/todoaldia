@@ -6040,8 +6040,7 @@ function fvInit() {
     }
 
     // Cargar todos los autos para el modal de asignación
-    fvCargarTodosAutos();
-
+    fvPoblarSelectorAutos();
     // Configurar canvas y elementos
     fvSetModo('story-principal');
 
@@ -6480,9 +6479,30 @@ function fvCargarFotoNueva(input) {
 }
 
 function fvCargarFotoURL(url) {
-    const img = new Image(); img.crossOrigin = 'anonymous';
-    img.onload = () => { FV.imgFondo = img; FV.imgOffsetX = 0; FV.imgOffsetY = 0; FV.imgZoom = 1; document.getElementById('fv-zoom').value = 1; fvDraw(); };
-    img.src = url;
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => { 
+        FV.imgFondo = img; 
+        FV.imgOffsetX = 0; 
+        FV.imgOffsetY = 0; 
+        FV.imgZoom = 1; 
+        document.getElementById('fv-zoom').value = 1; 
+        fvDraw(); 
+    };
+    img.onerror = () => {
+        // Si falla con crossOrigin, intentar sin él
+        const img2 = new Image();
+        img2.onload = () => {
+            FV.imgFondo = img2;
+            FV.imgOffsetX = 0;
+            FV.imgOffsetY = 0;
+            FV.imgZoom = 1;
+            document.getElementById('fv-zoom').value = 1;
+            fvDraw();
+        };
+        img2.src = url + '?nocache=' + Date.now();
+    };
+    img.src = url + '?t=' + Date.now();
 }
 
 // ── DESCARGA ──────────────────────────────────
@@ -6536,6 +6556,65 @@ async function fvGuardarEnAuto() {
             else alert('❌ Error al guardar');
         } catch(e) { console.error(e); alert('❌ Error de red'); }
     }, 'image/png');
+}
+
+// ── SELECTOR DE AUTO ──────────────────────────
+async function fvPoblarSelectorAutos() {
+    const sel = document.getElementById('fv-selector-auto');
+    if (!sel) return;
+
+    // Cargar autos de todos los tabs
+    let todos = [];
+    for (const tab of ['disponible', 'reservado', 'vendido']) {
+        try {
+            const r = await fetch(`/?tab=${tab}&solo_grid=1`);
+            if (r.ok) {
+                const data = await r.json();
+                todos = todos.concat((data.autos || []).map(a => ({ ...a, _tab: tab })));
+            }
+        } catch(e) {}
+    }
+
+    // Poblar el select
+    sel.innerHTML = '<option value="">— Elegir auto —</option>';
+    todos.forEach(a => {
+        const opt = document.createElement('option');
+        opt.value = a.id;
+        opt.textContent = `${a.marca} ${a.modelo} ${a.anio} · ${a.estado_display}`;
+        // Si hay un auto activo, seleccionarlo
+        if (AUTO_ID_ACTUAL && a.id == AUTO_ID_ACTUAL) opt.selected = true;
+        sel.appendChild(opt);
+    });
+
+    FV.todosLosAutos = todos;
+}
+
+async function fvCambiarAuto(autoId) {
+    if (!autoId) return;
+
+    // Cargar datos del auto seleccionado
+    const res = await fetch(`/auto/${autoId}/json/`);
+    const d = await res.json();
+    FV.autoData = d;
+
+    // Actualizar título y badge
+    document.getElementById('fv-titulo').value = `${d.marca} ${d.modelo} ${d.anio}`.toUpperCase();
+    document.getElementById('fv-badge').value = 'NUEVO INGRESO';
+
+    // Cargar fotos del CRM
+    fvCargarFotosCRM(d);
+
+    // Cargar foto principal automáticamente
+    const principal = (d.fotos || []).find(f => f.es_principal) || (d.fotos || [])[0];
+    if (principal) fvCargarFotoURL(principal.imagen_url);
+
+    // Limpiar bullets
+    document.getElementById('fv-bullet-1').value = '';
+    document.getElementById('fv-bullet-2').value = '';
+    document.getElementById('fv-bullet-3').value = '';
+
+    // Redibujar con modo actual
+    fvSetModo(FV.modo);
 }
 
 // ── CERRAR ────────────────────────────────────
@@ -6993,7 +7072,12 @@ function fvCerrar() {
             <div style="font-size:14px; font-weight:900; color:#fff;">📸 Fotos del Vehículo</div>
         </div>
         <div style="display:flex; gap:8px; align-items:center;">
-            <span id="fv-auto-nombre" style="font-size:11px; color:#555; font-weight:700;">Ningún auto seleccionado</span>
+            <select id="fv-selector-auto" onchange="fvCambiarAuto(this.value)"
+                style="background:#1a1a1a; border:1px solid #333; border-radius:7px; padding:6px 12px;
+                    color:#fff; font-size:10px; font-weight:700; font-family:'Montserrat',sans-serif;
+                    cursor:pointer; min-width:200px; max-width:300px;">
+                <option value="">— Elegir auto —</option>
+            </select>
             <button onclick="fvCerrar()" style="background:#1a1a1a; border:1px solid #333; border-radius:7px; padding:6px 12px; color:#888; font-size:10px; font-weight:900; cursor:pointer; font-family:'Montserrat',sans-serif;">✕ Cerrar</button>
         </div>
     </div>
