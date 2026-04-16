@@ -4213,15 +4213,15 @@ let mktConfig = {
     // Título
     titleSize: 88,
     titleY: 62,
-    titlePad: 110,
+    titlePad: 10,
     // Subtexto
     bodySize: 38,
     bodyY: 0,
-    bodyPad: 110,
+    bodyPad: 10,
     // CTA
     ctaSize: 34,
     ctaY: 75,
-    ctaPad: 110,
+    ctaPad: 10,
     // Globales
     gradientOpacity: 0.62,
     blur: 0,
@@ -4551,7 +4551,8 @@ function mktDraw() {
             const img = cfg.imagen;
             const scale = Math.max(W / img.width, H / img.height);
             const ix = (W - img.width * scale) / 2;
-            const iy = (H - img.height * scale) / 2 + (cfg.fotoOffsetY / 100) * H;
+            const _ciy = (H - img.height * scale) / 2;
+            const iy = _ciy + _ciy * (cfg.fotoOffsetY / 99);
             if (cfg.blur > 0) ctx.filter = `blur(${cfg.blur}px)`;
             ctx.drawImage(img, ix, iy, img.width * scale, img.height * scale);
             ctx.filter = 'none';
@@ -4646,7 +4647,8 @@ function mktDrawPost(ctx, W, H) {
         if (img) {
             const scale = Math.max(W / img.width, H / img.height);
             const ix = (W - img.width * scale) / 2;
-            const iy = (H - img.height * scale) / 2 + (cfg.fotoOffsetY / 100) * H;
+            const _ciy = (H - img.height * scale) / 2;
+            const iy = _ciy + _ciy * (cfg.fotoOffsetY / 99);
             if (cfg.blur > 0) ctx.filter = `blur(${cfg.blur}px)`;
             ctx.drawImage(img, ix, iy, img.width * scale, img.height * scale);
             ctx.filter = 'none';
@@ -4665,8 +4667,9 @@ function mktDrawPost(ctx, W, H) {
     }
 
     function drawTitulo(baseY) {
-        const x = cfg.titlePad;
-        const safeW = W - cfg.titlePad * 2;
+        const x = W * (cfg.titlePad / 100);
+        const safeW = W - x;
+
         const startY = H * (baseY / 100) + cfg.titleY * 0; // titleY controla baseY directamente
         ctx.fillStyle = '#E31E24';
         ctx.fillRect(x, startY - 20, 100, 5);
@@ -4682,8 +4685,8 @@ function mktDrawPost(ctx, W, H) {
     }
 
     function drawSubtexto(startY) {
-        const x = cfg.bodyPad;
-        const safeW = W - cfg.bodyPad * 2;
+        const x = W * (cfg.bodyPad / 100);
+        const safeW = W - x;
         const y = startY + cfg.bodyY * 4;
         ctx.globalAlpha = 0.85;
         ctx.font = `300 ${cfg.bodySize}px ${font}`;
@@ -4696,8 +4699,8 @@ function mktDrawPost(ctx, W, H) {
     }
 
     function drawCTA(startY) {
-        const x = cfg.ctaPad;
-        const safeW = W - cfg.ctaPad * 2;
+        const x = W * (cfg.ctaPad / 100);
+        const safeW = W - x;
         const y = startY + cfg.ctaY * 4;
         ctx.font = `700 ${cfg.ctaSize}px ${font}`;
         ctx.fillStyle = '#E31E24';
@@ -4713,23 +4716,24 @@ function mktDrawPost(ctx, W, H) {
 
     function drawBranding() {
         const logoY = H * (cfg.brandingY / 100);
+        const bx = W * (cfg.brandingPad / 100);
         ctx.fillStyle = '#fff';
         ctx.globalAlpha = 0.12;
-        ctx.fillRect(cfg.brandingPad, logoY - 44, W - cfg.brandingPad*2, 1);
+        ctx.fillRect(bx, logoY - 44, W - bx*2, 1);
         ctx.globalAlpha = 1;
         ctx.beginPath();
         ctx.strokeStyle = '#E31E24';
         ctx.lineWidth = 5; ctx.lineCap = 'round';
-        ctx.moveTo(cfg.brandingPad, logoY - 8);
-        ctx.bezierCurveTo(cfg.brandingPad+20, logoY-46, cfg.brandingPad+60, logoY-46, cfg.brandingPad+80, logoY-8);
+        ctx.moveTo(bx, logoY - 8);
+        ctx.bezierCurveTo(bx+20, logoY-46, bx+60, logoY-46, bx+80, logoY-8);
         ctx.stroke();
         ctx.fillStyle = '#fff';
         ctx.font = `900 34px Montserrat, sans-serif`;
         ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-        ctx.fillText('TODO @L DÍA', cfg.brandingPad + 96, logoY - 18);
+        ctx.fillText('TODO @L DÍA', bx + 96, logoY - 18);
         ctx.globalAlpha = 0.5;
         ctx.font = `300 17px Montserrat, sans-serif`;
-        ctx.fillText('Autos Seleccionados · Caballito', cfg.brandingPad + 96, logoY + 16);
+        ctx.fillText('Autos Seleccionados · Caballito', bx + 96, logoY + 16);
         ctx.globalAlpha = 1;
     }
 
@@ -4898,7 +4902,8 @@ function mktDrawStory(ctx, W, H, canvas) {
         if (img) {
             const scale = Math.max(w / img.width, h / img.height);
             const ix = x + (w - img.width * scale) / 2;
-            const iy = y + (h - img.height * scale) / 2 + (cfg.fotoOffsetY / 100) * h;
+            const _ciy2 = (h - img.height * scale) / 2;
+            const iy = y + _ciy2 + _ciy2 * (cfg.fotoOffsetY / 99);
             ctx.save();
             ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
             if (cfg.blur > 0) ctx.filter = `blur(${cfg.blur}px)`;
