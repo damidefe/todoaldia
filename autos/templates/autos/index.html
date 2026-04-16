@@ -794,6 +794,10 @@ body {
 </button>
 <button onclick="mostrarCM()" style="flex:1; height:100%; background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775959360/Gemini_Generated_Image_jptuhfjptuhfjptu_bteuos.png'); background-size:cover; background-position:center; border:none; border-radius:8px; cursor:pointer;">
 </button>
+<button onclick="mostrarFotosVehiculo()" style="flex:1; height:100%; background:#111; border:none; border-radius:8px; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;">
+    <span style="font-size:18px;">📸</span>
+    <span style="font-size:7px; font-weight:900; color:#fff; font-family:Montserrat,sans-serif; text-transform:uppercase; letter-spacing:0.5px;">Fotos</span>
+</button>
 <button onclick="mostrarPlacas()" style="flex:1; height:100%; background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775959565/Gemini_Generated_Image_a3ra8ha3ra8ha3ra_f87xva.png'); background-size:cover; background-position:center; border:none; border-radius:8px; cursor:pointer;">
 </button>
 <button onclick="ciclarTema()" style="flex:1; height:100%; background-image:url('https://res.cloudinary.com/dowqjeoym/image/upload/v1775959732/Gemini_Generated_Image_bqyraebqyraebqyr_mlpfhv.png'); background-size:cover; background-position:center; border:none; border-radius:8px; cursor:pointer;">
@@ -909,6 +913,7 @@ body {
     <span class="tab-link inactivo" id="tab-pedidos" onclick="mostrarPedidos()">📋 Pedidos</span>
 
     <!-- MARKETING — separado a la derecha -->
+    <span class="tab-mkt inactivo" id="tab-fotos-vehiculo" onclick="mostrarFotosVehiculo()">📸 Fotos Vehículo</span>
     <span class="tab-mkt inactivo" id="tab-placas" onclick="mostrarPlacas()">🎨 Placas</span>
     <span class="tab-mkt inactivo" id="tab-cm" onclick="mostrarCM()">📅 Community</span>
     <span class="tab-mkt inactivo" id="tab-metricas" onclick="mostrarMetricas()">📊 Métricas</span>
@@ -4391,7 +4396,7 @@ function mktSetLayout(id) {
             3: { titleY: 55, bodyY: 78, ctaY: 88, brandingY: 94 },
             4: { titleY: 36, bodyY: 56, ctaY: 68, brandingY: 94 },
             5: { titleY: 55, bodyY: 78, ctaY: 88, brandingY: 94 },
-        };
+        };s
         const d = defaults[id] || defaults[1];
         mktConfig.titleY    = d.titleY;
         mktConfig.bodyY     = d.bodyY;
