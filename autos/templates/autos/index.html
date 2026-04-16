@@ -4749,7 +4749,7 @@ function mktDrawPost(ctx, W, H) {
         // Re-dibujamos con el Y correcto
         ctx.clearRect(0, 8, W, H - 8);
         drawFondo(cfg.gradientOpacity);
-        const tY = H * (cfg.titleY / 100); - 62) * 5;
+        const tY = H * (cfg.titleY / 100);
         ctx.fillStyle = '#E31E24';
         ctx.fillRect(cfg.titlePad, tY - 20, 100, 5);
         ctx.fillStyle = '#fff';
