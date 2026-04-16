@@ -133,12 +133,12 @@ function fvHitTest(cx, cy) {
 }
 
 function fvBindCanvas() {
-    const canvas = FV.canvas;
-
-    // Clonar el canvas para remover todos los listeners anteriores
-    const nuevo = canvas.cloneNode(true);
-    canvas.parentNode.replaceChild(nuevo, canvas);
+    // Clonar canvas para remover todos los listeners anteriores
+    const canvasViejo = FV.canvas;
+    const nuevo = canvasViejo.cloneNode(true);
+    canvasViejo.parentNode.replaceChild(nuevo, canvasViejo);
     FV.canvas = nuevo;
+    FV.ctx = nuevo.getContext('2d');
 
     let dragStart = null;
 
