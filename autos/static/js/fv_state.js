@@ -150,6 +150,11 @@ function fvSetModo(modo) {
 // También muestra/oculta el control de foto 2.
 function fvSetLayout(n) {
     FV.layout = n;
+    // --- NUEVO: Resetear caché de posiciones al cambiar de layout ---
+    FV.elementos.forEach(el => {
+        el.hasMoved = false;
+        el.hasResized = false;
+    });
 
     // Resaltar botón activo en ambos selectores
     document.querySelectorAll('.fv-layout-btn').forEach(btn => {
