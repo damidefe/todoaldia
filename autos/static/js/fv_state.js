@@ -3,7 +3,7 @@
 // Todo @l Día
 // Separado de fv_editor.js para que index.html
 // e index_app.html compartan el mismo estado
-// sin duplicar código.
+// sin duplicar código.trampa
 // ══════════════════════════════════════════════
 
 const FV = {
