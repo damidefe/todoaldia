@@ -124,11 +124,24 @@ function fvDrawOverlayTop(ctx, W, H, hasta) {
 // Lee los valores de los sliders de posición Y.
 // Devuelve coordenadas en píxeles del canvas.
 function fvGetSliders(H) {
-    return {
+    const sl = {
         tituloY:   parseFloat(document.getElementById('fv-titulo-y').value)   / 100 * H,
         bulletsY:  parseFloat(document.getElementById('fv-bullets-y').value)  / 100 * H,
         brandingY: parseFloat(document.getElementById('fv-branding-y').value) / 100 * H,
     };
+    // Sincronizar FV.elementos con los sliders para que fvHitTest funcione.
+    // Lo hacemos acá porque fvGetSliders se llama en cada draw,
+    // así los elementos siempre reflejan la posición real del texto.
+    const W = FV.W;
+    FV.elementos.forEach(el => {
+        if (el.id === 'titulo')   { el.x = W * 0.07; el.y = sl.tituloY; }
+        if (el.id === 'badge')    { el.x = W * 0.07; el.y = sl.bulletsY - 80; }
+        if (el.id === 'bullet1')  { el.x = W * 0.08; el.y = sl.bulletsY; }
+        if (el.id === 'bullet2')  { el.x = W * 0.08; el.y = sl.bulletsY + 60; }
+        if (el.id === 'bullet3')  { el.x = W * 0.08; el.y = sl.bulletsY + 120; }
+        if (el.id === 'branding') { el.x = W * 0.5;  el.y = sl.brandingY; }
+    });
+    return sl;
 }
 
 
@@ -168,7 +181,6 @@ function fvDraw() {
 
     if (!esPrincipal) {
         fvDrawSoloLogo(ctx, W, H);
-        fvSincronizarElementos(W, H);
         fvDrawElementosEditables(ctx);
         return;
     }
@@ -182,7 +194,6 @@ function fvDraw() {
         if (fnStory) fnStory(ctx, W, H);
     }
 
-    fvSincronizarElementos(W, H);
     fvDrawElementosEditables(ctx);
 }
 
