@@ -145,7 +145,7 @@ function fvDraw() {
 
     // Limpiar canvas y fondo base
     ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = '#0d0d0d';
+    ctx.fillStyle = '#1a0a2e';
     ctx.fillRect(0, 0, W, H);
 
     const isPost      = FV.modo === 'post-principal' || FV.modo === 'post-logo';
