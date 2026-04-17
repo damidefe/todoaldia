@@ -138,12 +138,27 @@ function fvGetSliders(H) {
 // según el modo y layout activos.
 // ══════════════════════════════════════════════
 
+// Sincroniza FV.elementos con las posiciones reales de los sliders.
+// Esto permite que fvHitTest encuentre los elementos correctamente
+// después de que los sliders los mueven.
+function fvSincronizarElementos(W, H) {
+    const sl = fvGetSliders(H);
+    FV.elementos.forEach(el => {
+        if (el.id === 'titulo')   { el.x = W * 0.07; el.y = sl.tituloY; }
+        if (el.id === 'badge')    { el.x = W * 0.07; el.y = sl.bulletsY - 80; }
+        if (el.id === 'bullet1')  { el.x = W * 0.08; el.y = sl.bulletsY; }
+        if (el.id === 'bullet2')  { el.x = W * 0.08; el.y = sl.bulletsY + 58; }
+        if (el.id === 'bullet3')  { el.x = W * 0.08; el.y = sl.bulletsY + 116; }
+        if (el.id === 'branding') { el.x = W * 0.5;  el.y = sl.brandingY; }
+        if (el.id === 'logo')     { el.x = W * 0.5;  el.y = FV.logoPos === 'top' ? H * 0.07 : H * 0.93; }
+    });
+}
+
 function fvDraw() {
     if (!FV.canvas) return;
     const ctx = FV.ctx;
     const W = FV.W, H = FV.H;
 
-    // Limpiar canvas y fondo base
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = '#1a0a2e';
     ctx.fillRect(0, 0, W, H);
@@ -153,10 +168,11 @@ function fvDraw() {
 
     if (!esPrincipal) {
         fvDrawSoloLogo(ctx, W, H);
+        fvSincronizarElementos(W, H);
+        fvDrawElementosEditables(ctx);
         return;
     }
 
-    // Llamar al layout correcto
     const layout = FV.layout || 1;
     if (isPost) {
         const fnPost = [null, fvDrawP1, fvDrawP2, fvDrawP3, fvDrawP4, fvDrawP5, fvDrawP6][layout];
@@ -166,7 +182,7 @@ function fvDraw() {
         if (fnStory) fnStory(ctx, W, H);
     }
 
-    // Siempre dibujar los elementos arrastrables encima
+    fvSincronizarElementos(W, H);
     fvDrawElementosEditables(ctx);
 }
 
