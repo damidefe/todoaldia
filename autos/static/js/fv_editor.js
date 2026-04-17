@@ -1155,11 +1155,26 @@ function fvCargarFotoURL(url) {
             document.getElementById('fv-zoom').value = 1;
             fvDraw();
         };
-        img2.src = url + '?nocache=' + Date.now();
+        // SOLUCIÓN PARA img2:
+        if (url.startsWith('data:image')) {
+            img2.src = url;
+        } else {
+            // Si ya tiene parámetros, usar '&', si no, usar '?'
+            const separador = url.includes('?') ? '&' : '?';
+            img2.src = url + separador + 'nocache=' + Date.now();
+        }
     };
-    img.src = url + '?t=' + Date.now();
+    
+    // SOLUCIÓN PARA img1:
+    if (url.startsWith('data:image')) {
+        // Es un Base64 (archivo local), no se le puede agregar ?t=...
+        img.src = url;
+    } else {
+        // Es una URL del servidor, se le agrega para evitar caché
+        const separador = url.includes('?') ? '&' : '?';
+        img.src = url + separador + 't=' + Date.now();
+    }
 }
-
 
 // ══════════════════════════════════════════════
 // SELECTOR DE AUTO
