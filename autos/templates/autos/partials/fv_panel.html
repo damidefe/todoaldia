@@ -1,0 +1,515 @@
+{% comment %}
+  fv_panel.html — Panel completo del editor de placas
+  Se incluye en index.html e index_app.html con:
+  {% include "autos/partials/fv_panel.html" %}
+  
+  Depende de:
+    - /static/js/fv_state.js   (FV, fvSetModo, fvInit, fvSetLayout)
+    - /static/js/fv_editor.js  (fvDraw, fvBindCanvas, fvCargarFoto...)
+{% endcomment %}
+
+<div id="panel-fotos-vehiculo" style="display:none; background:#0d0d0d; height:100vh; overflow:hidden; position:relative;">
+
+    <!-- ── HEADER ── -->
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid #1a1a1a; background:#111;">
+        <div>
+            <div style="font-size:8px; color:#E31E24; font-weight:900; letter-spacing:3px; text-transform:uppercase; margin-bottom:2px;">Marketing Studio</div>
+            <div style="font-size:14px; font-weight:900; color:#fff;">📸 Editor de Placas</div>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+            <select id="fv-selector-auto" onchange="fvCambiarAuto(this.value)"
+                style="background:#1a1a1a; border:1px solid #333; border-radius:7px; padding:6px 12px;
+                       color:#fff; font-size:10px; font-weight:700; font-family:'Montserrat',sans-serif;
+                       cursor:pointer; min-width:200px; max-width:300px;">
+                <option value="">— Elegir auto —</option>
+            </select>
+            <button onclick="fvCerrar()"
+                style="background:#1a1a1a; border:1px solid #333; border-radius:7px; padding:6px 12px;
+                       color:#888; font-size:10px; font-weight:900; cursor:pointer; font-family:'Montserrat',sans-serif;">
+                ✕ Cerrar
+            </button>
+        </div>
+    </div>
+
+    <!-- ── BODY: 3 columnas ── -->
+    <div style="display:grid; grid-template-columns:220px 1fr 270px; height:calc(100vh - 53px); overflow:hidden;">
+
+        <!-- ════════════════════════════════════
+             COL IZQUIERDA — modo + layouts + foto
+             ════════════════════════════════════ -->
+        <div style="background:#111; border-right:1px solid #1a1a1a; overflow-y:auto; display:flex; flex-direction:column;">
+
+            <!-- Modo (Story / Post) -->
+            <div style="padding:12px 14px; border-bottom:1px solid #1a1a1a;">
+                <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Modo</div>
+                <div style="display:flex; flex-direction:column; gap:4px;">
+                    <button onclick="fvSetModo('story-principal')" id="fv-modo-story-principal"
+                        style="padding:8px 10px; font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:1px;
+                               cursor:pointer; background:#E31E24; border:none; border-radius:6px; color:#fff;
+                               font-family:'Montserrat',sans-serif; text-align:left;">
+                        📱 Story Principal
+                    </button>
+                    <button onclick="fvSetModo('post-principal')" id="fv-modo-post-principal"
+                        style="padding:8px 10px; font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:1px;
+                               cursor:pointer; background:#1a1a1a; border:1px solid #2a2a2a; border-radius:6px; color:#555;
+                               font-family:'Montserrat',sans-serif; text-align:left;">
+                        🖼️ Post Principal
+                    </button>
+                    <button onclick="fvSetModo('story-logo')" id="fv-modo-story-logo"
+                        style="padding:8px 10px; font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:1px;
+                               cursor:pointer; background:#1a1a1a; border:1px solid #2a2a2a; border-radius:6px; color:#555;
+                               font-family:'Montserrat',sans-serif; text-align:left;">
+                        📱 Story Solo Logo
+                    </button>
+                    <button onclick="fvSetModo('post-logo')" id="fv-modo-post-logo"
+                        style="padding:8px 10px; font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:1px;
+                               cursor:pointer; background:#1a1a1a; border:1px solid #2a2a2a; border-radius:6px; color:#555;
+                               font-family:'Montserrat',sans-serif; text-align:left;">
+                        🖼️ Post Solo Logo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Posición logo (solo en modos logo) -->
+            <div id="fv-logo-pos-wrap" style="display:none; padding:12px 14px; border-bottom:1px solid #1a1a1a;">
+                <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Posición del Logo</div>
+                <div style="display:flex; gap:4px;">
+                    <button onclick="fvSetLogoPos('top')" id="fv-logo-top"
+                        style="flex:1; padding:7px; font-size:9px; font-weight:900; cursor:pointer;
+                               background:#1a1a1a; border:1px solid #2a2a2a; border-radius:6px; color:#555; font-family:'Montserrat',sans-serif;">
+                        ⬆ Arriba
+                    </button>
+                    <button onclick="fvSetLogoPos('bottom')" id="fv-logo-bottom"
+                        style="flex:1; padding:7px; font-size:9px; font-weight:900; cursor:pointer;
+                               background:#E31E24; border:none; border-radius:6px; color:#fff; font-family:'Montserrat',sans-serif;">
+                        ⬇ Abajo
+                    </button>
+                </div>
+            </div>
+
+            <!-- ── SELECTOR LAYOUTS STORY ── -->
+            <!-- Cada botón tiene data-layout y data-tipo para que
+                 fvSetLayout() sepa cuál resaltar -->
+            <div id="fv-layouts-story" style="padding:12px 14px; border-bottom:1px solid #1a1a1a;">
+                <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Layout Story</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:5px;">
+
+                    <button class="fv-layout-btn" data-layout="1" data-tipo="story"
+                        onclick="fvSetLayout(1)"
+                        style="border:2px solid #E31E24; border-radius:5px; background:#1a1a1a;
+                               cursor:pointer; padding:4px; display:flex; flex-direction:column; align-items:center; gap:2px;">
+                        <!-- Miniatura SVG: foto full -->
+                        <svg width="36" height="64" viewBox="0 0 36 64" style="border-radius:3px;">
+                            <rect width="36" height="64" fill="#222"/>
+                            <rect y="40" width="36" height="24" fill="rgba(0,0,0,0.7)"/>
+                            <rect x="4" y="42" width="20" height="3" rx="1" fill="#fff"/>
+                            <rect x="4" y="47" width="16" height="2" rx="1" fill="#888"/>
+                            <rect x="4" y="51" width="16" height="2" rx="1" fill="#888"/>
+                            <rect x="4" y="55" width="16" height="2" rx="1" fill="#888"/>
+                            <rect x="4" y="60" width="28" height="2" rx="1" fill="#E31E24"/>
+                        </svg>
+                        <span style="font-size:7px; color:#888; font-family:'Montserrat',sans-serif; font-weight:700;">Full foto</span>
+                    </button>
+
+                    <button class="fv-layout-btn" data-layout="2" data-tipo="story"
+                        onclick="fvSetLayout(2)"
+                        style="border:2px solid #2a2a2a; border-radius:5px; background:#1a1a1a;
+                               cursor:pointer; padding:4px; display:flex; flex-direction:column; align-items:center; gap:2px; opacity:0.5;">
+                        <!-- Miniatura: 2 fotos -->
+                        <svg width="36" height="64" viewBox="0 0 36 64" style="border-radius:3px;">
+                            <rect width="36" height="64" fill="#111"/>
+                            <rect width="36" height="28" fill="#2a2a2a"/>
+                            <rect y="36" width="36" height="28" fill="#333"/>
+                            <rect y="28" width="36" height="8" fill="#0a0a0a"/>
+                            <rect y="29" width="36" height="2" fill="#E31E24"/>
+                            <rect y="34" width="36" height="2" fill="#E31E24"/>
+                            <rect x="4" y="31" width="28" height="2" rx="1" fill="#fff"/>
+                        </svg>
+                        <span style="font-size:7px; color:#888; font-family:'Montserrat',sans-serif; font-weight:700;">2 fotos</span>
+                    </button>
+
+                    <button class="fv-layout-btn" data-layout="3" data-tipo="story"
+                        onclick="fvSetLayout(3)"
+                        style="border:2px solid #2a2a2a; border-radius:5px; background:#1a1a1a;
+                               cursor:pointer; padding:4px; display:flex; flex-direction:column; align-items:center; gap:2px; opacity:0.5;">
+                        <!-- Miniatura: diagonal roja -->
+                        <svg width="36" height="64" viewBox="0 0 36 64" style="border-radius:3px;">
+                            <rect width="36" height="64" fill="#111"/>
+                            <rect width="36" height="38" fill="#2a2a2a"/>
+                            <polygon points="0,36 36,38 36,42 0,40" fill="#E31E24"/>
+                            <rect x="4" y="44" width="22" height="3" rx="1" fill="#fff"/>
+                            <rect x="4" y="50" width="14" height="2" rx="1" fill="#555"/>
+                            <rect x="4" y="54" width="14" height="2" rx="1" fill="#555"/>
+                        </svg>
+                        <span style="font-size:7px; color:#888; font-family:'Montserrat',sans-serif; font-weight:700;">Diagonal</span>
+                    </button>
+
+                    <button class="fv-layout-btn" data-layout="4" data-tipo="story"
+                        onclick="fvSetLayout(4)"
+                        style="border:2px solid #2a2a2a; border-radius:5px; background:#1a1a1a;
+                               cursor:pointer; padding:4px; display:flex; flex-direction:column; align-items:center; gap:2px; opacity:0.5;">
+                        <!-- Miniatura: tipográfico -->
+                        <svg width="36" height="64" viewBox="0 0 36 64" style="border-radius:3px;">
+                            <rect width="36" height="64" fill="#111"/>
+                            <rect width="36" height="64" fill="rgba(0,0,0,0.5)"/>
+                            <rect x="4" y="38" width="8" height="2" rx="1" fill="#E31E24"/>
+                            <rect x="4" y="43" width="28" height="6" rx="1" fill="#fff"/>
+                            <rect x="4" y="51" width="20" height="6" rx="1" fill="#E31E24"/>
+                            <rect x="4" y="59" width="24" height="3" rx="1" fill="#fff"/>
+                        </svg>
+                        <span style="font-size:7px; color:#888; font-family:'Montserrat',sans-serif; font-weight:700;">Tipográfico</span>
+                    </button>
+
+                    <button class="fv-layout-btn" data-layout="5" data-tipo="story"
+                        onclick="fvSetLayout(5)"
+                        style="border:2px solid #2a2a2a; border-radius:5px; background:#1a1a1a;
+                               cursor:pointer; padding:4px; display:flex; flex-direction:column; align-items:center; gap:2px; opacity:0.5;">
+                        <!-- Miniatura: marco rojo -->
+                        <svg width="36" height="64" viewBox="0 0 36 64" style="border-radius:3px;">
+                            <rect width="36" height="64" fill="#111"/>
+                            <rect width="36" height="64" fill="rgba(0,0,0,0.4)"/>
+                            <rect x="3" y="3" width="30" height="58" rx="2" fill="none" stroke="#E31E24" stroke-width="2"/>
+                            <rect x="8" y="28" width="20" height="4" rx="1" fill="#fff"/>
+                            <rect x="10" y="34" width="16" height="2" rx="1" fill="#E31E24"/>
+                        </svg>
+                        <span style="font-size:7px; color:#888; font-family:'Montserrat',sans-serif; font-weight:700;">Marco</span>
+                    </button>
+
+                    <button class="fv-layout-btn" data-layout="6" data-tipo="story"
+                        onclick="fvSetLayout(6)"
+                        style="border:2px solid #2a2a2a; border-radius:5px; background:#1a1a1a;
+                               cursor:pointer; padding:4px; display:flex; flex-direction:column; align-items:center; gap:2px; opacity:0.5;">
+                        <!-- Miniatura: foto + chips -->
+                        <svg width="36" height="64" viewBox="0 0 36 64" style="border-radius:3px;">
+                            <rect width="36" height="64" fill="#111"/>
+                            <rect width="36" height="52" fill="#2a2a2a"/>
+                            <rect y="52" width="36" height="12" fill="#0d0d0d"/>
+                            <rect x="3" y="54" width="10" height="4" rx="1" fill="#222" stroke="#333" stroke-width="0.5"/>
+                            <rect x="15" y="54" width="10" height="4" rx="1" fill="#222" stroke="#333" stroke-width="0.5"/>
+                            <rect x="4" y="45" width="20" height="3" rx="1" fill="#fff"/>
+                        </svg>
+                        <span style="font-size:7px; color:#888; font-family:'Montserrat',sans-serif; font-weight:700;">Foto+chips</span>
+                    </button>
+
+                </div>
+            </div>
+
+            <!-- ── SELECTOR LAYOUTS POST ── -->
+            <div id="fv-layouts-post" style="display:none; padding:12px 14px; border-bottom:1px solid #1a1a1a;">
+                <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Layout Post</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:5px;">
+
+                    <button class="fv-layout-btn" data-layout="1" data-tipo="post"
+                        onclick="fvSetLayout(1)"
+                        style="border:2px solid #E31E24; border-radius:5px; background:#1a1a1a;
+                               cursor:pointer; padding:4px; display:flex; flex-direction:column; align-items:center; gap:2px;">
+                        <svg width="36" height="45" viewBox="0 0 36 45" style="border-radius:3px;">
+                            <rect width="36" height="45" fill="#222"/>
+                            <rect y="28" width="36" height="17" fill="rgba(0,0,0,0.75)"/>
+                            <rect x="4" y="30" width="20" height="3" rx="1" fill="#fff"/>
+                            <rect x="4" y="35" width="14" height="2" rx="1" fill="#888"/>
+                            <rect x="4" y="39" width="14" height="2" rx="1" fill="#888"/>
+                            <rect x="4" y="43" width="28" height="1" rx="0.5" fill="#E31E24"/>
+                        </svg>
+                        <span style="font-size:7px; color:#888; font-family:'Montserrat',sans-serif; font-weight:700;">Full foto</span>
+                    </button>
+
+                    <button class="fv-layout-btn" data-layout="2" data-tipo="post"
+                        onclick="fvSetLayout(2)"
+                        style="border:2px solid #2a2a2a; border-radius:5px; background:#1a1a1a;
+                               cursor:pointer; padding:4px; display:flex; flex-direction:column; align-items:center; gap:2px; opacity:0.5;">
+                        <svg width="36" height="45" viewBox="0 0 36 45" style="border-radius:3px;">
+                            <rect width="36" height="45" fill="#111"/>
+                            <rect width="17" height="35" fill="#2a2a2a"/>
+                            <rect x="19" width="17" height="35" fill="#333"/>
+                            <rect x="18" width="2" height="35" fill="#E31E24"/>
+                            <rect y="35" width="36" height="10" fill="#0a0a0a"/>
+                            <rect x="4" y="37" width="28" height="2" rx="1" fill="#fff"/>
+                            <rect x="8" y="41" width="20" height="1.5" rx="0.5" fill="#E31E24"/>
+                        </svg>
+                        <span style="font-size:7px; color:#888; font-family:'Montserrat',sans-serif; font-weight:700;">2 fotos</span>
+                    </button>
+
+                    <button class="fv-layout-btn" data-layout="3" data-tipo="post"
+                        onclick="fvSetLayout(3)"
+                        style="border:2px solid #2a2a2a; border-radius:5px; background:#1a1a1a;
+                               cursor:pointer; padding:4px; display:flex; flex-direction:column; align-items:center; gap:2px; opacity:0.5;">
+                        <svg width="36" height="45" viewBox="0 0 36 45" style="border-radius:3px;">
+                            <rect width="36" height="45" fill="#000"/>
+                            <rect width="36" height="28" fill="#2a2a2a"/>
+                            <rect y="28" width="36" height="17" fill="#0d0d0d"/>
+                            <rect x="4" y="30" width="8" height="2" rx="1" fill="#E31E24"/>
+                            <rect x="4" y="34" width="22" height="3" rx="1" fill="#fff"/>
+                            <rect x="4" y="39" width="12" height="1.5" rx="0.5" fill="#555"/>
+                        </svg>
+                        <span style="font-size:7px; color:#888; font-family:'Montserrat',sans-serif; font-weight:700;">Foto+franja</span>
+                    </button>
+
+                    <button class="fv-layout-btn" data-layout="4" data-tipo="post"
+                        onclick="fvSetLayout(4)"
+                        style="border:2px solid #2a2a2a; border-radius:5px; background:#1a1a1a;
+                               cursor:pointer; padding:4px; display:flex; flex-direction:column; align-items:center; gap:2px; opacity:0.5;">
+                        <svg width="36" height="45" viewBox="0 0 36 45" style="border-radius:3px;">
+                            <rect width="36" height="45" fill="#111"/>
+                            <rect width="36" height="45" fill="rgba(0,0,0,0.4)"/>
+                            <rect x="4" y="28" width="28" height="14" rx="3" fill="#E31E24"/>
+                            <rect x="7" y="31" width="20" height="3" rx="1" fill="#fff"/>
+                            <rect x="7" y="36" width="14" height="2" rx="1" fill="rgba(255,255,255,0.6)"/>
+                        </svg>
+                        <span style="font-size:7px; color:#888; font-family:'Montserrat',sans-serif; font-weight:700;">Bloque rojo</span>
+                    </button>
+
+                    <button class="fv-layout-btn" data-layout="5" data-tipo="post"
+                        onclick="fvSetLayout(5)"
+                        style="border:2px solid #2a2a2a; border-radius:5px; background:#1a1a1a;
+                               cursor:pointer; padding:4px; display:flex; flex-direction:column; align-items:center; gap:2px; opacity:0.5;">
+                        <svg width="36" height="45" viewBox="0 0 36 45" style="border-radius:3px;">
+                            <rect width="36" height="45" fill="#fff"/>
+                            <rect width="36" height="25" fill="#2a2a2a"/>
+                            <rect x="4" y="27" width="6" height="1.5" rx="0.5" fill="#E31E24"/>
+                            <rect x="4" y="30" width="28" height="5" rx="1" fill="#111"/>
+                            <rect x="4" y="37" width="36" height="0.5" fill="#eee"/>
+                            <rect x="4" y="39" width="8" height="3" rx="1" fill="#ddd"/>
+                            <rect x="14" y="39" width="8" height="3" rx="1" fill="#ddd"/>
+                        </svg>
+                        <span style="font-size:7px; color:#888; font-family:'Montserrat',sans-serif; font-weight:700;">Editorial</span>
+                    </button>
+
+                    <button class="fv-layout-btn" data-layout="6" data-tipo="post"
+                        onclick="fvSetLayout(6)"
+                        style="border:2px solid #2a2a2a; border-radius:5px; background:#1a1a1a;
+                               cursor:pointer; padding:4px; display:flex; flex-direction:column; align-items:center; gap:2px; opacity:0.5;">
+                        <svg width="36" height="45" viewBox="0 0 36 45" style="border-radius:3px;">
+                            <rect width="36" height="45" fill="#E31E24"/>
+                            <polygon points="0,0 26,0 22,45 0,45" fill="#2a2a2a"/>
+                            <rect x="24" y="10" width="8" height="5" rx="1" fill="rgba(255,255,255,0.3)"/>
+                            <rect x="24" y="17" width="8" height="5" rx="1" fill="rgba(255,255,255,0.3)"/>
+                            <rect x="24" y="24" width="8" height="5" rx="1" fill="rgba(255,255,255,0.3)"/>
+                        </svg>
+                        <span style="font-size:7px; color:#888; font-family:'Montserrat',sans-serif; font-weight:700;">Geométrico</span>
+                    </button>
+
+                </div>
+            </div>
+
+            <!-- ── FOTO 1 ── -->
+            <div style="padding:12px 14px; border-bottom:1px solid #1a1a1a;">
+                <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Foto principal</div>
+                <div id="fv-fotos-crm" style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:10px;">
+                    <div style="color:#444; font-size:10px;">Abrí un auto primero</div>
+                </div>
+                <label style="display:block; background:#1a1a1a; border:1px dashed #333; border-radius:7px;
+                              padding:10px; text-align:center; cursor:pointer; font-size:10px; color:#555; font-weight:700;">
+                    📁 Subir foto 1
+                    <input type="file" accept="image/*" onchange="fvCargarFotoNueva(this)" style="display:none;">
+                </label>
+                <div style="margin-top:8px;">
+                    <div style="font-size:8px; color:#555; font-weight:700; margin-bottom:4px;">Zoom foto 1</div>
+                    <input type="range" id="fv-zoom" min="0.5" max="3" step="0.01" value="1"
+                        oninput="fvDraw()" style="width:100%; accent-color:#E31E24;">
+                </div>
+            </div>
+
+            <!-- ── FOTO 2 (oculta por defecto, aparece en layout 2) ── -->
+            <!-- ¿Por qué display:none? Porque solo los layouts de 2 fotos
+                 la necesitan. fvActualizarVisibilidadFoto2() la muestra/oculta. -->
+            <div id="fv-foto2-wrap" style="display:none; padding:12px 14px; border-bottom:1px solid #1a1a1a; background:#0d0d0d;">
+                <div style="font-size:8px; color:#E31E24; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Foto 2 (interior / detalle)</div>
+                <label style="display:block; background:#1a1a1a; border:1px dashed #E31E24; border-radius:7px;
+                              padding:10px; text-align:center; cursor:pointer; font-size:10px; color:#E31E24; font-weight:700; margin-bottom:6px;">
+                    📁 Subir foto 2
+                    <input type="file" accept="image/*" onchange="fvCargarFoto2Nueva(this)" style="display:none;">
+                </label>
+                <!-- Botón swap: intercambia foto 1 y foto 2 -->
+                <button onclick="fvSwapFotos()"
+                    style="width:100%; padding:7px; font-size:9px; font-weight:900; cursor:pointer;
+                           background:#1a1a1a; border:1px solid #333; border-radius:6px; color:#888;
+                           font-family:'Montserrat',sans-serif; margin-bottom:8px;">
+                    🔄 Intercambiar foto 1 ↔ 2
+                </button>
+                <div style="font-size:8px; color:#555; font-weight:700; margin-bottom:4px;">Zoom foto 2</div>
+                <input type="range" id="fv-zoom2" min="0.5" max="3" step="0.01" value="1"
+                    oninput="fvDraw()" style="width:100%; accent-color:#E31E24;">
+            </div>
+
+        </div>
+
+        <!-- ════════════════════════════════════
+             COL CENTRAL — canvas
+             ════════════════════════════════════ -->
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center;
+                    background:#0d0d0d; overflow:hidden; position:relative;">
+            <div id="fv-canvas-wrap" style="position:relative; touch-action:none;">
+                <canvas id="fv-canvas" style="border-radius:10px; max-width:100%; max-height:calc(100vh - 130px); display:block;"></canvas>
+
+                <!-- Toolbar contextual -->
+                <div id="fv-toolbar" style="display:none; position:absolute; top:-44px; left:50%; transform:translateX(-50%);
+                    background:#1a1a1a; border:1px solid #333; border-radius:8px; padding:4px 8px;
+                    gap:6px; align-items:center; white-space:nowrap; z-index:10;">
+                    <button onclick="fvToolbarFontSize(-2)" style="background:transparent; border:none; color:#fff; font-size:14px; cursor:pointer; padding:2px 4px;">A-</button>
+                    <button onclick="fvToolbarFontSize(2)"  style="background:transparent; border:none; color:#fff; font-size:14px; cursor:pointer; padding:2px 4px;">A+</button>
+                    <div style="width:1px; height:16px; background:#333;"></div>
+                    <button onclick="fvToolbarColor('#fff')"     style="width:14px; height:14px; border-radius:50%; background:#fff;     border:2px solid #555; cursor:pointer;"></button>
+                    <button onclick="fvToolbarColor('#E31E24')"  style="width:14px; height:14px; border-radius:50%; background:#E31E24;  border:2px solid #555; cursor:pointer;"></button>
+                    <button onclick="fvToolbarColor('#000')"     style="width:14px; height:14px; border-radius:50%; background:#000;     border:1px solid #555; cursor:pointer;"></button>
+                    <div style="width:1px; height:16px; background:#333;"></div>
+                    <button onclick="fvDeseleccionar()" style="background:transparent; border:none; color:#555; font-size:12px; cursor:pointer; padding:2px 4px;">✕</button>
+                </div>
+
+                <!-- Input flotante para editar texto con toque largo -->
+                <textarea id="fv-texto-input"
+                    style="display:none; position:absolute; background:rgba(0,0,0,0.85); border:1px solid #E31E24;
+                           border-radius:6px; color:#fff; font-family:'Montserrat',sans-serif; font-size:13px;
+                           font-weight:900; padding:6px 10px; resize:none; outline:none; z-index:20; min-width:120px;"
+                    oninput="fvTextoInputChange()"
+                    onblur="fvTextoInputBlur()"></textarea>
+            </div>
+            <div style="font-size:9px; color:#333; font-weight:700; margin-top:8px; text-transform:uppercase; letter-spacing:1px;">
+                Tocá un elemento · Arrastrá para mover · Pinch para zoom
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════
+             COL DERECHA — controles de texto + acciones
+             ════════════════════════════════════ -->
+        <div style="background:#111; border-left:1px solid #1a1a1a; overflow-y:auto; display:flex; flex-direction:column;">
+
+            <!-- Título -->
+            <div id="fv-titulo-wrap" style="padding:12px 14px; border-bottom:1px solid #1a1a1a;">
+                <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Título del auto</div>
+                <input id="fv-titulo" placeholder="MARCA MODELO AÑO"
+                    style="width:100%; background:#1a1a1a; border:1px solid #2a2a2a; border-radius:6px;
+                           padding:7px 10px; font-size:11px; color:#fff; font-family:'Montserrat',sans-serif;
+                           font-weight:900; box-sizing:border-box;"
+                    oninput="fvDraw()">
+            </div>
+
+            <!-- Badge con toggle -->
+            <div id="fv-badge-wrap" style="padding:12px 14px; border-bottom:1px solid #1a1a1a;">
+                <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Badge (etiqueta)</div>
+                <!-- Toggle visible/oculto -->
+                <button id="fv-badge-toggle" onclick="fvToggleBadge()"
+                    style="width:100%; padding:6px; font-size:9px; font-weight:900; cursor:pointer;
+                           background:#E31E24; border:none; border-radius:6px; color:#fff;
+                           font-family:'Montserrat',sans-serif; margin-bottom:6px;">
+                    👁 Visible
+                </button>
+                <!-- Texto editable del badge -->
+                <input id="fv-badge" placeholder="NUEVO INGRESO"
+                    style="width:100%; background:#1a1a1a; border:1px solid #2a2a2a; border-radius:6px;
+                           padding:7px 10px; font-size:11px; color:#fff; font-family:'Montserrat',sans-serif;
+                           font-weight:900; box-sizing:border-box;"
+                    oninput="fvDraw()">
+            </div>
+
+            <!-- Bullets -->
+            <div id="fv-bullets-wrap" style="padding:12px 14px; border-bottom:1px solid #1a1a1a;">
+                <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Características</div>
+                <button onclick="fvGenerarBulletsIA()"
+                    style="width:100%; padding:7px; font-size:9px; font-weight:900; cursor:pointer;
+                           background:#E31E24; border:none; border-radius:6px; color:#fff;
+                           font-family:'Montserrat',sans-serif; margin-bottom:8px;">
+                    🤖 Generar con IA
+                </button>
+                <div id="fv-loading-bullets" style="display:none; font-size:10px; color:#555; text-align:center; padding:6px;">Generando...</div>
+                <input id="fv-bullet-1" placeholder="• Característica 1"
+                    style="width:100%; background:#1a1a1a; border:1px solid #2a2a2a; border-radius:6px;
+                           padding:6px 8px; font-size:10px; color:#fff; font-family:'Montserrat',sans-serif;
+                           margin-bottom:4px; box-sizing:border-box;" oninput="fvDraw()">
+                <input id="fv-bullet-2" placeholder="• Característica 2"
+                    style="width:100%; background:#1a1a1a; border:1px solid #2a2a2a; border-radius:6px;
+                           padding:6px 8px; font-size:10px; color:#fff; font-family:'Montserrat',sans-serif;
+                           margin-bottom:4px; box-sizing:border-box;" oninput="fvDraw()">
+                <input id="fv-bullet-3" placeholder="• Característica 3"
+                    style="width:100%; background:#1a1a1a; border:1px solid #2a2a2a; border-radius:6px;
+                           padding:6px 8px; font-size:10px; color:#fff; font-family:'Montserrat',sans-serif;
+                           box-sizing:border-box;" oninput="fvDraw()">
+            </div>
+
+            <!-- Sliders de posición -->
+            <div id="fv-sliders-wrap" style="padding:12px 14px; border-bottom:1px solid #1a1a1a;">
+                <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;">Posición elementos</div>
+                <div style="font-size:9px; color:#888; font-weight:700; margin-bottom:4px;">Título Y</div>
+                <input type="range" id="fv-titulo-y" min="0" max="100" value="8"
+                    oninput="fvDraw()" style="width:100%; accent-color:#E31E24; margin-bottom:10px;">
+                <div style="font-size:9px; color:#888; font-weight:700; margin-bottom:4px;">Bullets Y</div>
+                <input type="range" id="fv-bullets-y" min="50" max="100" value="72"
+                    oninput="fvDraw()" style="width:100%; accent-color:#E31E24; margin-bottom:10px;">
+                <div style="font-size:9px; color:#888; font-weight:700; margin-bottom:4px;">Branding Y</div>
+                <input type="range" id="fv-branding-y" min="80" max="100" value="93"
+                    oninput="fvDraw()" style="width:100%; accent-color:#E31E24;">
+            </div>
+
+            <!-- Color de acento -->
+            <!-- ¿Por qué un color picker nativo?
+                 El input type="color" es el más fácil de usar
+                 con el dedo en mobile — abre el selector del
+                 sistema operativo, no necesita librerías externas. -->
+            <div style="padding:12px 14px; border-bottom:1px solid #1a1a1a;">
+                <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Color de acento</div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <input type="color" id="fv-acento" value="#E31E24"
+                        oninput="fvCambiarAccento(this.value)"
+                        style="width:44px; height:36px; border:none; border-radius:6px; cursor:pointer; background:none;">
+                    <span style="font-size:10px; color:#555; font-family:'Montserrat',sans-serif; font-weight:700;" id="fv-acento-label">#E31E24</span>
+                    <!-- Botón para resetear al rojo original -->
+                    <button onclick="fvResetAccento()"
+                        style="padding:5px 8px; font-size:8px; font-weight:900; cursor:pointer;
+                               background:#1a1a1a; border:1px solid #333; border-radius:5px; color:#888;
+                               font-family:'Montserrat',sans-serif;">
+                        Reset
+                    </button>
+                </div>
+            </div>
+
+            <!-- Acciones finales -->
+            <div style="padding:14px; display:flex; flex-direction:column; gap:8px;">
+                <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:4px;">Acciones</div>
+                <button onclick="fvDescargar()"
+                    style="width:100%; padding:11px; border-radius:8px; background:#1a1a1a; border:1px solid #333;
+                           color:#fff; font-family:'Montserrat',sans-serif; font-size:10px; font-weight:900;
+                           cursor:pointer; letter-spacing:1px; text-transform:uppercase;">
+                    ⬇ Descargar PNG
+                </button>
+                <button onclick="fvAsignarAuto()"
+                    style="width:100%; padding:11px; border-radius:8px; background:#E31E24; border:none;
+                           color:#fff; font-family:'Montserrat',sans-serif; font-size:10px; font-weight:900;
+                           cursor:pointer; letter-spacing:1px; text-transform:uppercase;">
+                    📌 Asignar a un auto
+                </button>
+
+                <!-- Modal asignar -->
+                <div id="fv-asignar-modal" style="display:none; background:#0a0a0a; border:1px solid #333; border-radius:10px; padding:12px; margin-top:4px;">
+                    <div style="font-size:9px; color:#555; font-weight:900; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">Elegir auto</div>
+                    <input id="fv-asignar-buscar" placeholder="Buscar auto..."
+                        style="width:100%; background:#1a1a1a; border:1px solid #2a2a2a; border-radius:6px;
+                               padding:7px 10px; font-size:10px; color:#fff; font-family:'Montserrat',sans-serif;
+                               box-sizing:border-box; margin-bottom:8px;"
+                        oninput="fvFiltrarAutos(this.value)">
+                    <div id="fv-asignar-lista" style="max-height:200px; overflow-y:auto; display:flex; flex-direction:column; gap:4px;"></div>
+                    <button onclick="fvGuardarEnAuto()"
+                        style="width:100%; padding:9px; border-radius:7px; background:#4caf50; border:none;
+                               color:#fff; font-family:'Montserrat',sans-serif; font-size:10px; font-weight:900;
+                               cursor:pointer; margin-top:8px;">
+                        ✓ Guardar en este auto
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ── RESPONSIVE MOBILE ── -->
+    <style>
+        @media (max-width: 768px) {
+            #panel-fotos-vehiculo > div:nth-child(2) {
+                grid-template-columns: 1fr !important;
+                grid-template-rows: auto 60vh auto;
+                height: auto !important;
+                overflow-y: auto !important;
+            }
+            #fv-canvas-wrap canvas { max-height: 55vh !important; }
+        }
+    </style>
+
+</div>
