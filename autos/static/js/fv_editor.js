@@ -268,7 +268,7 @@ function fvDrawS1(ctx, W, H) {
     const sl   = fvGetSliders(H);
     fvDrawFoto(ctx, FV.imgFondo, FV.imgOffsetX, FV.imgOffsetY, zoom, 0, 0, W, H);
     fvDrawOverlayTop(ctx, W, H, 0.25);
-    fvDrawOverlayBottom(ctx, W, H, 0.45);
+    fvDrawOverlayBottom(ctx, W, H, 0.35);
 
     ctx.fillStyle = fvGetAccent();
     ctx.fillRect(W * 0.05, sl.bulletsY - 110, 7, 220);
@@ -453,7 +453,7 @@ function fvDrawP1(ctx, W, H) {
     const sl   = fvGetSliders(H);
     fvDrawFoto(ctx, FV.imgFondo, FV.imgOffsetX, FV.imgOffsetY, zoom, 0, 0, W, H);
     fvDrawOverlayTop(ctx, W, H, 0.3);
-    fvDrawOverlayBottom(ctx, W, H, 0.5);
+    fvDrawOverlayBottom(ctx, W, H, 0.38);
 
     ctx.fillStyle = fvGetAccent(); ctx.fillRect(W * 0.05, sl.bulletsY - 110, 7, 190);
 
