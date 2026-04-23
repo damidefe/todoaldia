@@ -48,12 +48,27 @@ function fvDrawOverlayTop(ctx, W, H, hasta) {
 }
 
 function fvGetSliders(H) {
-    // Ya no reescribimos las coordenadas aquí para no romper el touch
     return {
         tituloY:   parseFloat(document.getElementById('fv-titulo-y').value)   / 100 * H,
         bulletsY:  parseFloat(document.getElementById('fv-bullets-y').value)  / 100 * H,
         brandingY: parseFloat(document.getElementById('fv-branding-y').value) / 100 * H,
     };
+}
+
+function fvSliderMoved(sliderKey) {
+    // Cuando el usuario mueve un slider, reseteamos hasMoved
+    // del elemento correspondiente para que el slider tenga prioridad
+    const mapaSliderElemento = {
+        'fv-titulo-y':   ['titulo'],
+        'fv-bullets-y':  ['bullet1', 'bullet2', 'bullet3', 'badge'],
+        'fv-branding-y': ['branding'],
+    };
+    const ids = mapaSliderElemento[sliderKey] || [];
+    ids.forEach(id => {
+        const el = FV.elementos.find(e => e.id === id);
+        if (el) el.hasMoved = false;
+    });
+    fvDraw();
 }
 
 
