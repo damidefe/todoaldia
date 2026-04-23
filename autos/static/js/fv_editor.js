@@ -342,28 +342,36 @@ function fvDrawS5(ctx, W, H) {
     ctx.fillRect(margen, margen, grosor, H - margen * 2);
     ctx.fillRect(W - margen - grosor, margen, grosor, H - margen * 2);
 
+    // Título grande en el centro — independiente
     const elTitulo = fvPrepararElemento('titulo', W * 0.5, H * 0.5, 72, 'center', '#fff');
     if (elTitulo && elTitulo.texto) {
         ctx.fillText(elTitulo.texto, elTitulo.x, elTitulo.y);
-        const modelo = elTitulo.texto.split(' ')[1] || elTitulo.texto;
-        const anio = elTitulo.texto.split(' ').pop();
-        
-        ctx.font = `700 22px Montserrat, sans-serif`; ctx.fillStyle = ac; ctx.textAlign = 'left';
-        ctx.fillText('MODELO', margen + 20, margen + 44);
-        ctx.font = `900 48px Montserrat, sans-serif`; ctx.fillStyle = '#fff';
-        ctx.fillText(modelo, margen + 20, margen + 94);
-
-        ctx.font = `700 22px Montserrat, sans-serif`; ctx.fillStyle = ac; ctx.textAlign = 'right';
-        ctx.fillText('AÑO', W - margen - 20, margen + 44);
-        ctx.font = `900 48px Montserrat, sans-serif`; ctx.fillStyle = '#fff';
-        ctx.fillText(anio, W - margen - 20, margen + 94);
     }
 
-    const elBul = fvPrepararElemento('bullet1', W * 0.5, H * 0.5 + 56, 30, 'center', ac);
-    if (elBul && elBul.texto) ctx.fillText(elBul.texto, elBul.x, elBul.y);
+    // Bullet 1 → etiqueta MODELO arriba izquierda (texto libre)
+    const elB1 = fvPrepararElemento('bullet1', margen + 20, margen + 94, 48, 'left', '#fff');
+    ctx.font = `700 22px Montserrat, sans-serif`; ctx.fillStyle = ac; ctx.textAlign = 'left';
+    ctx.fillText('MODELO', margen + 20, margen + 44);
+    if (elB1 && elB1.texto) {
+        ctx.font = `900 48px Montserrat, sans-serif`; ctx.fillStyle = '#fff'; ctx.textAlign = 'left';
+        ctx.fillText(elB1.texto.replace('•', '').trim(), elB1.x, elB1.y);
+    }
+
+    // Bullet 2 → etiqueta AÑO arriba derecha (texto libre)
+    const elB2 = fvPrepararElemento('bullet2', W - margen - 20, margen + 94, 48, 'right', '#fff');
+    ctx.font = `700 22px Montserrat, sans-serif`; ctx.fillStyle = ac; ctx.textAlign = 'right';
+    ctx.fillText('AÑO', W - margen - 20, margen + 44);
+    if (elB2 && elB2.texto) {
+        ctx.font = `900 48px Montserrat, sans-serif`; ctx.fillStyle = '#fff'; ctx.textAlign = 'right';
+        ctx.fillText(elB2.texto.replace('•', '').trim(), elB2.x, elB2.y);
+    }
+
+    // Bullet 3 → línea de detalle bajo el título
+    const elB3 = fvPrepararElemento('bullet3', W * 0.5, H * 0.5 + 56, 30, 'center', ac);
+    if (elB3 && elB3.texto) ctx.fillText(elB3.texto.replace('•', '').trim(), elB3.x, elB3.y);
 
     fvDrawBadge(ctx, margen + 20, H - margen - 60, 28);
-    
+
     const elBrand = fvPrepararElemento('branding', W - margen - 20, H - margen - 44, 28, 'right', '#fff');
     if (elBrand) {
         ctx.fillText('TODO @L DÍA', elBrand.x, elBrand.y);
