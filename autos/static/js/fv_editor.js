@@ -128,7 +128,9 @@ function fvDrawBadge(ctx, defX, defY, defSize, bgColor = null, textColor = '#fff
     ctx.fill();
     ctx.fillStyle = el.color;
     ctx.textAlign = 'center';
-    ctx.fillText(el.texto, tx, el.y);
+    ctx.textBaseline = 'middle';
+    ctx.fillText(el.texto, tx, el.y - ph / 2 + 4 + ph / 2);
+    ctx.textBaseline = 'alphabetic';
     return el;
 }
 
