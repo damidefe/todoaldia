@@ -207,7 +207,35 @@ function fvDraw() {
     fvDrawElementosEditables(ctx);
 }
 
-fvDrawElementosEditables
+function fvGetBoundingBox(el) {
+    FV.ctx.font = `${el.bold ? '900' : '500'} ${el.fontSize}px Montserrat, sans-serif`;
+    const tw = FV.ctx.measureText(el.texto || '').width;
+    let x0 = el.x - 10;
+    if (el.textAlign === 'center' || el.esBranding) {
+        x0 = el.x - (tw / 2) - 10;
+    } else if (el.textAlign === 'right') {
+        x0 = el.x - tw - 10;
+    }
+    const y0 = el.y - el.fontSize - 4;
+    return { x0, y0, w: tw + 20, h: el.fontSize + 16 };
+}
+
+function fvDrawElementosEditables(ctx) {
+    if (!FV.elSeleccionado) return;
+    const el = FV.elSeleccionado;
+    const bb = fvGetBoundingBox(el);
+
+    ctx.strokeStyle = '#1a8fe3';
+    ctx.lineWidth   = 3;
+    ctx.strokeRect(bb.x0, bb.y0, bb.w, bb.h);
+
+    const hx = bb.x0 + bb.w - 10;
+    const hy = bb.y0 + bb.h - 10;
+    ctx.fillStyle = '#1a8fe3';
+    ctx.fillRect(hx, hy, 20, 20);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(hx + 4, hy + 4, 12, 12);
+}
 
 function fvDrawSoloLogo(ctx, W, H) {
     const zoom = parseFloat(document.getElementById('fv-zoom').value);
