@@ -150,17 +150,27 @@ function fvSetModo(modo) {
 // También muestra/oculta el control de foto 2.
 function fvSetLayout(n) {
     FV.layout = n;
-    // --- NUEVO: Resetear caché de posiciones al cambiar de layout ---
+
+    // Resetear posiciones de elementos
     FV.elementos.forEach(el => {
         el.hasMoved = false;
         el.hasResized = false;
     });
 
+    // Resetear sliders a valores default
+    const tituloY   = document.getElementById('fv-titulo-y');
+    const bulletsY  = document.getElementById('fv-bullets-y');
+    const brandingY = document.getElementById('fv-branding-y');
+    if (tituloY)   tituloY.value   = '8';
+    if (bulletsY)  bulletsY.value  = '72';
+    if (brandingY) brandingY.value = '93';
+    // -----------------------------------------------------------------
+
     // Resaltar botón activo en ambos selectores
     document.querySelectorAll('.fv-layout-btn').forEach(btn => {
         const activo = parseInt(btn.dataset.layout) === n &&
                        btn.dataset.tipo === (FV.modo.startsWith('post') ? 'post' : 'story');
-        btn.style.borderColor = activo ? fvGetAccent() : '#2a2a2a';
+        btn.style.borderColor = activo ? FV.acento || '#E31E24' : '#2a2a2a';
         btn.style.opacity     = activo ? '1' : '0.5';
     });
 
