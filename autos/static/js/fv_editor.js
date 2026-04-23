@@ -458,10 +458,10 @@ function fvDrawP1(ctx, W, H) {
     ctx.fillStyle = fvGetAccent(); ctx.fillRect(W * 0.05, sl.bulletsY - 110, 7, 190);
 
     fvDrawTitulo(ctx, W * 0.05, sl.tituloY, 68);
-    fvDrawBadge(ctx, W * 0.07, sl.bulletsY - 60, 30);
-    fvDrawBullet(ctx, 'bullet1', W * 0.08, sl.bulletsY, 34);
-    fvDrawBullet(ctx, 'bullet2', W * 0.08, sl.bulletsY + 60, 34);
-    fvDrawBullet(ctx, 'bullet3', W * 0.08, sl.bulletsY + 120, 34);
+    fvDrawBadge(ctx, W * 0.07, sl.bulletsY - 55, 30);
+    fvDrawBullet(ctx, 'bullet1', W * 0.08, sl.bulletsY, 32);
+    fvDrawBullet(ctx, 'bullet2', W * 0.08, sl.bulletsY + 50, 32);
+    fvDrawBullet(ctx, 'bullet3', W * 0.08, sl.bulletsY + 100, 32);
     fvDrawBranding(ctx, W * 0.5, sl.brandingY, 34, 'center');
 }
 
