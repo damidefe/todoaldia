@@ -334,7 +334,8 @@ function fvDrawS4(ctx, W, H) {
     const ac   = fvGetAccent();
 
     fvDrawFoto(ctx, FV.imgFondo, FV.imgOffsetX, FV.imgOffsetY, zoom, 0, 0, W, H);
-    ctx.fillStyle = 'rgba(0,0,0,0.72)'; ctx.fillRect(0, 0, W, H);
+    const op = parseFloat(document.getElementById('fv-opacidad').value) / 100;
+    ctx.fillStyle = `rgba(0,0,0,${op})`; ctx.fillRect(0, 0, W, H);
 
     fvDrawBadge(ctx, W * 0.05, sl.bulletsY - 280, 28, 'transparent', ac); // Eyebrow libre
 
