@@ -207,23 +207,7 @@ function fvDraw() {
     fvDrawElementosEditables(ctx);
 }
 
-function fvDrawElementosEditables(ctx) {
-    if (!FV.elSeleccionado) return;
-    const el = FV.elSeleccionado;
-    ctx.font = `${el.bold ? '900' : '500'} ${el.fontSize}px Montserrat, sans-serif`;
-    const tw = ctx.measureText(el.texto).width;
-    ctx.strokeStyle = '#1a8fe3';
-    ctx.lineWidth   = 3;
-    
-    let x0 = el.x - 10;
-    if (el.textAlign === 'center' || el.esBranding) {
-        x0 = el.x - (tw / 2) - 10;
-    } else if (el.textAlign === 'right') {
-        x0 = el.x - tw - 10;
-    }
-    
-    ctx.strokeRect(x0, el.y - el.fontSize - 4, tw + 20, el.fontSize + 16);
-}
+fvDrawElementosEditables
 
 function fvDrawSoloLogo(ctx, W, H) {
     const zoom = parseFloat(document.getElementById('fv-zoom').value);
@@ -632,31 +616,59 @@ function fvBindCanvas() {
         return false;
     }
 
-    nuevo.addEventListener('mousedown', e => {
-        const pos = fvGetCanvasPos(e.clientX, e.clientY);
-        const hit = fvHitTest(pos.x, pos.y);
-        if (hit) {
-            FV.elSeleccionado = hit;
-            dragStart = { mx: e.clientX, my: e.clientY, ex: hit.x, ey: hit.y, isImg: false };
-            fvMostrarToolbar(); fvDraw();
-        } else {
-            FV.elSeleccionado = null;
-            const foto2 = esZonaFoto2(pos.x, pos.y);
-            dragStart = {
-                mx: e.clientX, my: e.clientY, isImg: true,
-                esFoto2: foto2,
-                ox: foto2 ? FV.img2OffsetX : FV.imgOffsetX,
-                oy: foto2 ? FV.img2OffsetY : FV.imgOffsetY,
-            };
-            fvOcultarToolbar(); fvDraw();
-        }
-    });
+ function esZonaResize(canvasX, canvasY) {
+    // Devuelve true si el punto está sobre el handle de resize
+    // del elemento seleccionado (esquina inferior derecha del bounding box).
+    if (!FV.elSeleccionado) return false;
+    const bb = fvGetBoundingBox(FV.elSeleccionado);
+    const hx = bb.x0 + bb.w - 10;
+    const hy = bb.y0 + bb.h - 10;
+    // Radio de tolerancia: 30px en coordenadas canvas
+    return canvasX >= hx - 10 && canvasX <= hx + 30 &&
+           canvasY >= hy - 10 && canvasY <= hy + 30;
+}   
+
+nuevo.addEventListener('mousedown', e => {
+    const pos = fvGetCanvasPos(e.clientX, e.clientY);
+    if (esZonaResize(pos.x, pos.y)) {
+        // Modo resize: guardamos fontSize inicial y posición Y del mouse
+        dragStart = { isResize: true, my: e.clientY, fontSize0: FV.elSeleccionado.fontSize };
+        return;
+    }
+    const hit = fvHitTest(pos.x, pos.y);
+    if (hit) {
+        FV.elSeleccionado = hit;
+        dragStart = { mx: e.clientX, my: e.clientY, ex: hit.x, ey: hit.y, isImg: false };
+        fvMostrarToolbar(); fvDraw();
+    } else {
+        FV.elSeleccionado = null;
+        const foto2 = esZonaFoto2(pos.x, pos.y);
+        dragStart = {
+            mx: e.clientX, my: e.clientY, isImg: true,
+            esFoto2: foto2,
+            ox: foto2 ? FV.img2OffsetX : FV.imgOffsetX,
+            oy: foto2 ? FV.img2OffsetY : FV.imgOffsetY,
+        };
+        fvOcultarToolbar(); fvDraw();
+    }
+});
 
     nuevo.addEventListener('mousemove', e => {
-        if (!dragStart) return;
-        const rect   = FV.canvas.getBoundingClientRect();
-        const scaleX = FV.W / rect.width;
-        const scaleY = FV.H / rect.height;
+    if (!dragStart) {
+        // Cambiar cursor si está sobre el handle de resize
+        const pos = fvGetCanvasPos(e.clientX, e.clientY);
+        nuevo.style.cursor = esZonaResize(pos.x, pos.y) ? 'nwse-resize' : 'default';
+        return;
+    }
+    const rect   = FV.canvas.getBoundingClientRect();
+    const scaleY = FV.H / rect.height;
+    const scaleX = FV.W / rect.width;
+    if (dragStart.isResize && FV.elSeleccionado) {
+        // Resize: arrastrar hacia abajo agranda, hacia arriba achica
+        const dy = (e.clientY - dragStart.my) * scaleY;
+        FV.elSeleccionado.fontSize = Math.max(14, Math.round(dragStart.fontSize0 + dy * 0.5));
+        FV.elSeleccionado.hasResized = true;
+    } else {
         const dx = (e.clientX - dragStart.mx) * scaleX;
         const dy = (e.clientY - dragStart.my) * scaleY;
         if (dragStart.isImg) {
@@ -672,8 +684,9 @@ function fvBindCanvas() {
             FV.elSeleccionado.y = dragStart.ey + dy;
             FV.elSeleccionado.hasMoved = true;
         }
-        fvDraw();
-    });
+    }
+    fvDraw();
+});
 
     nuevo.addEventListener('mouseup',    () => { dragStart = null; });
     nuevo.addEventListener('mouseleave', () => { dragStart = null; });
