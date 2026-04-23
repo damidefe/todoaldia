@@ -108,22 +108,26 @@ function fvDrawBadge(ctx, defX, defY, defSize, bgColor = null, textColor = '#fff
     const tw  = ctx.measureText(el.texto).width;
     const pad = 28;
     const ph  = el.fontSize + 18;
-    
-    let rx = el.x;
-    let tx = el.x + pad / 2;
+
+    // rx = esquina izquierda del rectángulo
+    // tx = centro del texto, siempre en el centro del rectángulo
+    let rx, tx;
     if (el.textAlign === 'center') {
         rx = el.x - tw / 2 - pad / 2;
-        tx = el.x;
     } else if (el.textAlign === 'right') {
         rx = el.x - tw - pad;
-        tx = el.x - pad / 2;
+    } else {
+        rx = el.x;
     }
-    
+    // El texto siempre va centrado dentro del rectángulo
+    tx = rx + (tw + pad) / 2;
+
     ctx.fillStyle = acento;
     ctx.beginPath();
     ctx.roundRect(rx, el.y - ph + 4, tw + pad, ph, 7);
     ctx.fill();
     ctx.fillStyle = el.color;
+    ctx.textAlign = 'center';
     ctx.fillText(el.texto, tx, el.y);
     return el;
 }
