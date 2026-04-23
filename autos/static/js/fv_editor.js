@@ -145,8 +145,25 @@ function fvDrawBranding(ctx, defX, defY, defSize, defAlign = 'center', mainColor
 // DRAW PRINCIPAL
 // ══════════════════════════════════════════════
 
+function fvSincronizarTextos() {
+    const map = {
+        'titulo':  'fv-titulo',
+        'badge':   'fv-badge',
+        'bullet1': 'fv-bullet-1',
+        'bullet2': 'fv-bullet-2',
+        'bullet3': 'fv-bullet-3',
+    };
+    FV.elementos.forEach(el => {
+        if (map[el.id]) {
+            const input = document.getElementById(map[el.id]);
+            if (input) el.texto = input.value;
+        }
+    });
+}
+
 function fvDraw() {
     if (!FV.canvas) return;
+    fvSincronizarTextos();
     const ctx = FV.ctx;
     const W = FV.W, H = FV.H;
 
