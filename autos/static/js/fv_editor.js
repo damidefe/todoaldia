@@ -199,7 +199,16 @@ function fvDrawSoloLogo(ctx, W, H) {
     ctx.fillStyle = 'rgba(0,0,0,0.38)';
     ctx.fillRect(0, 0, W, H);
     const logoEl = FV.elementos.find(e => e.id === 'logo');
-    if (logoEl) fvDrawBranding(ctx, logoEl.x, logoEl.y, logoEl.fontSize, 'center');
+    if (!logoEl) return;
+    if (!logoEl.hasMoved) { logoEl.x = W * 0.5; logoEl.y = FV.logoPos === 'top' ? H * 0.07 : H * 0.93; }
+    if (!logoEl.hasResized) { logoEl.fontSize = 38; }
+    ctx.font = `900 ${logoEl.fontSize}px Montserrat, sans-serif`;
+    ctx.fillStyle = logoEl.color || '#fff';
+    ctx.textAlign = 'center';
+    ctx.fillText('TODO @L DÍA', logoEl.x, logoEl.y);
+    ctx.font = `500 ${Math.round(logoEl.fontSize * 0.55)}px Montserrat, sans-serif`;
+    ctx.fillStyle = '#777';
+    ctx.fillText('AUTOS SELECCIONADOS', logoEl.x, logoEl.y + Math.round(logoEl.fontSize * 0.8));
 }
 
 // ══════════════════════════════════════════════
