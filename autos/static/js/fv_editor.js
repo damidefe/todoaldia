@@ -619,6 +619,19 @@ function fvBindCanvas() {
 
     let dragStart = null;
 
+    // Detecta si la posición en canvas corresponde a la zona de foto 2
+    // según el layout activo. Solo layouts con 2 fotos tienen zona de foto 2.
+    function esZonaFoto2(canvasX, canvasY) {
+        const W = FV.W, H = FV.H;
+        const layout = FV.layout;
+        const modo   = FV.modo;
+        // Story layout 2: foto 1 arriba (0 a H*0.47), foto 2 abajo
+        if (modo === 'story-principal' && layout === 2) return canvasY > H * 0.47;
+        // Post layout 2: foto 1 izquierda, foto 2 derecha (arriba de fotoH)
+        if (modo === 'post-principal' && layout === 2) return canvasX > W * 0.5;
+        return false;
+    }
+
     nuevo.addEventListener('mousedown', e => {
         const pos = fvGetCanvasPos(e.clientX, e.clientY);
         const hit = fvHitTest(pos.x, pos.y);
@@ -628,7 +641,13 @@ function fvBindCanvas() {
             fvMostrarToolbar(); fvDraw();
         } else {
             FV.elSeleccionado = null;
-            dragStart = { mx: e.clientX, my: e.clientY, isImg: true, ox: FV.imgOffsetX, oy: FV.imgOffsetY };
+            const foto2 = esZonaFoto2(pos.x, pos.y);
+            dragStart = {
+                mx: e.clientX, my: e.clientY, isImg: true,
+                esFoto2: foto2,
+                ox: foto2 ? FV.img2OffsetX : FV.imgOffsetX,
+                oy: foto2 ? FV.img2OffsetY : FV.imgOffsetY,
+            };
             fvOcultarToolbar(); fvDraw();
         }
     });
@@ -641,12 +660,17 @@ function fvBindCanvas() {
         const dx = (e.clientX - dragStart.mx) * scaleX;
         const dy = (e.clientY - dragStart.my) * scaleY;
         if (dragStart.isImg) {
-            FV.imgOffsetX = dragStart.ox + dx;
-            FV.imgOffsetY = dragStart.oy + dy;
+            if (dragStart.esFoto2) {
+                FV.img2OffsetX = dragStart.ox + dx;
+                FV.img2OffsetY = dragStart.oy + dy;
+            } else {
+                FV.imgOffsetX = dragStart.ox + dx;
+                FV.imgOffsetY = dragStart.oy + dy;
+            }
         } else if (FV.elSeleccionado) {
             FV.elSeleccionado.x = dragStart.ex + dx;
             FV.elSeleccionado.y = dragStart.ey + dy;
-            FV.elSeleccionado.hasMoved = true; // Avisamos que se movió a mano
+            FV.elSeleccionado.hasMoved = true;
         }
         fvDraw();
     });
@@ -668,10 +692,12 @@ function fvBindCanvas() {
             const t   = e.touches[0];
             const pos = fvGetCanvasPos(t.clientX, t.clientY);
             const hit = fvHitTest(pos.x, pos.y);
+            const foto2 = !hit && esZonaFoto2(pos.x, pos.y);
             touchStart = {
                 tx: t.clientX, ty: t.clientY, hit,
-                ex: hit ? hit.x : FV.imgOffsetX,
-                ey: hit ? hit.y : FV.imgOffsetY,
+                esFoto2: foto2,
+                ex: hit ? hit.x : (foto2 ? FV.img2OffsetX : FV.imgOffsetX),
+                ey: hit ? hit.y : (foto2 ? FV.img2OffsetY : FV.imgOffsetY),
             };
             if (hit) { FV.elSeleccionado = hit; fvMostrarToolbar(); fvDraw(); }
         } else if (e.touches.length === 2) {
@@ -693,7 +719,10 @@ function fvBindCanvas() {
             if (touchStart.hit) {
                 touchStart.hit.x = touchStart.ex + dx;
                 touchStart.hit.y = touchStart.ey + dy;
-                touchStart.hit.hasMoved = true; // Avisamos que se movió a mano
+                touchStart.hit.hasMoved = true;
+            } else if (touchStart.esFoto2) {
+                FV.img2OffsetX = touchStart.ex + dx;
+                FV.img2OffsetY = touchStart.ey + dy;
             } else {
                 FV.imgOffsetX = touchStart.ex + dx;
                 FV.imgOffsetY = touchStart.ey + dy;
@@ -719,7 +748,6 @@ function fvBindCanvas() {
         touchStart = null; lastPinch = null;
     });
 }
-
 function fvAbrirEditorTexto(el, clientX, clientY) {
     const input = document.getElementById('fv-texto-input');
     const wrap  = document.getElementById('fv-canvas-wrap');
