@@ -290,8 +290,8 @@ function fvDrawS2(ctx, W, H) {
     ctx.fillStyle = '#080808'; ctx.fillRect(0, midY, W, bandH);
     ctx.fillStyle = ac; ctx.fillRect(0, midY, W, 6); ctx.fillRect(0, midY + bandH - 6, W, 6);
 
-    fvDrawTitulo(ctx, W * 0.5, midY + bandH * 0.55, 58, 'center');
-    fvDrawBadge(ctx, W * 0.5, midY + bandH * 0.84, 26, ac, '#fff', 'center');
+    fvDrawTitulo(ctx, W * 0.5, midY + bandH * 0.48, 58, 'center');
+    fvDrawBadge(ctx, W * 0.5, midY + bandH * 0.78, 26, ac, '#fff', 'center');
 
     ctx.fillStyle = 'rgba(0,0,0,0.65)'; ctx.fillRect(0, H - 80, W, 80);
     fvDrawBranding(ctx, W * 0.5, H - 36, 30, 'center');
