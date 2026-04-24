@@ -170,7 +170,7 @@ function fvSetLayout(n) {
     document.querySelectorAll('.fv-layout-btn').forEach(btn => {
         const activo = parseInt(btn.dataset.layout) === n &&
                        btn.dataset.tipo === (FV.modo.startsWith('post') ? 'post' : 'story');
-        btn.style.borderColor = activo ? FV.acento || '#E31E24' : '#2a2a2a';
+        btn.style.borderColor = activo ? FV.acento || '#000000' : '#2a2a2a';
         btn.style.opacity     = activo ? '1' : '0.5';
     });
 

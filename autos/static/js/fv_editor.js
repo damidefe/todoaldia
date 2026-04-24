@@ -304,7 +304,7 @@ function fvDrawS2(ctx, W, H) {
 function fvDrawS3(ctx, W, H) {
     const zoom = parseFloat(document.getElementById('fv-zoom').value);
     const sl   = fvGetSliders(H);
-    const fotoH = H * 0.62;
+    const fotoH = H * 0.68;
 
     fvDrawFoto(ctx, FV.imgFondo, FV.imgOffsetX, FV.imgOffsetY, zoom, 0, 0, W, fotoH);
     ctx.fillStyle = '#0d0d0d'; ctx.fillRect(0, fotoH, W, H - fotoH);
