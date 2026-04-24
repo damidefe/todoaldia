@@ -109,9 +109,7 @@ function fvDrawBadge(ctx, defX, defY, defSize, bgColor = null, textColor = '#fff
     const pad = 28;
     const ph  = el.fontSize + 18;
 
-    // rx = esquina izquierda del rectángulo
-    // tx = centro del texto, siempre en el centro del rectángulo
-    let rx, tx;
+    let rx;
     if (el.textAlign === 'center') {
         rx = el.x - tw / 2 - pad / 2;
     } else if (el.textAlign === 'right') {
@@ -119,8 +117,8 @@ function fvDrawBadge(ctx, defX, defY, defSize, bgColor = null, textColor = '#fff
     } else {
         rx = el.x;
     }
-    // El texto siempre va centrado dentro del rectángulo
-    tx = rx + (tw + pad) / 2;
+    const tx = rx + (tw + pad) / 2;
+    const ty = el.y - ph + 4 + ph / 2;
 
     ctx.fillStyle = acento;
     ctx.beginPath();
@@ -129,7 +127,7 @@ function fvDrawBadge(ctx, defX, defY, defSize, bgColor = null, textColor = '#fff
     ctx.fillStyle = el.color;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(el.texto, tx, el.y - ph/2 + 4 + ph/2 + el.fontSize/2);
+    ctx.fillText(el.texto, tx, ty);
     ctx.textBaseline = 'alphabetic';
     return el;
 }
