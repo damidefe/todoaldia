@@ -1768,23 +1768,48 @@ function renderColRecepcion(d) {
     col.innerHTML = html;
     window.datosCurrentRecepcion = d;
 }
+
+async function subirFotosDesdePublicacion(input) {
+    const files = Array.from(input.files);
+    if (!files.length || !AUTO_ID_ACTUAL) return;
+    const label = input.closest('label');
+    const textoOriginal = '📷 Agregar fotos del auto';
+    label.childNodes[0].textContent = `⏳ Subiendo ${files.length} foto(s)...`;
+    label.style.background = '#555';
+    label.style.pointerEvents = 'none';
+    const form = new FormData();
+    files.forEach(f => form.append('fotos', f));
+    try {
+        const res = await fetch(`/auto/${AUTO_ID_ACTUAL}/agregar-fotos/`, {
+            method: 'POST', body: form,
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        });
+        if (res.ok) {
+            label.childNodes[0].textContent = `✅ ¡${files.length} foto(s) subida(s)!`;
+            label.style.background = '#2e7d32';
+        } else { throw new Error(); }
+    } catch(e) {
+        label.childNodes[0].textContent = '❌ Error al subir';
+        label.style.background = '#c62828';
+    } finally {
+        setTimeout(() => {
+            label.childNodes[0].textContent = textoOriginal;
+            label.style.background = '#E31E24';
+            label.style.pointerEvents = 'auto';
+        }, 3000);
+    }
+}
  
 // ── COLUMNA PUBLICACION ────────────────────────────────────────
 async function renderColPublicacion(d) {
     const col = document.getElementById('col-publicacion-body');
 
-    // Mostrar loading mientras genera placas
-    col.innerHTML = `
-        <div style="text-align:center; padding:32px; color:#444; font-size:11px; font-weight:700;">
-            <div class="spinner" style="width:20px;height:20px;margin:0 auto 12px;"></div>
-            Generando placas...
-        </div>`;
-
-    // Generar pack en background
-    const pack = await generarPackInline(d);
+    const copyWA = d.contenido ? (d.contenido.copy_whatsapp || '') : '';
+    const msgWA = encodeURIComponent(copyWA || `${d.marca} ${d.modelo} ${d.anio} · ${Number(d.km).toLocaleString('es-AR')} km · Financiación disponible. Consultanos sin compromiso! 📍 Todo @l Día, Caballito`);
 
     let html = '';
 
+    // ── TIP PRO ──
     html += `
     <div style="background:linear-gradient(135deg,#1a0800,#0a0a1a); border:1px solid #333;
                 border-radius:10px; padding:14px; margin-bottom:16px;">
@@ -1809,254 +1834,59 @@ async function renderColPublicacion(d) {
         </div>
     </div>`;
 
-
-
-    // ── ACCIONES FINALES ARRIBA ──
-  html += `
-    <div style="background:#111; border:1px dashed #2a2a2a; border-radius:8px; padding:12px 14px;
-                margin-bottom:16px; display:flex; align-items:center; justify-content:space-between;">
-        <span style="font-size:12px; color:#444; font-weight:700;">🏆 ¿Ya se vendió?</span>
-        <a href="/auto/${d.id}/vendido/ver/" target="_blank"
-           class="btn btn-outline" style="padding:6px 14px; font-size:10px;">Ver placa vendido</a>
-    </div>`;
-// ── PACK WHATSAPP ──
-    const copyWA = d.contenido ? (d.contenido.copy_whatsapp || '') : '';
-    const telDueno = (document.getElementById('campo-telefono').value || '').replace(/\D/g,'');
-    const msgWA = encodeURIComponent(copyWA || `${d.marca} ${d.modelo} ${d.anio} · ${Number(d.km).toLocaleString('es-AR')} km · Financiación disponible. Consultanos sin compromiso! 📍 Todo @l Día, Caballito`);
-
+    // ── BOTÓN AGREGAR FOTOS ──
     html += `
-    <div style="background:#111; border:1px solid #4caf50; border-radius:8px;
-                padding:14px 16px; margin-bottom:12px;">
-        <div style="font-size:11px; font-weight:900; color:#4caf50; 
-                    text-transform:uppercase; letter-spacing:2px; margin-bottom:12px;">
-            💬 Pack WhatsApp — Uso diario
-        </div>
-        <div id="fotos-logo-story-${d.id}" 
-             style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:6px;"></div>
-        <div style="font-size:10px; color:#333; font-style:italic; margin-bottom:12px;">
-            💡 Tocá cada foto para descargarla individualmente
-        </div>
-        <div style="font-size:10px; font-weight:900; color:#555; text-transform:uppercase;
-                    letter-spacing:1px; margin-bottom:6px;">Copy para el mensaje</div>
-        <div id="copy-wa-box"
-             style="background:#0a0a0a; border:1px solid #1e1e1e; border-radius:7px;
-                    padding:10px; font-size:11px; line-height:1.7; color:#bbb;
-                    min-height:60px; margin-bottom:8px; white-space:pre-wrap;"
-             contenteditable="true" spellcheck="false">${copyWA || 'Generando...'}</div>
-        <div style="display:flex; gap:5px; margin-bottom:12px;">
-            <input class="regen-input" id="prompt-wa"
-                   placeholder="Modificar copy WA... Ej: más corto, mencioná el precio...">
-            <button onclick="regenerarCopyInforme()"
-            style="background:#1a1a1a; border:1px solid #333; border-radius:7px;
-                   padding:8px 10px; font-size:9px; font-weight:900; color:#fff;
-                   cursor:pointer; font-family:'Montserrat',sans-serif;
-                   text-transform:uppercase; letter-spacing:1px;">
-        ↺ Reescribir
-    </button>
-        </div>
-        <div style="display:flex; flex-direction:column; gap:8px;">
-            <button class="btn btn-dark btn-full" 
-                    onclick="descargarPackStory(${d.id})">
-                ⬇ Descargar fotos
-            </button>
-        <a id="btn-wa-copy" href="https://wa.me/?text=${msgWA}" target="_blank"
-        style="width:100%; padding:12px; border-radius:8px; text-align:center;
-                background:linear-gradient(45deg, #128C7E, #25D366, #128C7E);
-                color:#fff; font-family:'Montserrat',sans-serif;
-                font-size:11px; font-weight:900; cursor:pointer; letter-spacing:1px;
-                text-transform:uppercase; text-decoration:none; display:block;
-                box-sizing:border-box;">
-            💬 Enviar por WhatsApp
-        </a>
-        </div>
-    </div>`;
+    <label style="display:flex; align-items:center; justify-content:center; gap:10px;
+                  width:100%; padding:18px; border-radius:10px; margin-bottom:20px;
+                  background:#E31E24; cursor:pointer; font-family:'Montserrat',sans-serif;
+                  font-size:14px; font-weight:900; color:#fff; text-transform:uppercase;
+                  letter-spacing:1px; box-sizing:border-box;">
+        📷 Agregar fotos del auto
+        <input type="file" accept="image/*" multiple onchange="subirFotosDesdePublicacion(this)" style="display:none;">
+    </label>`;
 
-// ── POST PRINCIPAL ──
+    // ── COPIES ──
     html += `
-    <div style="background:#111; border:1px solid #f59e0b; border-radius:8px;
-                padding:14px 16px; margin-bottom:12px;">
-        <div style="font-size:11px; font-weight:900; color:#f59e0b; 
-                    text-transform:uppercase; letter-spacing:2px; margin-bottom:12px;">
-            🖼️ Post Principal — Instagram & Mercado Libre
-        </div>
-
-        <div style="display:flex; gap:12px; align-items:flex-start; margin-bottom:12px;">
-            <div style="flex-shrink:0; display:flex; flex-direction:column; gap:4px; align-items:center;">
-                <div id="preview-post-${d.id}" style="border-radius:6px; overflow:hidden;"></div>
-                <div style="font-size:9px; color:#333; font-style:italic; text-align:center;">💡 Tocá para descargar</div>
-            </div>
-            <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:8px;">
-                <a href="https://business.facebook.com" target="_blank"
-   style="width:100%; max-width:100%; padding:12px; border-radius:8px; text-align:center;
-          background:linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
-          color:#fff; font-family:'Montserrat',sans-serif;
-          font-size:11px; font-weight:900; cursor:pointer; letter-spacing:1px;
-          text-transform:uppercase; text-decoration:none; display:block;
-          box-sizing:border-box; overflow:hidden;">
-    📤 Publicar en Instagram
-</a>
-<a href="https://www.mercadolibre.com.ar" target="_blank"
-   style="width:100%; padding:12px; border-radius:8px; text-align:center;
-          background:linear-gradient(45deg, #FFE600, #f5d000, #FFE600);
-          color:#333; font-family:'Montserrat',sans-serif;
-          font-size:11px; font-weight:900; cursor:pointer; letter-spacing:1px;
-          text-transform:uppercase; text-decoration:none; display:block;
-          box-sizing:border-box;">
-    🛒 Publicar en Mercado Libre
-</a>
-                <div style="display:grid; grid-template-columns:1fr auto; gap:5px; margin-top:8px;">
-                    <input id="prompt-post-${d.id}"
-                        style="flex:1; background:#1a1a1a; border:1px solid #333; border-radius:7px;
-                                padding:8px 12px; font-size:11px; color:#fff;
-                                font-family:'Montserrat',sans-serif; outline:none;"
-                        placeholder="Ej: cambiá la etiqueta, otro título, sin precio...">
-                    <button onclick="regenerarPlaca('post', ${d.id})"
-                            style="background:#1a1a1a; border:1px solid #333; border-radius:7px;
-                                padding:6px 8px; font-size:8px; font-weight:900; color:#fff;
-                                cursor:pointer; font-family:'Montserrat',sans-serif;
-                                text-transform:uppercase; letter-spacing:0px;
-                                white-space:nowrap; flex-shrink:0;">
-                        ↺ Cambiar placa
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div style="font-size:10px; font-weight:900; color:#555; text-transform:uppercase;
-                    letter-spacing:1px; margin-bottom:6px;">Pack fotos post con logo</div>
-        <div id="fotos-logo-post-${d.id}" 
-             style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:6px;"></div>
-        <div id="aviso-fotos-post-${d.id}"
-             style="display:none; background:rgba(245,158,11,0.1); border:1px solid #f59e0b;
-                    border-radius:8px; padding:10px 12px; margin-bottom:10px;
-                    font-size:11px; color:#f59e0b; font-weight:700; line-height:1.6;">
-        </div>
-        <div style="font-size:10px; color:#333; font-style:italic; margin-bottom:16px;">
-            💡 Tocá cada foto para descargarla individualmente
-        </div>
-
-        <div style="font-size:10px; font-weight:900; color:#555; text-transform:uppercase;
-                    letter-spacing:1px; margin-bottom:8px;">Copies</div>
+    <div style="background:#111; border:1px solid #333; border-radius:8px; padding:14px 16px; margin-bottom:12px;">
+        <div style="font-size:11px; font-weight:900; color:#fff; text-transform:uppercase;
+                    letter-spacing:2px; margin-bottom:12px;">✍️ Copies</div>
         <button class="btn btn-red btn-full" style="margin-bottom:10px;"
                 onclick="generarContenido()">🤖 Generar copies con IA</button>
         <div id="loading-contenido" class="loading"><span class="spinner"></span> Generando...</div>
+
+        <div style="margin-bottom:16px; margin-top:12px;">
+            <div style="font-size:9px; font-weight:900; color:#4caf50; text-transform:uppercase;
+                        letter-spacing:1px; margin-bottom:6px;">💬 WhatsApp</div>
+            <div id="copy-wa-box"
+                 style="background:#0a0a0a; border:1px solid #1e1e1e; border-radius:7px;
+                        padding:10px; font-size:11px; line-height:1.7; color:#bbb;
+                        min-height:60px; margin-bottom:6px; white-space:pre-wrap;"
+                 contenteditable="true" spellcheck="false">${copyWA || ''}</div>
+            <div style="display:flex; gap:5px; margin-bottom:8px;">
+                <input class="regen-input" id="prompt-wa"
+                       placeholder="Ej: más corto, mencioná el precio...">
+                <button onclick="regenerarCopyWA()"
+                        style="background:#1a1a1a; border:1px solid #333; border-radius:7px;
+                               padding:8px 10px; font-size:9px; font-weight:900; color:#fff;
+                               cursor:pointer; font-family:'Montserrat',sans-serif;
+                               text-transform:uppercase; letter-spacing:1px;">
+                    ↺ Reescribir
+                </button>
+            </div>
+            <a id="btn-wa-copy" href="https://wa.me/?text=${msgWA}" target="_blank"
+               style="display:block; width:100%; padding:11px; border-radius:8px; text-align:center;
+                      background:linear-gradient(45deg,#128C7E,#25D366,#128C7E);
+                      color:#fff; font-family:'Montserrat',sans-serif; font-size:11px;
+                      font-weight:900; letter-spacing:1px; text-transform:uppercase;
+                      text-decoration:none; box-sizing:border-box;">
+                💬 Enviar por WhatsApp
+            </a>
+        </div>
+
         <div id="contenido-resultado">
             ${d.contenido ? renderCopies(d.contenido) : '<div class="empty-state">Tocá el botón para generar los copies</div>'}
         </div>
     </div>`;
-    
-    // ── PLACA STORY ──
-    html += `
-    <div style="background:#111; border:1px solid #E31E24; border-radius:8px;
-                padding:14px 16px; margin-bottom:12px;">
-        <div style="font-size:11px; font-weight:900; color:#E31E24; 
-                    text-transform:uppercase; letter-spacing:2px; margin-bottom:12px;">
-            📱 Story Principal
-        </div>
-        <div style="display:flex; gap:12px; align-items:flex-start;">
-            <div style="flex-shrink:0; display:flex; flex-direction:column; gap:4px; align-items:center;">
-                <div id="preview-story-${d.id}" style="border-radius:6px; overflow:hidden;"></div>
-                <div style="font-size:9px; color:#333; font-style:italic; text-align:center;">💡 Tocá para descargar</div>
-            </div>
-            <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:8px;">
-                <a href="https://business.facebook.com" target="_blank"
-   style="width:100%; max-width:100%; padding:12px; border-radius:8px; text-align:center;
-          background:linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
-          color:#fff; font-family:'Montserrat',sans-serif;
-          font-size:11px; font-weight:900; cursor:pointer; letter-spacing:1px;
-          text-transform:uppercase; text-decoration:none; display:block;
-          box-sizing:border-box; overflow:hidden;">
-    📤 Publicar en Instagram
-</a>
-                <a href="https://wa.me/" target="_blank"
-   style="width:100%; padding:12px; border-radius:8px; text-align:center;
-          background:linear-gradient(45deg, #128C7E, #25D366, #128C7E);
-          color:#fff; font-family:'Montserrat',sans-serif;
-          font-size:11px; font-weight:900; cursor:pointer; letter-spacing:1px;
-          text-transform:uppercase; text-decoration:none; display:block;
-          box-sizing:border-box;">
-    📱 Compartir en Estado
-</a>
-                <div style="display:grid; grid-template-columns:1fr auto; gap:5px; margin-bottom:12px;">
-                    <input id="prompt-wa"
-                        style="background:#1a1a1a; border:1px solid #333; border-radius:7px;
-                                padding:8px 12px; font-size:11px; color:#fff;
-                                font-family:'Montserrat',sans-serif; outline:none;"
-                        placeholder="Ej: más corto, agregá dirección, tono más informal...">
-                    <button onclick="regenerarCopyWA()"
-                            style="background:#1a1a1a; border:1px solid #333; border-radius:7px;
-                                padding:8px 14px; font-size:10px; font-weight:900; color:#fff;
-                                cursor:pointer; font-family:'Montserrat',sans-serif;
-                                text-transform:uppercase; letter-spacing:1px;
-                                white-space:nowrap; flex-shrink:0;">
-                        ↺ Reescribir
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>`;
-
-    // ── FOTOS APROBADAS ──
-    html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"><div class="section-title" style="margin:0;">Fotos aprobadas</div><button onclick="aprobarTodasLasFotos()" style="background:#2e7d32; color:#fff; border:none; border-radius:6px; padding:5px 12px; font-size:9px; font-weight:900; cursor:pointer; font-family:'Montserrat',sans-serif; text-transform:uppercase; letter-spacing:1px;">✓ Aprobar todas</button></div>`;
-    html += `<div class="fotos-grid" id="fotos-grid">`;
-
-    if (d.fotos && d.fotos.length) {
-        // Ordenar: primero aprobadas, después por puntuación
-        const fotosOrdenadas = [...d.fotos]
-            .filter(f => f.aprobada || f.es_principal)
-            .sort((a, b) => (b.puntuacion || 0) - (a.puntuacion || 0));
-        const fotasRechazadas = d.fotos.filter(f => !f.aprobada && !f.es_principal);
-
-        fotosOrdenadas.forEach((f, i) => {
-        html += `
-        <div style="display:flex; flex-direction:column; gap:3px;">
-            <div class="foto-item ${f.es_principal ? 'principal' : 'aprobada'}" id="foto-${f.id}">
-                <img src="${f.imagen_url}" alt="Foto">
-                <div class="foto-score" id="score-${f.id}">${f.puntuacion ? f.puntuacion + '/10' : '—'}</div>
-                <div style="position:absolute;top:3px;left:3px;background:#E31E24;color:#fff;font-size:7px;font-weight:900;padding:1px 4px;border-radius:2px;">${i + 1}</div>
-                <div class="foto-overlay">
-                    <button class="foto-btn foto-btn-principal" onclick="aprobarFoto(${f.id},true,true)">⭐</button>
-                    <button class="foto-btn foto-btn-aprobar"   onclick="aprobarFoto(${f.id},true,false)">✓</button>
-                    <button class="foto-btn foto-btn-rechazar"  onclick="borrarFoto(${f.id})">🗑</button>
-                </div>
-            </div>
-            ${f.consejo ? `<div style="font-size:12px; color:#555; font-style:italic; line-height:1.5; padding:4px 2px;">💡 ${f.consejo}</div>` : ''}
-        </div>`;
-    });
-
-        if (fotasRechazadas.length) {
-            html += `</div>
-            <div class="section-title" style="color:#E31E24; margin-top:16px;">
-                ❌ Fotos rechazadas (${fotasRechazadas.length})
-            </div>`;
-            
-            fotasRechazadas.forEach(f => {
-                html += `
-                <div style="display:flex; gap:10px; margin-bottom:12px; background:#111; border-radius:8px; padding:10px; border:1px solid #1e1e1e;">
-                    <div style="position:relative; flex-shrink:0;">
-                        <img src="${f.imagen_url}" style="width:160px; height:130px; object-fit:cover; border-radius:6px; opacity:0.5; border:2px solid #E31E24;">
-                        <div style="position:absolute;top:3px;right:3px;background:rgba(200,0,0,0.9);color:#fff;font-size:9px;font-weight:900;padding:1px 4px;border-radius:3px;">✗</div>
-                    </div>
-                    <div style="flex:1; min-width:0;">
-                       ${f.motivo_rechazo ? `<div style="font-size:13px; color:#E31E24; font-weight:700; margin-bottom:6px;">${f.motivo_rechazo}</div>` : ''}
-${f.cortado && f.cortado !== 'ninguno' ? `<div style="font-size:13px; color:#ff9800; margin-bottom:6px;">✂️ Cortado: ${f.cortado}</div>` : ''}
-${f.consejo ? `<div style="font-size:12px; color:#555; font-style:italic; line-height:1.5;">💡 ${f.consejo}</div>` : ''}
-                        <div style="display:flex; gap:5px; margin-top:6px;">
-                            <button class="btn-sm btn-sm-dark" onclick="aprobarFoto(${f.id},true,false)" 
-                                    style="font-size:8px;">↩ Aprobar igual</button>
-                            <button class="btn-sm" onclick="borrarFoto(${f.id})"
-                                    style="background:#2a2a2a; color:#E31E24; font-size:8px;">🗑 Borrar</button>
-                        </div>
-                    </div>
-                </div>`;
-            });
-            html += `<div class="fotos-grid">`;
-        }
-    } else {
-        html += `<p style="color:#2a2a2a;font-size:11px;">Sin fotos cargadas</p>`;
-    }
-
-    html += `</div>`;
 
     col.innerHTML = html;
     // Auto-generar copies si no existen o falta ML
