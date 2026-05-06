@@ -160,6 +160,21 @@ function fvDrawBranding(ctx, defX, defY, defSize, defAlign = 'center', mainColor
     return el;
 }
 
+function fvWrapText(ctx, texto, x, y, maxW, lineH) {
+    if (!texto) return 0;
+    const words = texto.split(' ');
+    let linea = '', lineas = [];
+    words.forEach(w => {
+        const test = linea ? linea + ' ' + w : w;
+        if (ctx.measureText(test).width > maxW && linea) {
+            lineas.push(linea); linea = w;
+        } else { linea = test; }
+    });
+    if (linea) lineas.push(linea);
+    lineas.forEach((l, i) => ctx.fillText(l, x, y + i * lineH));
+    return lineas.length;
+}
+
 // ══════════════════════════════════════════════
 // DRAW PRINCIPAL
 // ══════════════════════════════════════════════
@@ -190,8 +205,22 @@ function fvDraw() {
     ctx.fillStyle = '#cccccc'; // Fondo gris claro de contraste
     ctx.fillRect(0, 0, W, H);
 
-    const isPost      = FV.modo === 'post-principal' || FV.modo === 'post-logo';
-    const esPrincipal = FV.modo === 'story-principal' || FV.modo === 'post-principal';
+    const isPost       = FV.modo === 'post-principal' || FV.modo === 'post-logo' || FV.modo === 'post-testimonio';
+    const esPrincipal  = FV.modo === 'story-principal' || FV.modo === 'post-principal';
+    const esTestimonio = FV.modo === 'story-testimonio' || FV.modo === 'post-testimonio';
+
+    if (esTestimonio) {
+        const layout = FV.layout || 1;
+        if (isPost) {
+            const fn = [null, fvDrawPT1, fvDrawPT2, fvDrawPT3][layout];
+            if (fn) fn(ctx, W, H);
+        } else {
+            const fn = [null, fvDrawST1, fvDrawST2, fvDrawST3][layout];
+            if (fn) fn(ctx, W, H);
+        }
+        fvDrawElementosEditables(ctx);
+        return;
+    }
 
     if (!esPrincipal) {
         fvDrawSoloLogo(ctx, W, H);
@@ -593,6 +622,284 @@ function fvDrawP6(ctx, W, H) {
     if (elBrand) {
         ctx.fillText('TODO @L DÍA', elBrand.x, elBrand.y);
     }
+}
+
+// ══════════════════════════════════════════════
+// TESTIMONIO — STORY LAYOUTS (1080 × 1920)
+// titulo   = texto de la cita
+// badge    = iniciales del avatar (2 letras)
+// bullet1  = @usuario
+// ══════════════════════════════════════════════
+
+function fvDrawST1(ctx, W, H) {
+    const ac = fvGetAccent();
+    const sl = fvGetSliders(H);
+    const tx = FV.elementos.find(e => e.id === 'titulo');
+    const bg = FV.elementos.find(e => e.id === 'badge');
+    const b1 = FV.elementos.find(e => e.id === 'bullet1');
+
+    ctx.fillStyle = '#0d0d0d'; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = ac; ctx.fillRect(0, 0, W, 6); ctx.fillRect(0, H - 6, W, 6);
+
+    ctx.font = '900 40px Montserrat,sans-serif'; ctx.fillStyle = ac;
+    ctx.textAlign = 'center'; ctx.fillText('TODO @L DÍA', W * 0.5, 340);
+    ctx.font = '500 22px Montserrat,sans-serif'; ctx.fillStyle = '#444';
+    ctx.fillText('AUTOS SELECCIONADOS', W * 0.5, 376);
+
+    const qY = tx?.hasMoved ? tx.y : sl.tituloY;
+    ctx.font = '900 300px Georgia,serif'; ctx.fillStyle = ac;
+    ctx.textAlign = 'left'; ctx.globalAlpha = 0.12;
+    ctx.fillText('"', W * 0.04, qY - 50); ctx.globalAlpha = 1;
+
+    ctx.fillStyle = ac; ctx.fillRect(W * 0.07, qY - 20, 6, 500);
+
+    const fzQ = tx?.hasResized ? tx.fontSize : 50;
+    ctx.font = `italic 400 ${fzQ}px Montserrat,sans-serif`;
+    ctx.fillStyle = tx?.color || '#ffffff'; ctx.textAlign = 'left';
+    const nL = fvWrapText(ctx, tx?.texto || '', W * 0.12, qY, W * 0.80, fzQ * 1.45);
+
+    const autorY = Math.min(qY + nL * fzQ * 1.45 + 80, 1550);
+    const ini = (bg?.texto || 'CL').substring(0, 2).toUpperCase();
+    ctx.fillStyle = ac; ctx.beginPath();
+    ctx.arc(W * 0.12 + 38, autorY, 44, 0, Math.PI * 2); ctx.fill();
+    ctx.font = '900 26px Montserrat,sans-serif'; ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center'; ctx.fillText(ini, W * 0.12 + 38, autorY + 9);
+
+    ctx.textAlign = 'left';
+    ctx.font = '500 30px Montserrat,sans-serif'; ctx.fillStyle = '#fff';
+    ctx.fillText(b1?.texto || '@usuario', W * 0.12 + 96, autorY - 4);
+    ctx.font = '500 22px Montserrat,sans-serif'; ctx.fillStyle = '#555';
+    ctx.fillText('Cliente verificado', W * 0.12 + 96, autorY + 28);
+}
+
+function fvDrawST2(ctx, W, H) {
+    const ac = fvGetAccent();
+    const sl = fvGetSliders(H);
+    const tx = FV.elementos.find(e => e.id === 'titulo');
+    const bg = FV.elementos.find(e => e.id === 'badge');
+    const b1 = FV.elementos.find(e => e.id === 'bullet1');
+
+    ctx.fillStyle = ac; ctx.fillRect(0, 0, W, H);
+
+    const bloqY = 420, bloqH = 1100;
+    ctx.fillStyle = '#111';
+    ctx.beginPath(); ctx.roundRect(W * 0.05, bloqY, W * 0.9, bloqH, 16); ctx.fill();
+
+    ctx.font = '900 38px Montserrat,sans-serif'; ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center'; ctx.fillText('TODO @L DÍA', W * 0.5, 330);
+    ctx.font = '500 22px Montserrat,sans-serif'; ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.fillText('AUTOS SELECCIONADOS', W * 0.5, 366);
+
+    ctx.font = '900 100px Georgia,serif'; ctx.fillStyle = ac;
+    ctx.textAlign = 'left'; ctx.fillText('"', W * 0.10, bloqY + 110);
+
+    const fzQ = tx?.hasResized ? tx.fontSize : 48;
+    const tY  = tx?.hasMoved ? tx.y : bloqY + 160;
+    ctx.font = `italic 400 ${fzQ}px Montserrat,sans-serif`;
+    ctx.fillStyle = '#fff'; ctx.textAlign = 'left';
+    const nL = fvWrapText(ctx, tx?.texto || '', W * 0.10, tY, W * 0.80, fzQ * 1.45);
+
+    const sepY = Math.min(tY + nL * fzQ * 1.45 + 40, bloqY + bloqH - 200);
+    ctx.fillStyle = ac; ctx.fillRect(W * 0.10, sepY, W * 0.15, 4);
+
+    const autorY = Math.min(sepY + 70, bloqY + bloqH - 110);
+    const ini = (bg?.texto || 'CL').substring(0, 2).toUpperCase();
+    ctx.fillStyle = ac; ctx.beginPath();
+    ctx.arc(W * 0.10 + 36, autorY, 40, 0, Math.PI * 2); ctx.fill();
+    ctx.font = '900 24px Montserrat,sans-serif'; ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center'; ctx.fillText(ini, W * 0.10 + 36, autorY + 8);
+
+    ctx.textAlign = 'left';
+    ctx.font = '500 28px Montserrat,sans-serif'; ctx.fillStyle = '#fff';
+    ctx.fillText(b1?.texto || '@usuario', W * 0.10 + 90, autorY - 2);
+    ctx.font = '500 20px Montserrat,sans-serif'; ctx.fillStyle = '#666';
+    ctx.fillText('Cliente verificado', W * 0.10 + 90, autorY + 26);
+
+    ctx.font = '900 26px Montserrat,sans-serif'; ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.textAlign = 'center'; ctx.fillText('26 AÑOS DE CONFIANZA · CABALLITO', W * 0.5, H - 300);
+}
+
+function fvDrawST3(ctx, W, H) {
+    const ac = fvGetAccent();
+    const sl = fvGetSliders(H);
+    const tx = FV.elementos.find(e => e.id === 'titulo');
+    const bg = FV.elementos.find(e => e.id === 'badge');
+    const b1 = FV.elementos.find(e => e.id === 'bullet1');
+
+    ctx.fillStyle = '#141414'; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = ac; ctx.fillRect(0, 0, W * 0.10, H);
+
+    ctx.save(); ctx.translate(W * 0.05, H * 0.52); ctx.rotate(-Math.PI / 2);
+    ctx.font = '900 26px Montserrat,sans-serif'; ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.textAlign = 'center'; ctx.fillText('TESTIMONIO', 0, 0); ctx.restore();
+
+    ctx.font = '900 36px Montserrat,sans-serif'; ctx.fillStyle = '#fff';
+    ctx.textAlign = 'left'; ctx.fillText('TODO @L DÍA', W * 0.14, 340);
+    ctx.font = '500 20px Montserrat,sans-serif'; ctx.fillStyle = '#444';
+    ctx.fillText('AUTOS SELECCIONADOS', W * 0.14, 372);
+
+    const qY = tx?.hasMoved ? tx.y : sl.tituloY;
+    ctx.font = '900 160px Georgia,serif'; ctx.fillStyle = ac;
+    ctx.textAlign = 'left'; ctx.fillText('"', W * 0.13, qY - 20);
+
+    const fzQ = tx?.hasResized ? tx.fontSize : 52;
+    ctx.font = `300 ${fzQ}px Montserrat,sans-serif`;
+    ctx.fillStyle = '#eeeeee'; ctx.textAlign = 'left';
+    const nL = fvWrapText(ctx, tx?.texto || '', W * 0.14, qY, W * 0.80, fzQ * 1.45);
+
+    const autorY = Math.min(qY + nL * fzQ * 1.45 + 80, 1540);
+    const ini = (bg?.texto || 'CL').substring(0, 2).toUpperCase();
+    ctx.fillStyle = ac;
+    ctx.beginPath(); ctx.roundRect(W * 0.14, autorY - 42, 82, 82, 8); ctx.fill();
+    ctx.font = '900 28px Montserrat,sans-serif'; ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center'; ctx.fillText(ini, W * 0.14 + 41, autorY + 10);
+
+    ctx.textAlign = 'left';
+    ctx.font = '700 30px Montserrat,sans-serif'; ctx.fillStyle = ac;
+    ctx.fillText(b1?.texto || '@usuario', W * 0.14 + 100, autorY - 6);
+    ctx.font = '400 22px Montserrat,sans-serif'; ctx.fillStyle = '#555';
+    ctx.fillText('Cliente verificado', W * 0.14 + 100, autorY + 26);
+}
+
+// ══════════════════════════════════════════════
+// TESTIMONIO — POST LAYOUTS (1080 × 1350)
+// ══════════════════════════════════════════════
+
+function fvDrawPT1(ctx, W, H) {
+    const ac = fvGetAccent();
+    const sl = fvGetSliders(H);
+    const tx = FV.elementos.find(e => e.id === 'titulo');
+    const bg = FV.elementos.find(e => e.id === 'badge');
+    const b1 = FV.elementos.find(e => e.id === 'bullet1');
+
+    ctx.fillStyle = '#0d0d0d'; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = ac; ctx.fillRect(0, 0, W, 6); ctx.fillRect(0, H - 6, W, 6);
+
+    ctx.font = '900 36px Montserrat,sans-serif'; ctx.fillStyle = ac;
+    ctx.textAlign = 'center'; ctx.fillText('TODO @L DÍA', W * 0.5, 80);
+    ctx.font = '500 20px Montserrat,sans-serif'; ctx.fillStyle = '#444';
+    ctx.fillText('AUTOS SELECCIONADOS', W * 0.5, 108);
+
+    const qY = tx?.hasMoved ? tx.y : sl.tituloY;
+    ctx.font = '900 260px Georgia,serif'; ctx.fillStyle = ac;
+    ctx.textAlign = 'left'; ctx.globalAlpha = 0.12;
+    ctx.fillText('"', W * 0.04, qY - 30); ctx.globalAlpha = 1;
+
+    ctx.fillStyle = ac; ctx.fillRect(W * 0.07, qY - 16, 6, 400);
+
+    const fzQ = tx?.hasResized ? tx.fontSize : 46;
+    ctx.font = `italic 400 ${fzQ}px Montserrat,sans-serif`;
+    ctx.fillStyle = tx?.color || '#ffffff'; ctx.textAlign = 'left';
+    const nL = fvWrapText(ctx, tx?.texto || '', W * 0.12, qY, W * 0.80, fzQ * 1.45);
+
+    // Estrellas
+    const estY = Math.min(qY + nL * fzQ * 1.45 + 50, H - 180);
+    for (let i = 0; i < 5; i++) {
+        ctx.fillStyle = ac; ctx.beginPath();
+        const cx = W * 0.12 + i * 44, cy = estY;
+        for (let p = 0; p < 5; p++) {
+            const a = (p * 4 * Math.PI / 5) - Math.PI / 2;
+            const r = p % 2 === 0 ? 18 : 8;
+            p === 0 ? ctx.moveTo(cx + r * Math.cos(a), cy + r * Math.sin(a))
+                    : ctx.lineTo(cx + r * Math.cos(a), cy + r * Math.sin(a));
+        }
+        ctx.closePath(); ctx.fill();
+    }
+
+    const autorY = Math.min(estY + 68, H - 80);
+    const ini = (bg?.texto || 'CL').substring(0, 2).toUpperCase();
+    ctx.fillStyle = ac; ctx.beginPath();
+    ctx.arc(W * 0.12 + 36, autorY, 38, 0, Math.PI * 2); ctx.fill();
+    ctx.font = '900 22px Montserrat,sans-serif'; ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center'; ctx.fillText(ini, W * 0.12 + 36, autorY + 8);
+
+    ctx.textAlign = 'left';
+    ctx.font = '500 26px Montserrat,sans-serif'; ctx.fillStyle = '#fff';
+    ctx.fillText(b1?.texto || '@usuario', W * 0.12 + 88, autorY - 2);
+    ctx.font = '500 18px Montserrat,sans-serif'; ctx.fillStyle = '#555';
+    ctx.fillText('Cliente verificado', W * 0.12 + 88, autorY + 24);
+}
+
+function fvDrawPT2(ctx, W, H) {
+    const ac = fvGetAccent();
+    const sl = fvGetSliders(H);
+    const tx = FV.elementos.find(e => e.id === 'titulo');
+    const bg = FV.elementos.find(e => e.id === 'badge');
+    const b1 = FV.elementos.find(e => e.id === 'bullet1');
+
+    ctx.fillStyle = ac; ctx.fillRect(0, 0, W, H);
+
+    ctx.fillStyle = '#111';
+    ctx.beginPath(); ctx.roundRect(W * 0.05, 120, W * 0.9, H - 200, 14); ctx.fill();
+
+    ctx.font = '900 34px Montserrat,sans-serif'; ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center'; ctx.fillText('TODO @L DÍA', W * 0.5, 80);
+
+    ctx.font = '900 90px Georgia,serif'; ctx.fillStyle = ac;
+    ctx.textAlign = 'left'; ctx.fillText('"', W * 0.10, 240);
+
+    const qY = tx?.hasMoved ? tx.y : sl.tituloY;
+    const fzQ = tx?.hasResized ? tx.fontSize : 44;
+    ctx.font = `italic 400 ${fzQ}px Montserrat,sans-serif`;
+    ctx.fillStyle = '#fff'; ctx.textAlign = 'left';
+    const nL = fvWrapText(ctx, tx?.texto || '', W * 0.10, qY, W * 0.80, fzQ * 1.45);
+
+    const sepY = Math.min(qY + nL * fzQ * 1.45 + 36, H - 220);
+    ctx.fillStyle = ac; ctx.fillRect(W * 0.10, sepY, W * 0.12, 4);
+
+    const autorY = Math.min(sepY + 60, H - 140);
+    const ini = (bg?.texto || 'CL').substring(0, 2).toUpperCase();
+    ctx.fillStyle = ac; ctx.beginPath();
+    ctx.arc(W * 0.10 + 34, autorY, 38, 0, Math.PI * 2); ctx.fill();
+    ctx.font = '900 22px Montserrat,sans-serif'; ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center'; ctx.fillText(ini, W * 0.10 + 34, autorY + 8);
+
+    ctx.textAlign = 'left';
+    ctx.font = '500 26px Montserrat,sans-serif'; ctx.fillStyle = '#fff';
+    ctx.fillText(b1?.texto || '@usuario', W * 0.10 + 86, autorY - 2);
+    ctx.font = '500 18px Montserrat,sans-serif'; ctx.fillStyle = '#666';
+    ctx.fillText('Cliente verificado', W * 0.10 + 86, autorY + 24);
+}
+
+function fvDrawPT3(ctx, W, H) {
+    const ac = fvGetAccent();
+    const sl = fvGetSliders(H);
+    const tx = FV.elementos.find(e => e.id === 'titulo');
+    const bg = FV.elementos.find(e => e.id === 'badge');
+    const b1 = FV.elementos.find(e => e.id === 'bullet1');
+
+    ctx.fillStyle = '#f5f5f5'; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = ac; ctx.fillRect(0, 0, 10, H);
+
+    ctx.font = '900 34px Montserrat,sans-serif'; ctx.fillStyle = ac;
+    ctx.textAlign = 'left'; ctx.fillText('TODO @L DÍA', W * 0.05, 80);
+    ctx.fillStyle = '#bbb'; ctx.fillRect(W * 0.05, 96, W * 0.9, 1);
+
+    ctx.font = '900 140px Georgia,serif'; ctx.fillStyle = ac;
+    ctx.textAlign = 'left'; ctx.globalAlpha = 0.15;
+    ctx.fillText('"', W * 0.04, sl.tituloY - 10); ctx.globalAlpha = 1;
+
+    const qY = tx?.hasMoved ? tx.y : sl.tituloY;
+    const fzQ = tx?.hasResized ? tx.fontSize : 48;
+    ctx.font = `italic 400 ${fzQ}px Montserrat,sans-serif`;
+    ctx.fillStyle = '#222'; ctx.textAlign = 'left';
+    const nL = fvWrapText(ctx, tx?.texto || '', W * 0.06, qY, W * 0.88, fzQ * 1.45);
+
+    ctx.fillStyle = '#ddd';
+    ctx.fillRect(W * 0.06, Math.min(qY + nL * fzQ * 1.45 + 30, H - 180), W * 0.88, 1);
+
+    const autorY = Math.min(qY + nL * fzQ * 1.45 + 90, H - 80);
+    const ini = (bg?.texto || 'CL').substring(0, 2).toUpperCase();
+    ctx.fillStyle = ac;
+    ctx.beginPath(); ctx.roundRect(W * 0.06, autorY - 38, 76, 76, 6); ctx.fill();
+    ctx.font = '900 24px Montserrat,sans-serif'; ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center'; ctx.fillText(ini, W * 0.06 + 38, autorY + 8);
+
+    ctx.textAlign = 'left';
+    ctx.font = '700 26px Montserrat,sans-serif'; ctx.fillStyle = ac;
+    ctx.fillText(b1?.texto || '@usuario', W * 0.06 + 94, autorY - 4);
+    ctx.font = '400 18px Montserrat,sans-serif'; ctx.fillStyle = '#999';
+    ctx.fillText('Cliente verificado', W * 0.06 + 94, autorY + 22);
 }
 
 // ══════════════════════════════════════════════

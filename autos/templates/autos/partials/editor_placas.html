@@ -1,0 +1,210 @@
+<!-- ════════════════════ PANEL PLACAS ════════════════════ -->
+<div id="panel-placas" style="display:none; background:#0d0d0d; height:100vh; overflow:hidden;">
+    <div style="display:grid; grid-template-columns:240px 1fr 320px; height:100vh; overflow:hidden;">
+
+        <div style="background:#111; border-right:1px solid #1e1e1e; overflow-y:auto; display:flex; flex-direction:column; gap:0;">
+
+            <div style="padding:14px 16px 10px; border-bottom:1px solid #1e1e1e;">
+                <div style="font-size:8px; color:#E31E24; font-weight:900; letter-spacing:3px; text-transform:uppercase; margin-bottom:2px;">Marketing Studio</div>
+                <div style="font-size:14px; font-weight:900; color:#fff;">Editor de Placas</div>
+            </div>
+
+            <div style="display:flex; border-bottom:1px solid #1e1e1e; flex-shrink:0;">
+                <button onclick="mktSwitchEditor('post')" id="mkt-tab-post"
+                    style="flex:1; padding:10px; font-size:9px; font-weight:900; text-transform:uppercase;
+                           letter-spacing:1px; cursor:pointer; background:transparent; border:none;
+                           border-bottom:2px solid #E31E24; color:#E31E24; font-family:'Montserrat',sans-serif;">
+                    🖼️ POST
+                </button>
+                <button onclick="mktSwitchEditor('story')" id="mkt-tab-story"
+                    style="flex:1; padding:10px; font-size:9px; font-weight:900; text-transform:uppercase;
+                           letter-spacing:1px; cursor:pointer; background:transparent; border:none;
+                           border-bottom:2px solid transparent; color:#444; font-family:'Montserrat',sans-serif;">
+                    📱 STORY
+                </button>
+            </div>
+
+            <div id="mkt-layouts-post-wrap" style="display:block; padding:12px 16px; border-bottom:1px solid #1e1e1e; flex-shrink:0;">
+                <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Estructura del Post</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:5px;" id="mkt-layouts-post"></div>
+            </div>
+
+            <div id="mkt-layouts-wrap" style="display:none; padding:12px 16px; border-bottom:1px solid #1e1e1e; flex-shrink:0;">
+                <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Estructura del Story</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:5px;" id="mkt-layouts"></div>
+            </div>
+
+            <div id="mkt-modo-wrap" style="display:none; border-bottom:1px solid #1e1e1e; flex-shrink:0;">
+                <div style="display:flex;">
+                    <button onclick="mktSetModo('completo')" id="mkt-modo-completo"
+                        style="flex:1; padding:9px; font-size:9px; font-weight:900; text-transform:uppercase;
+                            letter-spacing:1px; cursor:pointer; background:transparent; border:none;
+                            border-bottom:2px solid #E31E24; color:#E31E24; font-family:'Montserrat',sans-serif;">
+                        📝 Completo
+                    </button>
+                    <button onclick="mktSetModo('frase')" id="mkt-modo-frase"
+                        style="flex:1; padding:9px; font-size:9px; font-weight:900; text-transform:uppercase;
+                            letter-spacing:1px; cursor:pointer; background:transparent; border:none;
+                            border-bottom:2px solid transparent; color:#444; font-family:'Montserrat',sans-serif;">
+                        ⚡ Frase
+                    </button>
+                </div>
+            </div>
+
+            <div style="padding:12px 16px; border-bottom:1px solid #1e1e1e; flex-shrink:0;">
+                <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Tipo de placa</div>
+                <div style="display:flex; flex-direction:column; gap:4px;" id="mkt-tipos"></div>
+            </div>
+
+            <div style="padding:12px 16px; flex-shrink:0;">
+                <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Tipografía</div>
+                <select id="mkt-font" onchange="mktDraw()"
+                    style="width:100%; padding:8px 10px; background:#1a1a1a; border:1px solid #2a2a2a;
+                           border-radius:7px; color:#fff; font-size:11px; box-sizing:border-box;">
+                    <option value="Montserrat, sans-serif">Montserrat</option>
+                    <option value="Impact, sans-serif">Impact</option>
+                    <option value="'Bebas Neue', sans-serif">Bebas Neue</option>
+                    <option value="Oswald, sans-serif">Oswald</option>
+                    <option value="Anton, sans-serif">Anton</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; background:#0a0a0a; padding:20px;">
+            
+            <div style="display:flex; gap:10px; width:100%; max-width:400px; margin-bottom:10px;">
+                <label id="mkt-foto-label" style="flex:1; padding:10px; border-radius:8px;
+                    background:#1a1a1a; border:1px dashed #333; color:#555; font-size:10px;
+                    font-weight:700; cursor:pointer; text-align:center; box-sizing:border-box;">
+                    <input type="file" id="mkt-foto-input" style="display:none;" accept="image/*" onchange="mktCargarFoto(this)">
+                    📷 Foto Fondo
+                </label>
+                <label id="mkt-foto2-label-preview" style="display:none; flex:1; padding:10px; border-radius:8px;
+                    background:#1a1a1a; border:1px dashed #E31E24; color:#E31E24; font-size:10px;
+                    font-weight:700; cursor:pointer; text-align:center; box-sizing:border-box;">
+                    <input type="file" id="mkt-foto2-input-preview" style="display:none;" accept="image/*" onchange="mktCargarFoto2(this)">
+                    📷 Foto 2
+                </label>
+            </div>
+
+            <div id="mkt-canvas-wrap" style="position:relative; box-shadow:0 20px 60px rgba(0,0,0,0.8); border:1px solid #222; border-radius:4px; overflow:hidden; touch-action:none; max-width:100%; max-height:calc(100vh - 180px);">
+                <canvas id="mkt-canvas" style="display:block; width:320px; height:400px;"></canvas>
+
+                <div id="mkt-toolbar" style="display:none; position:absolute; top:10px; left:50%; transform:translateX(-50%); background:#1a1a1a; border:1px solid #333; border-radius:8px; padding:4px 8px; gap:6px; align-items:center; z-index:10;">
+                    <button onclick="mktToolbarFontSize(-2)" style="background:transparent; border:none; color:#fff; font-size:14px; cursor:pointer;">A-</button>
+                    <button onclick="mktToolbarFontSize(2)" style="background:transparent; border:none; color:#fff; font-size:14px; cursor:pointer;">A+</button>
+                    <div style="width:1px; height:16px; background:#333;"></div>
+                    <button onclick="mktDeseleccionar()" style="background:transparent; border:none; color:#555; font-size:12px; cursor:pointer;">✕</button>
+                </div>
+
+                <textarea id="mkt-texto-input" style="display:none; position:absolute; background:rgba(0,0,0,0.85); border:1px solid #E31E24; border-radius:6px; color:#fff; font-family:'Montserrat',sans-serif; font-size:13px; font-weight:900; padding:6px 10px; resize:none; outline:none; z-index:20; min-width:120px;" oninput="mktTextoInputChange()" onblur="mktTextoInputBlur()"></textarea>
+            </div>
+
+            <div style="display:flex; flex-direction:column; align-items:center; gap:6px; margin-top:10px;">
+                <div style="font-size:8px; color:#333; font-weight:900; letter-spacing:3px; text-transform:uppercase;" id="mkt-preview-label">
+                    POST 4:5 · 1080×1350px
+                </div>
+                <button onclick="mktDescargar()"
+                    style="padding:10px 24px; border-radius:8px; border:none;
+                           background:linear-gradient(135deg,#E31E24,#b01018);
+                           color:#fff; font-size:10px; font-weight:900; cursor:pointer;
+                           letter-spacing:1px; text-transform:uppercase;
+                           font-family:'Montserrat',sans-serif;">
+                    ⬇️ Descargar HD
+                </button>
+            </div>
+        </div>
+
+        <div style="overflow-y:auto; padding:20px 24px; background:#111; border-left:1px solid #1e1e1e; display:flex; flex-direction:column; gap:16px;">
+
+            <div id="mkt-campos-texto">
+                <div style="background:#1a1a1a; border-radius:10px; padding:14px; border:1px solid #222; margin-bottom:16px;">
+                    <div style="font-size:8px; color:#E31E24; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;">Título principal</div>
+                    <textarea id="mkt-titulo" oninput="mktDraw()"
+                        style="width:100%; padding:10px 12px; background:#111; border:1px solid #2a2a2a;
+                               border-radius:8px; color:#fff; font-size:12px; font-weight:700;
+                               resize:vertical; min-height:64px; box-sizing:border-box;
+                               font-family:'Montserrat',sans-serif; margin-bottom:12px;"></textarea>
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        <div>
+                            <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
+                                <span>Tamaño</span><span style="color:#E31E24;" id="mkt-val-titleSize">88</span>
+                            </div>
+                            <input type="range" min="30" max="160" value="88" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('titleSize', this.value, false)">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background:#1a1a1a; border-radius:10px; padding:14px; border:1px solid #222; margin-bottom:16px;">
+                    <div style="font-size:8px; color:#E31E24; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;">Subtexto</div>
+                    <textarea id="mkt-subtexto" oninput="mktDraw()"
+                        style="width:100%; padding:10px 12px; background:#111; border:1px solid #2a2a2a;
+                               border-radius:8px; color:#fff; font-size:12px;
+                               resize:vertical; min-height:72px; box-sizing:border-box;
+                               font-family:'Montserrat',sans-serif; margin-bottom:12px;"></textarea>
+                </div>
+
+                <div style="background:#1a1a1a; border-radius:10px; padding:14px; border:1px solid #222; margin-bottom:16px;">
+                    <div style="font-size:8px; color:#E31E24; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;">CTA / WhatsApp</div>
+                    <input id="mkt-cta" oninput="mktDraw()" type="text"
+                        style="width:100%; padding:10px 12px; background:#111; border:1px solid #2a2a2a;
+                               border-radius:8px; color:#E31E24; font-size:12px; font-weight:700;
+                               box-sizing:border-box; font-family:'Montserrat',sans-serif; margin-bottom:12px;">
+                </div>
+
+                <div id="mkt-frase-wrap" style="display:none; background:#1a1a1a; border-radius:10px; padding:14px; border:1px solid #222; margin-bottom:16px;">
+                    <div style="font-size:8px; color:#E31E24; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;">Frase impactante</div>
+                    <textarea id="mkt-frase" oninput="mktDraw()"
+                        style="width:100%; padding:10px 12px; background:#111; border:1px solid #2a2a2a;
+                               border-radius:8px; color:#fff; font-size:13px; font-weight:700;
+                               resize:vertical; min-height:80px; box-sizing:border-box;
+                               font-family:'Montserrat',sans-serif;"></textarea>
+                </div>
+                <div id="mkt-urgencia-wrap" style="display:none; background:#1a1a1a; border-radius:10px; padding:14px; border:1px solid #222; margin-bottom:16px;">
+                    <div style="font-size:8px; color:#E31E24; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;">Texto de urgencia</div>
+                    <input id="mkt-urgencia" oninput="mktConfig.urgenciaTexto=this.value; mktDraw();" type="text"
+                        value="OPORTUNIDAD ÚNICA"
+                        style="width:100%; padding:10px 12px; background:#111; border:1px solid #2a2a2a;
+                               border-radius:8px; color:#fff; font-size:12px; font-weight:700;
+                               box-sizing:border-box; font-family:'Montserrat',sans-serif;">
+                </div>
+            </div>
+
+            <div style="background:#1a1a1a; border-radius:10px; padding:14px; border:1px solid #222;">
+                <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px;">Ajustes de imagen</div>
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <div>
+                        <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
+                            <span>Posición foto 1</span><span style="color:#E31E24;" id="mkt-val-fotoOffsetY">0</span>
+                        </div>
+                        <input type="range" min="-50" max="50" value="0" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('fotoOffsetY', this.value, false)">
+                    </div>
+                    <div id="mkt-foto2-offset-wrap" style="display:none;">
+                        <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
+                            <span>Posición foto 2</span><span style="color:#E31E24;" id="mkt-val-foto2OffsetY">0</span>
+                        </div>
+                        <input type="range" min="-50" max="50" value="0" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('foto2OffsetY', this.value, false)">
+                    </div>
+                </div>
+            </div>
+
+            <div style="background:#1a1a1a; border-radius:10px; padding:14px; border:1px solid #222;">
+                <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px;">Ajustes de marca</div>
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <div>
+                        <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
+                            <span>Opacidad fondo</span><span style="color:#E31E24;" id="mkt-val-gradientOpacity">62</span>
+                        </div>
+                        <input type="range" min="0" max="100" value="62" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('gradientOpacity', this.value, true)">
+                    </div>
+                    <div>
+                        <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; display:flex; justify-content:space-between;">
+                            <span>Posición branding</span><span style="color:#E31E24;" id="mkt-val-brandingY">91</span>
+                        </div>
+                        <input type="range" min="1" max="99" value="91" step="1" style="width:100%; accent-color:#E31E24;" oninput="mktUpdateSlider('brandingY', this.value, false)">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
