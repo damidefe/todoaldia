@@ -52,6 +52,8 @@ let mktConfig = {
     padding: 110,
     fotoOffsetY: 0,
     foto2OffsetY: 0,
+    testLayout: 1,
+    testEstrellas: true,
 };
 let mktDrawTimer = null;
 
@@ -287,24 +289,43 @@ function mktCambiarTipo(id) {
 
 function mktSwitchEditor(tipo) {
     mktConfig.editor = tipo;
-    const isPost = tipo === 'post';
+    const isPost       = tipo === 'post';
+    const isStory      = tipo === 'story';
+    const isTestimonio = tipo === 'testimonio';
 
-    // Actualizar tabs
-    document.getElementById('mkt-tab-post').style.borderBottomColor  = isPost ? '#E31E24' : 'transparent';
-    document.getElementById('mkt-tab-post').style.color              = isPost ? '#E31E24' : '#444';
-    document.getElementById('mkt-tab-story').style.borderBottomColor = isPost ? 'transparent' : '#E31E24';
-    document.getElementById('mkt-tab-story').style.color             = isPost ? '#444' : '#E31E24';
+    // Resaltar el tab activo
+    ['post','story','testimonio'].forEach(t => {
+        const tab = document.getElementById(`mkt-tab-${t}`);
+        if (!tab) return;
+        const activo = t === tipo;
+        tab.style.borderBottomColor = activo ? '#E31E24' : 'transparent';
+        tab.style.color             = activo ? '#E31E24' : '#444';
+    });
 
     // Mostrar el set de layouts correcto
-    document.getElementById('mkt-layouts-wrap').style.display      = isPost ? 'none' : 'block';
-    document.getElementById('mkt-layouts-post-wrap').style.display = isPost ? 'block' : 'none';
-    document.getElementById('mkt-modo-wrap').style.display         = isPost ? 'none' : 'block';
+    document.getElementById('mkt-layouts-post-wrap').style.display = isPost  ? 'block' : 'none';
+    document.getElementById('mkt-layouts-wrap').style.display      = isStory ? 'block' : 'none';
+    const tWrap = document.getElementById('mkt-layouts-testimonio-wrap');
+    if (tWrap) tWrap.style.display = isTestimonio ? 'block' : 'none';
 
-    // Resetear layout al 1 cuando cambia de modo
-    mktConfig.layout = 1;
-    mktSetLayout(1);
+    // Modo Frase/Completo solo en STORY
+    document.getElementById('mkt-modo-wrap').style.display = isStory ? 'block' : 'none';
 
-    // Ajustar canvas
+    // Paneles del lado derecho
+    document.getElementById('mkt-campos-texto').style.display = isTestimonio ? 'none' : 'block';
+    const panelTest = document.getElementById('mkt-campos-testimonio');
+    if (panelTest) panelTest.style.display = isTestimonio ? 'block' : 'none';
+
+    // Resetear layout (testimonio tiene su propio sistema)
+    if (!isTestimonio) {
+        mktConfig.layout = 1;
+        mktSetLayout(1);
+    } else {
+        mktConfig.testLayout = 1;
+        mktSetLayoutTestimonio(1);
+    }
+
+    // Ajustar tamaño del canvas (testimonio usa el mismo que STORY)
     const canvas = document.getElementById('mkt-canvas');
     if (isPost) {
         canvas.style.width  = '320px';
@@ -536,6 +557,11 @@ function mktDraw() {
         ctx.scale(DPR, DPR);
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
+
+        if (mktConfig.editor === 'testimonio') {
+            mktDrawTestimonio(ctx, W, H);
+            return;
+        }
 
         if (!isPost) {
             mktDrawStory(ctx, W, H, canvas);
@@ -1069,4 +1095,267 @@ function mktDescargar() {
         a.click();
         URL.revokeObjectURL(url);
     }, 'image/png');
+}
+
+// ══════════════════════════════════════════════
+// EDITOR DE TESTIMONIOS
+// ══════════════════════════════════════════════
+
+function mktSetLayoutTestimonio(n) {
+    mktConfig.testLayout = n;
+    [1, 2, 4, 5].forEach(id => {
+        const btn = document.getElementById(`mkt-tlayout-${id}`);
+        if (!btn) return;
+        const activo = id === n;
+        btn.style.borderColor = activo ? '#E31E24' : '#222';
+        btn.style.background  = activo ? 'rgba(227,30,36,0.12)' : '#181818';
+        btn.style.color       = activo ? '#E31E24' : '#555';
+    });
+    mktDraw();
+}
+
+function mktDrawTestimonio(ctx, W, H) {
+    const font      = 'Montserrat, sans-serif';
+    const rojo      = '#E31E24';
+    const layout    = mktConfig.testLayout || 1;
+    const estrellas = mktConfig.testEstrellas !== false;
+
+    const textoRaw  = (document.getElementById('mkt-test-texto')      || {}).value || 'Excelente atención.';
+    const fraseRoja = (document.getElementById('mkt-test-frase')      || {}).value || '100% recomendable.';
+    const usuario   = (document.getElementById('mkt-test-usuario')    || {}).value || '@usuario';
+    const iniciales = ((document.getElementById('mkt-test-iniciales') || {}).value || 'CL').toUpperCase().slice(0, 3);
+    const etiqueta  = (document.getElementById('mkt-test-etiqueta')   || {}).value || 'Cliente verificado';
+
+    // Safe zones de Instagram Story
+    const safeTop    = H * 0.085;
+    const safeBottom = H * 0.87;
+    const safeH      = safeBottom - safeTop;
+
+    function wrapText(text, x, y, maxW, lineH, align) {
+        ctx.textAlign = align || 'left';
+        const lineas = text.split('\n');
+        let cy = y;
+        lineas.forEach(linea => {
+            const words = linea.split(' ');
+            let line = '';
+            words.forEach((word, i) => {
+                const test = line + (line ? ' ' : '') + word;
+                if (ctx.measureText(test).width > maxW && line) {
+                    ctx.fillText(line, x, cy);
+                    line = word;
+                    cy += lineH;
+                } else {
+                    line = test;
+                }
+                if (i === words.length - 1) {
+                    ctx.fillText(line, x, cy);
+                    cy += lineH;
+                }
+            });
+        });
+        return cy;
+    }
+
+    function drawComillas(x, y, size) {
+        ctx.font = `900 ${size}px Georgia, serif`;
+        ctx.fillStyle = rojo;
+        ctx.globalAlpha = 0.85;
+        ctx.textAlign = 'left';
+        ctx.fillText('"', x, y);
+        ctx.globalAlpha = 1;
+    }
+
+    function drawAvatar(cx, cy, r, conBorde) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.fillStyle = conBorde ? '#1a1a1a' : rojo;
+        ctx.fill();
+        if (conBorde) {
+            ctx.strokeStyle = rojo;
+            ctx.lineWidth = conBorde;
+            ctx.stroke();
+        }
+        ctx.font = `900 ${Math.round(r * 0.65)}px ${font}`;
+        ctx.fillStyle = conBorde ? rojo : '#fff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(iniciales, cx, cy);
+        ctx.textBaseline = 'alphabetic';
+    }
+
+    function drawEstrellas(x, y, size, align) {
+        if (!estrellas) return;
+        ctx.font = `${size}px Arial, sans-serif`;
+        ctx.fillStyle = rojo;
+        ctx.textAlign = align || 'left';
+        ctx.fillText('★ ★ ★ ★ ★', x, y);
+    }
+
+    function drawLogo(centerX, y) {
+        ctx.font = `900 42px ${font}`;
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.fillText('TODO @L DÍA', centerX, y);
+        ctx.font = `700 22px ${font}`;
+        ctx.fillStyle = rojo;
+        ctx.fillText('AUTOS SELECCIONADOS · CABALLITO', centerX, y + 45);
+    }
+
+    function drawLineaRoja(y) {
+        ctx.fillStyle = rojo;
+        ctx.fillRect(0, y, W, 6);
+    }
+
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(0, 0, W, H);
+    drawLineaRoja(safeTop);
+    drawLineaRoja(safeBottom - 6);
+
+    // LAYOUT 1 — CLÁSICO
+    if (layout === 1) {
+        const padX = W * 0.07;
+        const textW = W - padX * 2;
+
+        drawEstrellas(padX, safeTop + safeH * 0.10, 50, 'left');
+        drawComillas(padX - 20, safeTop + safeH * 0.28, 180);
+
+        ctx.font = `700 52px ${font}`;
+        ctx.fillStyle = '#fff';
+        ctx.textBaseline = 'top';
+        const finTexto = wrapText(textoRaw, padX, safeTop + safeH * 0.30, textW, 70, 'left');
+
+        ctx.font = `700 52px ${font}`;
+        ctx.fillStyle = rojo;
+        ctx.fillText(fraseRoja, padX, finTexto + 10);
+
+        ctx.fillStyle = rojo;
+        ctx.fillRect(padX, safeTop + safeH * 0.68, W * 0.15, 4);
+
+        const avatarY = safeTop + safeH * 0.78;
+        drawAvatar(padX + 55, avatarY, 55, 4);
+        ctx.font = `700 38px ${font}`;
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillText(usuario, padX + 130, avatarY - 8);
+        ctx.font = `400 28px ${font}`;
+        ctx.fillStyle = '#666';
+        ctx.fillText(etiqueta, padX + 130, avatarY + 32);
+
+        drawLogo(W * 0.5, safeTop + safeH * 0.92);
+
+    // LAYOUT 2 — CENTRADO
+    } else if (layout === 2) {
+        const padX = W * 0.10;
+        const textW = W - padX * 2;
+        const marcoY = safeTop + safeH * 0.04;
+        const marcoH = safeH * 0.82;
+
+        ctx.strokeStyle = rojo;
+        ctx.lineWidth = 4;
+        ctx.strokeRect(padX - 20, marcoY, textW + 40, marcoH);
+
+        drawEstrellas(W * 0.5, marcoY + safeH * 0.08, 52, 'center');
+
+        ctx.font = `900 150px Georgia, serif`;
+        ctx.fillStyle = rojo;
+        ctx.globalAlpha = 0.55;
+        ctx.textAlign = 'center';
+        ctx.fillText('"', W * 0.5, marcoY + safeH * 0.22);
+        ctx.globalAlpha = 1;
+
+        ctx.font = `700 46px ${font}`;
+        ctx.fillStyle = '#fff';
+        ctx.textBaseline = 'top';
+        const finTexto2 = wrapText(textoRaw, W * 0.5, marcoY + safeH * 0.30, textW, 62, 'center');
+
+        ctx.font = `700 46px ${font}`;
+        ctx.fillStyle = rojo;
+        ctx.fillText(fraseRoja, W * 0.5, finTexto2 + 10);
+
+        const avY2 = marcoY + safeH * 0.62;
+        drawAvatar(W * 0.5, avY2, 55, 0);
+        ctx.font = `700 36px ${font}`;
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillText(usuario, W * 0.5, avY2 + 90);
+        ctx.font = `400 26px ${font}`;
+        ctx.fillStyle = '#666';
+        ctx.fillText(etiqueta, W * 0.5, avY2 + 128);
+
+        drawLogo(W * 0.5, marcoY + safeH * 0.84);
+
+    // LAYOUT 4 — AVATAR PROTAGONISTA
+    } else if (layout === 4) {
+        const padX = W * 0.07;
+        const textW = W - padX * 2;
+
+        ctx.fillStyle = rojo;
+        ctx.fillRect(0, safeTop, 14, safeH);
+
+        const avY4 = safeTop + safeH * 0.18;
+        drawAvatar(W * 0.5, avY4, 110, 6);
+
+        ctx.font = `700 42px ${font}`;
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillText(usuario, W * 0.5, avY4 + 150);
+        ctx.font = `400 28px ${font}`;
+        ctx.fillStyle = '#666';
+        ctx.fillText(etiqueta, W * 0.5, avY4 + 190);
+
+        ctx.fillStyle = '#1e1e1e';
+        ctx.fillRect(padX, safeTop + safeH * 0.46, textW, 2);
+
+        drawComillas(padX, safeTop + safeH * 0.50, 130);
+        ctx.font = `700 46px ${font}`;
+        ctx.fillStyle = '#fff';
+        ctx.textBaseline = 'top';
+        const finTexto4 = wrapText(textoRaw, padX, safeTop + safeH * 0.55, textW, 62, 'left');
+
+        ctx.font = `700 46px ${font}`;
+        ctx.fillStyle = rojo;
+        ctx.fillText(fraseRoja, padX, finTexto4 + 10);
+
+        drawEstrellas(W * 0.5, safeTop + safeH * 0.86, 48, 'center');
+        drawLogo(W * 0.5, safeTop + safeH * 0.93);
+
+    // LAYOUT 5 — FUSIÓN
+    } else if (layout === 5) {
+        const padX = W * 0.07;
+        const textW = W - padX * 2;
+
+        drawEstrellas(W * 0.5, safeTop + safeH * 0.08, 50, 'center');
+        drawComillas(padX - 20, safeTop + safeH * 0.22, 180);
+
+        ctx.font = `700 50px ${font}`;
+        ctx.fillStyle = '#fff';
+        ctx.textBaseline = 'top';
+        const finTexto5 = wrapText(textoRaw, padX, safeTop + safeH * 0.26, textW, 66, 'left');
+
+        ctx.font = `700 50px ${font}`;
+        ctx.fillStyle = rojo;
+        ctx.fillText(fraseRoja, padX, finTexto5 + 10);
+
+        ctx.fillStyle = '#1e1e1e';
+        ctx.fillRect(padX, safeTop + safeH * 0.66, textW, 2);
+
+        const avY5 = safeTop + safeH * 0.76;
+        drawAvatar(padX + 50, avY5, 50, 5);
+        ctx.font = `700 36px ${font}`;
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillText(usuario, padX + 120, avY5 - 8);
+        ctx.font = `400 26px ${font}`;
+        ctx.fillStyle = '#666';
+        ctx.fillText(etiqueta, padX + 120, avY5 + 30);
+
+        drawLogo(W * 0.5, safeTop + safeH * 0.92);
+    }
+
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
 }

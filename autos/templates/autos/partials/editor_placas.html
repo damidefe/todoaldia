@@ -22,6 +22,13 @@
                            border-bottom:2px solid transparent; color:#444; font-family:'Montserrat',sans-serif;">
                     📱 STORY
                 </button>
+
+                <button onclick="mktSwitchEditor('testimonio')" id="mkt-tab-testimonio"
+                    style="flex:1; padding:10px; font-size:9px; font-weight:900; text-transform:uppercase;
+                           letter-spacing:1px; cursor:pointer; background:transparent; border:none;
+                           border-bottom:2px solid transparent; color:#444; font-family:'Montserrat',sans-serif;">
+                    💬 TESTIMONIOS
+                </button>
             </div>
 
             <div id="mkt-layouts-post-wrap" style="display:block; padding:12px 16px; border-bottom:1px solid #1e1e1e; flex-shrink:0;">
@@ -32,6 +39,36 @@
             <div id="mkt-layouts-wrap" style="display:none; padding:12px 16px; border-bottom:1px solid #1e1e1e; flex-shrink:0;">
                 <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Estructura del Story</div>
                 <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:5px;" id="mkt-layouts"></div>
+            </div>
+
+            <div id="mkt-layouts-testimonio-wrap" style="display:none; padding:12px 16px; border-bottom:1px solid #1e1e1e; flex-shrink:0;">
+                <div style="font-size:8px; color:#555; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Layout del testimonio</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
+                    <button onclick="mktSetLayoutTestimonio(1)" id="mkt-tlayout-1"
+                        style="padding:10px 4px; border-radius:7px; border:1px solid #E31E24;
+                               background:rgba(227,30,36,0.12); color:#E31E24; font-size:9px;
+                               font-weight:700; cursor:pointer; font-family:'Montserrat',sans-serif; line-height:1.4;">
+                        <div style="font-size:14px; margin-bottom:3px;">💬</div>1 — Clásico
+                    </button>
+                    <button onclick="mktSetLayoutTestimonio(2)" id="mkt-tlayout-2"
+                        style="padding:10px 4px; border-radius:7px; border:1px solid #222;
+                               background:#181818; color:#555; font-size:9px;
+                               font-weight:700; cursor:pointer; font-family:'Montserrat',sans-serif; line-height:1.4;">
+                        <div style="font-size:14px; margin-bottom:3px;">⊙</div>2 — Centrado
+                    </button>
+                    <button onclick="mktSetLayoutTestimonio(4)" id="mkt-tlayout-4"
+                        style="padding:10px 4px; border-radius:7px; border:1px solid #222;
+                               background:#181818; color:#555; font-size:9px;
+                               font-weight:700; cursor:pointer; font-family:'Montserrat',sans-serif; line-height:1.4;">
+                        <div style="font-size:14px; margin-bottom:3px;">👤</div>4 — Avatar grande
+                    </button>
+                    <button onclick="mktSetLayoutTestimonio(5)" id="mkt-tlayout-5"
+                        style="padding:10px 4px; border-radius:7px; border:1px solid #222;
+                               background:#181818; color:#555; font-size:9px;
+                               font-weight:700; cursor:pointer; font-family:'Montserrat',sans-serif; line-height:1.4;">
+                        <div style="font-size:14px; margin-bottom:3px;">✦</div>5 — Fusión
+                    </button>
+                </div>
             </div>
 
             <div id="mkt-modo-wrap" style="display:none; border-bottom:1px solid #1e1e1e; flex-shrink:0;">
@@ -160,14 +197,11 @@
                                resize:vertical; min-height:80px; box-sizing:border-box;
                                font-family:'Montserrat',sans-serif;"></textarea>
                 </div>
-                <div id="mkt-urgencia-wrap" style="display:none; background:#1a1a1a; border-radius:10px; padding:14px; border:1px solid #222; margin-bottom:16px;">
-                    <div style="font-size:8px; color:#E31E24; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;">Texto de urgencia</div>
-                    <input id="mkt-urgencia" oninput="mktConfig.urgenciaTexto=this.value; mktDraw();" type="text"
-                        value="OPORTUNIDAD ÚNICA"
-                        style="width:100%; padding:10px 12px; background:#111; border:1px solid #2a2a2a;
-                               border-radius:8px; color:#fff; font-size:12px; font-weight:700;
-                               box-sizing:border-box; font-family:'Montserrat',sans-serif;">
-                </div>
+                
+            </div>
+
+            <div id="mkt-campos-testimonio" style="display:none;">
+                <p>Panel de testimonios — pronto</p>
             </div>
 
             <div style="background:#1a1a1a; border-radius:10px; padding:14px; border:1px solid #222;">
